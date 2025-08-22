@@ -1,5 +1,13 @@
 // Core backend-agnostic chat models (minimal scaffolding)
 
+import 'contact.dart';
+import 'poll.dart';
+import 'thread.dart';
+
+export 'contact.dart';
+export 'poll.dart';
+export 'thread.dart';
+
 enum MessageKind {
   text,
   image,
@@ -9,6 +17,7 @@ enum MessageKind {
   location,
   contact,
   poll,
+  thread,
   system,
 }
 
@@ -104,6 +113,93 @@ class LocationAttachment {
       '${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}';
 }
 
+class PollAttachment {
+  final Poll poll;
+  final DateTime timestamp;
+
+  const PollAttachment({required this.poll, required this.timestamp});
+
+  /// Convert to regular Attachment for compatibility
+  Attachment toAttachment() {
+    return Attachment(
+      uri: 'poll:${poll.id}',
+      mimeType: 'application/poll',
+      sizeBytes: null,
+      thumbnailUri: null,
+    );
+  }
+
+  /// Convert to PollSummary for backward compatibility
+  PollSummary toPollSummary() {
+    return PollSummary(
+      question: poll.question,
+      options: [], // Skip options conversion to avoid type conflicts
+      totalVotes: poll.totalVotes,
+      createdAt: poll.createdAt,
+      expiresAt: poll.deadline,
+      isMultipleChoice: poll.type == PollType.multipleChoice,
+      isAnonymous: poll.isAnonymous,
+    );
+  }
+}
+
+class ContactAttachment {
+  final Contact contact;
+  final DateTime timestamp;
+
+  const ContactAttachment({required this.contact, required this.timestamp});
+
+  /// Convert to regular Attachment for compatibility
+  Attachment toAttachment() {
+    return Attachment(
+      uri: 'contact:${contact.id}',
+      mimeType: 'text/vcard',
+      sizeBytes: null,
+      thumbnailUri: contact.avatar,
+    );
+  }
+}
+
+class ThreadAttachment {
+  final Thread thread;
+  final DateTime timestamp;
+  final String? previewText;
+
+  const ThreadAttachment({
+    required this.thread,
+    required this.timestamp,
+    this.previewText,
+  });
+
+  /// Convert to regular Attachment for compatibility
+  Attachment toAttachment() {
+    return Attachment(
+      uri: 'thread:${thread.id}',
+      mimeType: 'application/thread',
+      sizeBytes: null,
+      thumbnailUri: null,
+    );
+  }
+
+  /// Get thread summary for display
+  String get threadSummary {
+    if (previewText?.isNotEmpty == true) {
+      return previewText!;
+    }
+
+    final messageCount = thread.messageCount;
+    final participantCount = thread.activeParticipantCount;
+
+    return 'Thread: ${thread.title} • $messageCount message${messageCount != 1 ? 's' : ''} • $participantCount participant${participantCount != 1 ? 's' : ''}';
+  }
+
+  /// Whether the thread is currently active
+  bool get isActive => thread.isActive;
+
+  /// Priority level for display styling
+  ThreadPriority get priority => thread.priority;
+}
+
 class Message {
   final MessageId id;
   final ChatUser author;
@@ -112,6 +208,9 @@ class Message {
   final List<Attachment> attachments;
   final LocationAttachment? location;
   final PollSummary? poll;
+  final PollAttachment? pollAttachment;
+  final ContactAttachment? contactAttachment;
+  final ThreadAttachment? threadAttachment;
   final DateTime createdAt;
   final DateTime? editedAt;
   final MessageId? replyTo;
@@ -127,6 +226,9 @@ class Message {
     this.attachments = const [],
     this.location,
     this.poll,
+    this.pollAttachment,
+    this.contactAttachment,
+    this.threadAttachment,
     required this.createdAt,
     this.editedAt,
     this.replyTo,
@@ -176,34 +278,6 @@ class TypingState {
 
   List<TypingUser> get activeTypingUsers =>
       typingUsers.where((user) => user.isActive).toList();
-}
-
-class PollOption {
-  final String id;
-  final String text;
-  final int voteCount;
-  final Set<ChatUserId> votedBy;
-
-  const PollOption({
-    required this.id,
-    required this.text,
-    this.voteCount = 0,
-    this.votedBy = const {},
-  });
-
-  PollOption copyWith({
-    String? id,
-    String? text,
-    int? voteCount,
-    Set<ChatUserId>? votedBy,
-  }) {
-    return PollOption(
-      id: id ?? this.id,
-      text: text ?? this.text,
-      voteCount: voteCount ?? this.voteCount,
-      votedBy: votedBy ?? this.votedBy,
-    );
-  }
 }
 
 class PollVote {
@@ -266,13 +340,13 @@ class PollSummary {
 
   /// Check if a user has voted on this poll
   bool hasUserVoted(ChatUserId userId) {
-    return options.any((option) => option.votedBy.contains(userId));
+    return options.any((option) => option.isVotedByCurrentUser);
   }
 
   /// Get the options that a user has voted for
   List<String> getUserVotes(ChatUserId userId) {
     return options
-        .where((option) => option.votedBy.contains(userId))
+        .where((option) => option.isVotedByCurrentUser)
         .map((option) => option.id)
         .toList();
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../controller/chat_controller.dart';
 import '../models/models.dart';
@@ -8,16 +9,20 @@ import '../utils/link_preview_utils.dart';
 import '../utils/markdown_parser.dart';
 import '../utils/time_utils.dart';
 import 'audio_message_tile.dart';
+import 'contact_message_tile.dart';
 import 'enhanced_reaction_picker.dart';
 import 'location_message_tile.dart';
-import 'message_delete_dialog.dart';
 import 'message_edit_dialog.dart';
+import 'poll_message_tile.dart';
+import 'thread_message_tile.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
   final VoidCallback? onLongPress;
   final ChatController controller;
+  final bool enableAnimations;
+  final int? animationIndex;
 
   const MessageBubble({
     super.key,
@@ -25,161 +30,469 @@ class MessageBubble extends StatelessWidget {
     required this.isMe,
     this.onLongPress,
     required this.controller,
+    this.enableAnimations = true,
+    this.animationIndex,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final ChatThemeData theme = ChatTheme.of(context);
-    final Color bubbleColor = isMe
-        ? theme.outgoingBubbleColor
-        : theme.incomingBubbleColor;
-    final Alignment alignment = isMe
-        ? Alignment.centerRight
-        : Alignment.centerLeft;
-    final BorderRadius radius = BorderRadius.only(
-      topLeft: Radius.circular(theme.bubbleRadius),
-      topRight: Radius.circular(theme.bubbleRadius),
-      bottomLeft: Radius.circular(isMe ? theme.bubbleRadius : 2),
-      bottomRight: Radius.circular(isMe ? 2 : theme.bubbleRadius),
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble>
+    with TickerProviderStateMixin {
+  AnimationController? _slideController;
+  AnimationController? _scaleController;
+  AnimationController? _reactionController;
+  Animation<Offset>? _slideAnimation;
+  Animation<double>? _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Don't initialize animations here - wait for didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_slideController == null) {
+      _initializeAnimations();
+      if (widget.enableAnimations) {
+        _startEntryAnimation();
+      }
+    }
+  }
+
+  void _initializeAnimations() {
+    _slideController ??= AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
     );
 
-    return Align(
-      alignment: alignment,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.72,
-        ),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: bubbleColor, borderRadius: radius),
-          child: InkWell(
-            onLongPress:
-                onLongPress ??
-                () async {
-                  await EnhancedReactionPicker.show(
-                    context,
-                    onEmojiSelected: (emoji) {
-                      // TODO: Add reaction to message
-                      // This would typically call controller.toggleReaction(messageId, emoji)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added $emoji reaction')),
-                      );
-                    },
-                  );
-                },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                DefaultTextStyle(
-                  style: theme.messageTextStyle,
-                  child: _buildInner(context),
-                ),
-                const SizedBox(height: 4),
-                _ReactionsRow(message: message, isMe: isMe),
-              ],
-            ),
+    _scaleController ??= AnimationController(
+      duration: ChatDesignTokens.fastAnimation,
+      vsync: this,
+    );
+
+    _reactionController ??= AnimationController(
+      duration: ChatDesignTokens.normalAnimation,
+      vsync: this,
+    );
+
+    _slideAnimation ??=
+        Tween<Offset>(
+          begin: widget.isMe ? const Offset(0.3, 0) : const Offset(-0.3, 0),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _slideController!,
+            curve: ChatDesignTokens.defaultCurve,
           ),
-        ),
+        );
+
+    _scaleAnimation ??= Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _scaleController!,
+        curve: ChatDesignTokens.defaultCurve,
       ),
     );
   }
 
+  void _startEntryAnimation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _slideController != null && _scaleController != null) {
+        Future.delayed(
+          Duration(milliseconds: (widget.animationIndex ?? 0) * 50),
+          () {
+            if (mounted && _slideController != null && _scaleController != null) {
+              _slideController!.forward();
+              _scaleController!.forward();
+            }
+          },
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _slideController?.dispose();
+    _scaleController?.dispose();
+    _reactionController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ChatThemeData theme = ChatTheme.of(context);
+    final Color bubbleColor = widget.isMe
+        ? theme.outgoingBubbleColor
+        : theme.incomingBubbleColor;
+    final Color textColor = widget.isMe
+        ? theme.outgoingTextColor
+        : theme.incomingTextColor;
+    final Alignment alignment = widget.isMe
+        ? Alignment.centerRight
+        : Alignment.centerLeft;
+
+    // Enhanced border radius with more professional appearance
+    final BorderRadius radius = BorderRadius.only(
+      topLeft: Radius.circular(theme.bubbleRadius),
+      topRight: Radius.circular(theme.bubbleRadius),
+      bottomLeft: Radius.circular(
+        widget.isMe ? theme.bubbleRadius : theme.bubbleRadius * 0.3,
+      ),
+      bottomRight: Radius.circular(
+        widget.isMe ? theme.bubbleRadius * 0.3 : theme.bubbleRadius,
+      ),
+    );
+
+    // Enhanced shadows for depth
+    final List<BoxShadow> shadows =
+        theme.enableBubbleShadows && theme.bubbleShadow != null
+        ? [theme.bubbleShadow!]
+        : [];
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _slideController ?? const AlwaysStoppedAnimation(0.0),
+        _scaleController ?? const AlwaysStoppedAnimation(0.0),
+      ]),
+      builder: (context, child) {
+        return SlideTransition(
+          position: _slideAnimation ?? AlwaysStoppedAnimation(Offset.zero),
+          child: ScaleTransition(
+            scale: _scaleAnimation ?? AlwaysStoppedAnimation(1.0),
+            child: Transform.scale(
+              scale: _isPressed && theme.enableScaleAnimations ? 0.98 : 1.0,
+              child: Align(
+                alignment: alignment,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                    minWidth: 60,
+                  ),
+                  child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: ChatDesignTokens.spaceLg,
+                      vertical: ChatDesignTokens.spaceXs,
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: radius,
+                        onTapDown: (_) => _handleTapDown(),
+                        onTapUp: (_) => _handleTapUp(),
+                        onTapCancel: _handleTapUp,
+                        onLongPress: widget.onLongPress ?? _handleLongPress,
+                        child: AnimatedContainer(
+                          duration: ChatDesignTokens.fastAnimation,
+                          curve: ChatDesignTokens.defaultCurve,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: theme.bubblePadding.horizontal,
+                            vertical: theme.bubblePadding.vertical,
+                          ),
+                          decoration: BoxDecoration(
+                            color: bubbleColor,
+                            borderRadius: radius,
+                            boxShadow: shadows,
+                            border: theme.bubbleShadow != null
+                                ? Border.all(
+                                    color: theme.borderColor.withOpacity(0.1),
+                                    width: 0.5,
+                                  )
+                                : null,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              // Author name for group chats
+                              if (!widget.isMe)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: ChatDesignTokens.spaceXs,
+                                  ),
+                                  child: Text(
+                                    widget.message.author.displayName,
+                                    style: theme.authorTextStyle,
+                                  ),
+                                ),
+                              // Message content
+                              DefaultTextStyle(
+                                style: theme.messageTextStyle.copyWith(
+                                  color: textColor,
+                                ),
+                                child: _buildInner(context),
+                              ),
+                              // Reactions and timestamp
+                              SizedBox(height: ChatDesignTokens.spaceXs),
+                              _ReactionsRow(
+                                message: widget.message,
+                                isMe: widget.isMe,
+                                theme: theme,
+                                reactionController: _reactionController,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleTapDown() {
+    if (mounted) {
+      setState(() => _isPressed = true);
+    }
+  }
+
+  void _handleTapUp() {
+    if (mounted) {
+      setState(() => _isPressed = false);
+    }
+  }
+
+  Future<void> _handleLongPress() async {
+    _handleTapUp();
+
+    // Haptic feedback for better UX
+    HapticFeedback.mediumImpact();
+
+    await EnhancedReactionPicker.show(
+      context,
+      onEmojiSelected: (emoji) {
+        if (mounted && _reactionController != null) {
+          _reactionController!.forward().then((_) {
+            if (mounted && _reactionController != null) {
+              _reactionController!.reverse();
+            }
+          });
+        }
+
+        // TODO: Add reaction to message through controller
+        widget.controller.toggleReaction(widget.message, emoji);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added $emoji reaction'),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildInner(BuildContext context) {
-    switch (message.kind) {
+    final theme = ChatTheme.of(context);
+
+    switch (widget.message.kind) {
       case MessageKind.text:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            if (message.replyTo != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  '↩︎ Reply',
-                  style: Theme.of(context).textTheme.labelSmall,
+            // Reply indicator with enhanced styling
+            if (widget.message.replyTo != null)
+              Container(
+                margin: EdgeInsets.only(bottom: ChatDesignTokens.spaceSm),
+                padding: EdgeInsets.all(ChatDesignTokens.spaceXs),
+                decoration: BoxDecoration(
+                  color: theme.surfaceColor.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(
+                    ChatDesignTokens.radiusXs,
+                  ),
+                  border: Border.all(
+                    color: theme.borderColor.withOpacity(0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.reply, size: 16, color: theme.accentColor),
+                    SizedBox(width: ChatDesignTokens.spaceXs),
+                    Text(
+                      'Reply',
+                      style: theme.timestampTextStyle.copyWith(
+                        color: theme.accentColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            if (message.attachments.isNotEmpty)
-              _AttachmentsPreview(attachments: message.attachments),
-            // Message text
-            if (message.text != null && message.text!.isNotEmpty)
+            // Attachments with enhanced preview
+            if (widget.message.attachments.isNotEmpty)
+              _AttachmentsPreview(attachments: widget.message.attachments),
+            // Message text with enhanced markdown
+            if (widget.message.text != null && widget.message.text!.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: ChatDesignTokens.spaceXs),
                 child: MarkdownText(
-                  text: message.text!,
-                  styles: MarkdownTextStyles(),
+                  text: widget.message.text!,
+                  styles: theme.markdownStyles,
                 ),
               ),
 
-            // Edit indicator
-            if (message.editedAt != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+            // Enhanced edit indicator with better UX
+            if (widget.message.editedAt != null)
+              Container(
+                margin: EdgeInsets.only(bottom: ChatDesignTokens.spaceXs),
                 child: Row(
                   children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 12,
+                      color: theme.timestampColor,
+                    ),
+                    SizedBox(width: ChatDesignTokens.space2xs),
                     Text(
                       'edited',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                      style: theme.timestampTextStyle.copyWith(
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    if (controller.canEditMessage(message)) ...[
-                      const SizedBox(width: 8),
-                      GestureDetector(
+                    if (widget.controller.canEditMessage(widget.message)) ...[
+                      SizedBox(width: ChatDesignTokens.spaceXs),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(
+                          ChatDesignTokens.radiusXs,
+                        ),
                         onTap: () => _showEditDialog(context),
-                        child: Text(
-                          'edit',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                decoration: TextDecoration.underline,
-                              ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ChatDesignTokens.spaceXs,
+                            vertical: ChatDesignTokens.space2xs,
+                          ),
+                          child: Text(
+                            'edit',
+                            style: theme.timestampTextStyle.copyWith(
+                              color: theme.accentColor,
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-            // Add link previews below the text
-            if (message.text != null && LinkPreviewUtils.hasUrls(message.text!))
-              _LinkPreviews(text: message.text!),
+            // Enhanced link previews
+            if (widget.message.text != null &&
+                LinkPreviewUtils.hasUrls(widget.message.text!))
+              _LinkPreviews(text: widget.message.text!, theme: theme),
           ],
         );
       case MessageKind.audio:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (message.attachments.isNotEmpty)
-              AudioMessageTile(audio: message.attachments.first),
+            if (widget.message.attachments.isNotEmpty)
+              AudioMessageTile(audio: widget.message.attachments.first),
           ],
         );
       case MessageKind.location:
-        return LocationMessageTile(location: message.location!);
+        return LocationMessageTile(location: widget.message.location!);
+      case MessageKind.poll:
+        // Handle both PollAttachment and legacy PollSummary
+        if (widget.message.pollAttachment != null) {
+          return PollMessageTile(
+            poll: widget.message.pollAttachment!.poll,
+            currentUserId: widget.controller.currentUser.id.value,
+            isFromCurrentUser: widget.isMe,
+            onVote: (pollId, optionIds) {
+              widget.controller.voteOnPoll(pollId, optionIds);
+            },
+            onViewResults: (poll) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Poll results coming soon!')),
+              );
+            },
+          );
+        } else if (widget.message.poll != null) {
+          // Legacy support for PollSummary
+          return Text('Legacy poll: ${widget.message.poll!.question}');
+        }
+        return const Text('[Poll]');
+      case MessageKind.contact:
+        if (widget.message.contactAttachment != null) {
+          return ContactMessageTile(
+            contact: widget.message.contactAttachment!.contact,
+            isFromCurrentUser: widget.isMe,
+            onCall: (phoneNumber) {
+              // TODO: Implement call functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Calling $phoneNumber...')),
+              );
+            },
+            onMessage: (phoneNumber) {
+              // TODO: Implement message functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Messaging $phoneNumber...')),
+              );
+            },
+            onEmail: (email) {
+              // TODO: Implement email functionality
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Emailing $email...')));
+            },
+            onSaveContact: (contact) {
+              // TODO: Implement save contact functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Saving ${contact.displayName}...')),
+              );
+            },
+            onViewDetails: (contact) {
+              // TODO: Show contact details
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Viewing ${contact.displayName} details'),
+                ),
+              );
+            },
+          );
+        }
+        return const Text('[Contact]');
+      case MessageKind.thread:
+        if (widget.message.threadAttachment != null) {
+          return ThreadMessageTile(
+            threadAttachment: widget.message.threadAttachment!,
+            currentUserId: widget.controller.currentUser.id.value,
+            isFromCurrentUser: widget.isMe,
+            onViewThread: (thread) {
+              widget.controller.openThread(thread);
+            },
+            onJoinThread: (thread) {
+              widget.controller.joinThread(thread.id);
+            },
+            onReplyToThread: (thread) {
+              widget.controller.openThread(thread);
+            },
+          );
+        }
+        return const Text('[Thread]');
       default:
-        return Text('[${message.kind.name}]');
+        return Text('[${widget.message.kind.name}]');
     }
   }
 
   void _showEditDialog(BuildContext context) {
-    MessageEditDialog.show(context, message: message, controller: controller);
-  }
-
-  Future<void> _showDeleteDialog(BuildContext context) async {
-    final bool? confirmed = await MessageDeleteDialog.show(
+    MessageEditDialog.show(
       context,
-      message: message,
-      controller: controller,
+      message: widget.message,
+      controller: widget.controller,
     );
-
-    if (confirmed == true) {
-      // Show success message
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Message deleted')));
-    }
   }
 }
 
@@ -321,62 +634,122 @@ class _AttachmentCard extends StatelessWidget {
 class _ReactionsRow extends StatelessWidget {
   final Message message;
   final bool isMe;
-  const _ReactionsRow({required this.message, required this.isMe});
+  final ChatThemeData theme;
+  final AnimationController? reactionController;
+
+  const _ReactionsRow({
+    required this.message,
+    required this.isMe,
+    required this.theme,
+    required this.reactionController,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
+        // Reactions with enhanced styling and animations
         if (message.reactions.isNotEmpty)
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: message.reactions.values.map((ReactionSummary r) {
-              return Chip(
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                label: Text('${r.key} ${r.by.length}'),
-              );
-            }).toList(),
+          Flexible(
+            child: Wrap(
+              spacing: ChatDesignTokens.spaceXs,
+              runSpacing: ChatDesignTokens.space2xs,
+              children: message.reactions.values.map((ReactionSummary r) {
+                return reactionController != null
+                    ? AnimatedBuilder(
+                        animation: reactionController!,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: 1.0 + (reactionController!.value * 0.1),
+                            child: _buildReactionContainer(r),
+                          );
+                        },
+                      )
+                    : _buildReactionContainer(r);
+              }).toList(),
+            ),
           ),
-        if (isMe) _ReadReceipt(message: message),
+        // Read receipt and timestamp
+        if (isMe) _ReadReceipt(message: message, theme: theme),
       ],
+    );
+  }
+
+  Widget _buildReactionContainer(ReactionSummary r) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: ChatDesignTokens.spaceXs,
+        vertical: ChatDesignTokens.space2xs,
+      ),
+      decoration: BoxDecoration(
+        color: theme.reactionBackgroundColor,
+        borderRadius: BorderRadius.circular(
+          ChatDesignTokens.radiusLg,
+        ),
+        border: Border.all(
+          color: theme.borderColor.withOpacity(0.2),
+          width: 0.5,
+        ),
+        boxShadow:
+            theme.enableBubbleShadows &&
+                theme.bubbleShadow != null
+            ? [
+                theme.bubbleShadow!.copyWith(
+                  color: theme.bubbleShadow!.color
+                      .withOpacity(0.1),
+                ),
+              ]
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(r.key, style: const TextStyle(fontSize: 14)),
+          if (r.by.length > 1) ...[
+            SizedBox(width: ChatDesignTokens.space2xs),
+            Text(
+              '${r.by.length}',
+              style: theme.reactionTextStyle,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
 class _ReadReceipt extends StatelessWidget {
   final Message message;
-  const _ReadReceipt({required this.message});
+  final ChatThemeData theme;
+
+  const _ReadReceipt({required this.message, required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    // Placeholder: in real implementation, this would check read status
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Icon(
-          Icons.done_all,
-          size: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          TimeUtils.formatMessageTime(message.createdAt),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+    return Padding(
+      padding: EdgeInsets.only(top: ChatDesignTokens.space2xs),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(Icons.done_all, size: 14, color: theme.accentColor),
+          SizedBox(width: ChatDesignTokens.space2xs),
+          Text(
+            TimeUtils.formatMessageTime(message.createdAt),
+            style: theme.timestampTextStyle,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class _LinkPreviews extends StatelessWidget {
   final String text;
+  final ChatThemeData theme;
 
-  const _LinkPreviews({required this.text});
+  const _LinkPreviews({required this.text, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -385,9 +758,12 @@ class _LinkPreviews extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: urls.map((url) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: LinkPreviewUtils.buildLinkPreview(url),
+        return Container(
+          margin: EdgeInsets.only(top: ChatDesignTokens.spaceSm),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(ChatDesignTokens.radiusSm),
+            child: LinkPreviewUtils.buildLinkPreview(url),
+          ),
         );
       }).toList(),
     );

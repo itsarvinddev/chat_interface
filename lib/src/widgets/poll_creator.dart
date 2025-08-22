@@ -1,36 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../models/models.dart';
 
+/// A comprehensive widget for creating polls with options, settings, and validation
 class PollCreator extends StatefulWidget {
-  final ValueChanged<PollSummary> onPollCreated;
-  final VoidCallback? onCancel;
+  /// Called when a poll is created and should be sent
+  final void Function(Poll poll) onPollCreated;
+
+  /// Optional initial poll data for editing
+  final Poll? initialPoll;
+
+  /// Whether to show advanced settings by default
+  final bool showAdvancedSettings;
 
   const PollCreator({
     super.key,
     required this.onPollCreated,
-    this.onCancel,
+    this.initialPoll,
+    this.showAdvancedSettings = false,
   });
+
+  /// Show poll creator as a modal bottom sheet
+  static Future<Poll?> show({
+    required BuildContext context,
+    Poll? initialPoll,
+    bool showAdvancedSettings = false,
+  }) async {
+    Poll? createdPoll;
+
+    final result = await showModalBottomSheet<Poll>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: PollCreator(
+          initialPoll: initialPoll,
+          showAdvancedSettings: showAdvancedSettings,
+          onPollCreated: (poll) {
+            createdPoll = poll;
+            Navigator.of(context).pop(poll);
+          },
+        ),
+      ),
+    );
+
+    return result ?? createdPoll;
+  }
 
   @override
   State<PollCreator> createState() => _PollCreatorState();
 }
 
 class _PollCreatorState extends State<PollCreator> {
-  final TextEditingController _questionController = TextEditingController();
-  final List<TextEditingController> _optionControllers = [
-    TextEditingController(),
-    TextEditingController(),
-  ];
-  final List<FocusNode> _optionFocusNodes = [
-    FocusNode(),
-    FocusNode(),
-  ];
-  
-  bool _isMultipleChoice = false;
+  final _formKey = GlobalKey<FormState>();
+  final _questionController = TextEditingController();
+  final List<TextEditingController> _optionControllers = [];
+
+  PollType _pollType = PollType.singleChoice;
   bool _isAnonymous = false;
-  DateTime? _expiresAt;
+  bool _hasDeadline = false;
+  DateTime? _deadline;
+  int? _maxSelections;
+  bool _showAdvancedSettings = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showAdvancedSettings = widget.showAdvancedSettings;
+
+    if (widget.initialPoll != null) {
+      _initializeFromExistingPoll();
+    } else {
+      _addInitialOptions();
+    }
+  }
+
+  void _initializeFromExistingPoll() {
+    final poll = widget.initialPoll!;
+    _questionController.text = poll.question;
+    _pollType = poll.type;
+    _isAnonymous = poll.isAnonymous;
+    _maxSelections = poll.maxSelections;
+    _deadline = poll.deadline;
+    _hasDeadline = poll.deadline != null;
+
+    for (final option in poll.options) {
+      final controller = TextEditingController(text: option.text);
+      _optionControllers.add(controller);
+    }
+
+    // Ensure at least 2 options
+    while (_optionControllers.length < 2) {
+      _optionControllers.add(TextEditingController());
+    }
+  }
+
+  void _addInitialOptions() {
+    // Start with 2 empty options
+    _optionControllers.add(TextEditingController());
+    _optionControllers.add(TextEditingController());
+  }
 
   @override
   void dispose() {
@@ -38,280 +112,339 @@ class _PollCreatorState extends State<PollCreator> {
     for (final controller in _optionControllers) {
       controller.dispose();
     }
-    for (final focusNode in _optionFocusNodes) {
-      focusNode.dispose();
-    }
     super.dispose();
   }
 
   void _addOption() {
     if (_optionControllers.length < 10) {
+      // Limit to 10 options
       setState(() {
         _optionControllers.add(TextEditingController());
-        _optionFocusNodes.add(FocusNode());
       });
     }
   }
 
   void _removeOption(int index) {
     if (_optionControllers.length > 2) {
+      // Keep at least 2 options
       setState(() {
         _optionControllers[index].dispose();
-        _optionFocusNodes[index].dispose();
         _optionControllers.removeAt(index);
-        _optionFocusNodes.removeAt(index);
       });
     }
   }
 
-  bool _canCreatePoll() {
-    final question = _questionController.text.trim();
-    if (question.isEmpty) return false;
-    
-    final validOptions = _optionControllers
-        .where((controller) => controller.text.trim().isNotEmpty)
-        .length;
-    return validOptions >= 2;
-  }
-
   void _createPoll() {
-    if (!_canCreatePoll()) return;
+    if (!_formKey.currentState!.validate()) return;
 
     final question = _questionController.text.trim();
-    final options = <PollOption>[];
-    
-    for (int i = 0; i < _optionControllers.length; i++) {
-      final text = _optionControllers[i].text.trim();
-      if (text.isNotEmpty) {
-        options.add(PollOption(
-          id: 'option_$i',
-          text: text,
-        ));
-      }
+    final options = _optionControllers
+        .where((controller) => controller.text.trim().isNotEmpty)
+        .map(
+          (controller) => PollOption(
+            id: 'option_${DateTime.now().millisecondsSinceEpoch}_${_optionControllers.indexOf(controller)}',
+            text: controller.text.trim(),
+          ),
+        )
+        .toList();
+
+    if (options.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add at least 2 options')),
+      );
+      return;
     }
 
-    final poll = PollSummary(
+    final poll = Poll(
+      id: 'poll_${DateTime.now().millisecondsSinceEpoch}',
       question: question,
       options: options,
-      createdAt: DateTime.now(),
-      expiresAt: _expiresAt,
-      isMultipleChoice: _isMultipleChoice,
+      type: _pollType,
       isAnonymous: _isAnonymous,
+      maxSelections: _maxSelections,
+      deadline: _deadline,
+      createdAt: DateTime.now(),
+      createdBy: 'current_user', // This should come from the chat system
+      creatorName: 'You', // This should come from the chat system
     );
 
     widget.onPollCreated(poll);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+  Widget _buildQuestionField() {
+    return TextFormField(
+      controller: _questionController,
+      decoration: const InputDecoration(
+        labelText: 'Poll Question',
+        hintText: 'What would you like to ask?',
+        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.help_outline),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      maxLines: 2,
+      maxLength: 200,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please enter a question';
+        }
+        if (value.trim().length < 3) {
+          return 'Question must be at least 3 characters';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildOptionField(int index) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
         children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.poll,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Create Poll',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Question input
-          TextField(
-            controller: _questionController,
-            decoration: const InputDecoration(
-              labelText: 'Question',
-              hintText: 'What would you like to ask?',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 2,
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 16),
-
-          // Options
-          Text(
-            'Options',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          
-          ...List.generate(_optionControllers.length, (index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _optionControllers[index],
-                      focusNode: _optionFocusNodes[index],
-                      decoration: InputDecoration(
-                        labelText: 'Option ${index + 1}',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: _optionControllers.length > 2
-                            ? IconButton(
-                                icon: const Icon(Icons.remove_circle_outline),
-                                onPressed: () => _removeOption(index),
-                                tooltip: 'Remove option',
-                              )
-                            : null,
-                      ),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-
-          // Add option button
-          if (_optionControllers.length < 10)
-            TextButton.icon(
-              onPressed: _addOption,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Option'),
-            ),
-
-          const SizedBox(height: 16),
-
-          // Poll settings
-          Text(
-            'Settings',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-
-          // Multiple choice toggle
-          SwitchListTile(
-            title: const Text('Multiple choice'),
-            subtitle: const Text('Allow users to select multiple options'),
-            value: _isMultipleChoice,
-            onChanged: (value) => setState(() => _isMultipleChoice = value),
-            contentPadding: EdgeInsets.zero,
-          ),
-
-          // Anonymous toggle
-          SwitchListTile(
-            title: const Text('Anonymous poll'),
-            subtitle: const Text('Hide who voted for what'),
-            value: _isAnonymous,
-            onChanged: (value) => setState(() => _isAnonymous = value),
-            contentPadding: EdgeInsets.zero,
-          ),
-
-          // Expiration date picker
-          ListTile(
-            title: const Text('Expiration'),
-            subtitle: Text(_expiresAt == null 
-                ? 'No expiration' 
-                : 'Expires on ${_formatDate(_expiresAt!)}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_expiresAt != null)
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () => setState(() => _expiresAt = null),
-                    tooltip: 'Remove expiration',
-                  ),
-                IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectExpirationDate(context),
-                  tooltip: 'Set expiration date',
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+          Expanded(
+            child: TextFormField(
+              controller: _optionControllers[index],
+              decoration: InputDecoration(
+                labelText: 'Option ${index + 1}',
+                hintText: 'Enter an option',
+                border: const OutlineInputBorder(),
+                prefixIcon: Icon(
+                  _pollType == PollType.singleChoice
+                      ? Icons.radio_button_unchecked
+                      : Icons.check_box_outline_blank,
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FilledButton(
-                  onPressed: _canCreatePoll() ? _createPoll : null,
-                  child: const Text('Create Poll'),
-                ),
-              ),
-            ],
+              maxLength: 100,
+              validator: (value) {
+                // Only validate non-empty fields
+                if (value != null &&
+                    value.trim().isNotEmpty &&
+                    value.trim().isEmpty) {
+                  return 'Option must not be empty';
+                }
+                return null;
+              },
+            ),
           ),
+          if (_optionControllers.length > 2)
+            IconButton(
+              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+              onPressed: () => _removeOption(index),
+            ),
         ],
       ),
     );
   }
 
-  Future<void> _selectExpirationDate(BuildContext context) async {
+  Widget _buildPollTypeSelector() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Poll Type',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            RadioListTile<PollType>(
+              title: const Text('Single Choice'),
+              subtitle: const Text('Users can select only one option'),
+              value: PollType.singleChoice,
+              groupValue: _pollType,
+              onChanged: (value) => setState(() => _pollType = value!),
+            ),
+            RadioListTile<PollType>(
+              title: const Text('Multiple Choice'),
+              subtitle: const Text('Users can select multiple options'),
+              value: PollType.multipleChoice,
+              groupValue: _pollType,
+              onChanged: (value) => setState(() => _pollType = value!),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdvancedSettings() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  'Advanced Settings',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    _showAdvancedSettings
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                  ),
+                  onPressed: () => setState(
+                    () => _showAdvancedSettings = !_showAdvancedSettings,
+                  ),
+                ),
+              ],
+            ),
+            if (_showAdvancedSettings) ...[
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Anonymous Voting'),
+                subtitle: const Text('Hide who voted for what'),
+                value: _isAnonymous,
+                onChanged: (value) => setState(() => _isAnonymous = value),
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: const Text('Set Deadline'),
+                subtitle: const Text('Automatically close poll after deadline'),
+                value: _hasDeadline,
+                onChanged: (value) => setState(() {
+                  _hasDeadline = value;
+                  if (!value) _deadline = null;
+                }),
+              ),
+              if (_hasDeadline) ...[
+                const SizedBox(height: 16),
+                ListTile(
+                  title: const Text('Deadline'),
+                  subtitle: Text(
+                    _deadline?.toString().split('.')[0] ?? 'Not set',
+                  ),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: _selectDeadline,
+                ),
+              ],
+              if (_pollType == PollType.multipleChoice) ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Max Selections (optional)',
+                    hintText: 'Leave empty for unlimited',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final intValue = int.tryParse(value);
+                    setState(() => _maxSelections = intValue);
+                  },
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      final intValue = int.tryParse(value);
+                      if (intValue == null || intValue < 1) {
+                        return 'Must be a positive number';
+                      }
+                      if (intValue > _optionControllers.length) {
+                        return 'Cannot exceed number of options';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDeadline() async {
     final now = DateTime.now();
-    final selectedDate = await showDatePicker(
+    final date = await showDatePicker(
       context: context,
-      initialDate: now.add(const Duration(days: 1)),
-      firstDate: now.add(const Duration(hours: 1)),
+      initialDate: _deadline ?? now.add(const Duration(days: 1)),
+      firstDate: now,
       lastDate: now.add(const Duration(days: 365)),
     );
 
-    if (selectedDate != null) {
-      final selectedTime = await showTimePicker(
+    if (date != null) {
+      final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now(),
+        initialTime: TimeOfDay.fromDateTime(
+          _deadline ?? now.add(const Duration(hours: 1)),
+        ),
       );
 
-      if (selectedTime != null) {
+      if (time != null) {
         setState(() {
-          _expiresAt = DateTime(
-            selectedDate.year,
-            selectedDate.month,
-            selectedDate.day,
-            selectedTime.hour,
-            selectedTime.minute,
+          _deadline = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
           );
         });
       }
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} at ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.initialPoll != null ? 'Edit Poll' : 'Create Poll'),
+        actions: [
+          TextButton(
+            onPressed: _createPoll,
+            child: Text(
+              widget.initialPoll != null ? 'Update' : 'Create',
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            ),
+          ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            _buildQuestionField(),
+            const SizedBox(height: 24),
 
-  static Future<void> show(
-    BuildContext context, {
-    required ValueChanged<PollSummary> onPollCreated,
-    VoidCallback? onCancel,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => PollCreator(
-        onPollCreated: onPollCreated,
-        onCancel: onCancel,
+            // Options section
+            Row(
+              children: [
+                const Text(
+                  'Options',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const Spacer(),
+                if (_optionControllers.length < 10)
+                  TextButton.icon(
+                    onPressed: _addOption,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Option'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Option fields
+            ...List.generate(
+              _optionControllers.length,
+              (index) => _buildOptionField(index),
+            ),
+
+            const SizedBox(height: 24),
+            _buildPollTypeSelector(),
+            const SizedBox(height: 16),
+            _buildAdvancedSettings(),
+            const SizedBox(height: 80), // Space for floating action button
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createPoll,
+        icon: const Icon(Icons.poll),
+        label: Text(widget.initialPoll != null ? 'Update Poll' : 'Create Poll'),
       ),
     );
   }

@@ -1,48 +1,164 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
+import '../theme/chat_theme.dart';
 
-class TypingIndicator extends StatelessWidget {
+class TypingIndicator extends StatefulWidget {
   final TypingState typingState;
   final bool showNames;
+  final bool enableAnimations;
 
   const TypingIndicator({
     super.key,
     required this.typingState,
     this.showNames = true,
+    this.enableAnimations = true,
   });
 
   @override
+  State<TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<TypingIndicator>
+    with TickerProviderStateMixin {
+  late AnimationController _slideController;
+  late AnimationController _fadeController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAnimations();
+  }
+
+  void _initializeAnimations() {
+    if (!widget.enableAnimations) return;
+
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-0.5, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
+
+    // Start animations when typing users are present
+    if (widget.typingState.hasTypingUsers) {
+      _slideController.forward();
+      _fadeController.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(TypingIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.enableAnimations) {
+      if (widget.typingState.hasTypingUsers &&
+          !oldWidget.typingState.hasTypingUsers) {
+        _slideController.forward();
+        _fadeController.forward();
+      } else if (!widget.typingState.hasTypingUsers &&
+          oldWidget.typingState.hasTypingUsers) {
+        _slideController.reverse();
+        _fadeController.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.enableAnimations) {
+      _slideController.dispose();
+      _fadeController.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!typingState.hasTypingUsers) {
+    final theme = ChatTheme.of(context);
+
+    if (!widget.typingState.hasTypingUsers) {
       return const SizedBox.shrink();
     }
 
-    final activeUsers = typingState.activeTypingUsers;
+    final activeUsers = widget.typingState.activeTypingUsers;
     if (activeUsers.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    Widget content = Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: ChatDesignTokens.spaceLg,
+        vertical: ChatDesignTokens.spaceXs,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: ChatDesignTokens.spaceMd,
+        vertical: ChatDesignTokens.spaceXs,
+      ),
+      decoration: BoxDecoration(
+        color: theme.incomingBubbleColor,
+        borderRadius: BorderRadius.circular(ChatDesignTokens.radiusLg),
+        boxShadow: theme.enableBubbleShadows && theme.bubbleShadow != null
+            ? [
+                theme.bubbleShadow!.copyWith(
+                  color: theme.bubbleShadow!.color.withOpacity(0.1),
+                ),
+              ]
+            : null,
+      ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Typing animation dots
-          _TypingDots(),
-          const SizedBox(width: 8),
-
-          // Typing text
-          Expanded(
+          // Enhanced typing animation
+          _EnhancedTypingDots(
+            theme: theme,
+            enableAnimations: widget.enableAnimations,
+          ),
+          SizedBox(width: ChatDesignTokens.spaceXs),
+          // Typing text with enhanced styling
+          Flexible(
             child: Text(
               _buildTypingText(activeUsers),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              style: theme.timestampTextStyle.copyWith(
                 fontStyle: FontStyle.italic,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
+    );
+
+    if (!widget.enableAnimations) {
+      return Align(alignment: Alignment.centerLeft, child: content);
+    }
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([_slideController, _fadeController]),
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Align(alignment: Alignment.centerLeft, child: content),
+          ),
+        );
+      },
     );
   }
 
@@ -59,72 +175,128 @@ class TypingIndicator extends StatelessWidget {
   }
 }
 
-class _TypingDots extends StatefulWidget {
+class _EnhancedTypingDots extends StatefulWidget {
+  final ChatThemeData theme;
+  final bool enableAnimations;
+
+  const _EnhancedTypingDots({
+    required this.theme,
+    this.enableAnimations = true,
+  });
+
   @override
-  State<_TypingDots> createState() => _TypingDotsState();
+  State<_EnhancedTypingDots> createState() => _EnhancedTypingDotsState();
 }
 
-class _TypingDotsState extends State<_TypingDots>
+class _EnhancedTypingDotsState extends State<_EnhancedTypingDots>
     with TickerProviderStateMixin {
-  late List<AnimationController> _controllers;
-  late List<Animation<double>> _animations;
+  List<AnimationController> _controllers = [];
+  List<Animation<double>> _scaleAnimations = [];
+  List<Animation<double>> _opacityAnimations = [];
   bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+  }
+
+  void _initializeAnimations() {
+    if (!widget.enableAnimations) return;
+
     _controllers = List.generate(
       3,
       (index) => AnimationController(
-        duration: Duration(milliseconds: 600 + (index * 200)),
+        duration: const Duration(milliseconds: 800),
         vsync: this,
       ),
     );
 
-    _animations = _controllers.map((controller) {
+    _scaleAnimations = _controllers.map((controller) {
       return Tween<double>(
-        begin: 0.0,
+        begin: 0.8,
+        end: 1.2,
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+    }).toList();
+
+    _opacityAnimations = _controllers.map((controller) {
+      return Tween<double>(
+        begin: 0.3,
         end: 1.0,
       ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     }).toList();
 
     // Start animations with staggered timing
-    for (int i = 0; i < _controllers.length; i++) {
-      Future.delayed(Duration(milliseconds: i * 200), () {
-        if (mounted && !_disposed) {
-          _controllers[i].repeat(reverse: true);
-        }
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (int i = 0; i < _controllers.length; i++) {
+        Future.delayed(Duration(milliseconds: i * 200), () {
+          if (mounted && !_disposed) {
+            _controllers[i].repeat(reverse: true);
+          }
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     _disposed = true;
-    for (final controller in _controllers) {
-      controller.stop();
-      controller.dispose();
+    if (_controllers.isNotEmpty) {
+      for (final controller in _controllers) {
+        controller.stop();
+        controller.dispose();
+      }
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enableAnimations) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(3, (index) {
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 1),
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: widget.theme.timestampColor,
+              shape: BoxShape.circle,
+            ),
+          );
+        }),
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(3, (index) {
         return AnimatedBuilder(
-          animation: _animations[index],
+          animation: Listenable.merge([
+            _scaleAnimations[index],
+            _opacityAnimations[index],
+          ]),
           builder: (context, child) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(
-                  0.3 + (_animations[index].value * 0.7),
+            return Transform.scale(
+              scale: _scaleAnimations[index].value,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 1),
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: widget.theme.accentColor.withOpacity(
+                    _opacityAnimations[index].value,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.theme.accentColor.withOpacity(0.3),
+                      blurRadius: 4,
+                      spreadRadius: 0,
+                    ),
+                  ],
                 ),
-                shape: BoxShape.circle,
               ),
             );
           },
@@ -137,11 +309,18 @@ class _TypingDotsState extends State<_TypingDots>
 /// Compact typing indicator for use in channel headers
 class CompactTypingIndicator extends StatelessWidget {
   final TypingState typingState;
+  final bool enableAnimations;
 
-  const CompactTypingIndicator({super.key, required this.typingState});
+  const CompactTypingIndicator({
+    super.key,
+    required this.typingState,
+    this.enableAnimations = true,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = ChatTheme.of(context);
+
     if (!typingState.hasTypingUsers) {
       return const SizedBox.shrink();
     }
@@ -151,19 +330,36 @@ class CompactTypingIndicator extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _TypingDots(),
-        const SizedBox(width: 4),
-        Text(
-          _buildCompactText(activeUsers),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-            fontStyle: FontStyle.italic,
-          ),
+    return AnimatedSwitcher(
+      duration: ChatDesignTokens.fastAnimation,
+      child: Container(
+        key: const ValueKey('typing'),
+        padding: EdgeInsets.symmetric(
+          horizontal: ChatDesignTokens.spaceXs,
+          vertical: ChatDesignTokens.space2xs,
         ),
-      ],
+        decoration: BoxDecoration(
+          color: theme.accentColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(ChatDesignTokens.radiusSm),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _EnhancedTypingDots(
+              theme: theme,
+              enableAnimations: enableAnimations,
+            ),
+            SizedBox(width: ChatDesignTokens.space2xs),
+            Text(
+              _buildCompactText(activeUsers),
+              style: theme.captionTextStyle.copyWith(
+                color: theme.accentColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
