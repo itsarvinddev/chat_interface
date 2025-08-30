@@ -12,7 +12,7 @@ class MarkdownTextStyles {
   final TextStyle inlineCodeStyle;
   final TextStyle codeBlockStyle;
 
-  const MarkdownTextStyles({
+  MarkdownTextStyles({
     this.defaultStyle,
     this.boldStyle = const TextStyle(fontWeight: FontWeight.bold),
     this.italicStyle = const TextStyle(fontStyle: FontStyle.italic),
