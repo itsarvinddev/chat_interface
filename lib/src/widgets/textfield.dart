@@ -28,48 +28,32 @@ class ChatTextField extends StatelessWidget {
                   if (controller.messageController.text.trim().isNullOrEmpty) {
                     return;
                   }
-                  onSend?.call(
-                    ChatMessage(
-                      message: controller.messageController.text.trim(),
-                      senderId: controller.currentUser.id,
-                      type: ChatMessageType.chat,
-                      status: ChatMessageStatus.delivered,
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    ),
+                  final message = ChatMessage(
+                    message: controller.messageController.text.trim(),
+                    senderId: controller.currentUser.id,
+                    type: ChatMessageType.chat,
+                    status: ChatMessageStatus.delivered,
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    roomId: "63e2364b-e0b5-4b30-b392-595944f2955b",
                   );
-                  // controller.addMessage(
-                  //   ChatMessage(
-                  //     message: controller.messageController.text.trim(),
-                  //     senderId: controller.currentUser.id,
-                  //     type: ChatMessageType.chat,
-                  //     status: ChatMessageStatus.delivered,
-                  //     id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  //   ),
-                  // );
+                  onSend?.call(message);
+                  controller.addMessage(message);
                   controller.messageController.clear();
                 },
               ),
             ),
             onSubmitted: (value) {
               if (value.trim().isNullOrEmpty) return;
-              onSend?.call(
-                ChatMessage(
-                  message: value.trim(),
-                  senderId: controller.currentUser.id,
-                  type: ChatMessageType.chat,
-                  status: ChatMessageStatus.delivered,
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                ),
-              );
-              // controller.addMessage(
-              //   ChatMessage(
-              //     message: value.trim(),
-              //     senderId: controller.currentUser.id,
-              //     type: ChatMessageType.chat,
-              //     status: ChatMessageStatus.delivered,
-              //     id: DateTime.now().millisecondsSinceEpoch.toString(),
-              //   ),
-              // );
+              final message = ChatMessage(
+                message: value.trim(),
+                senderId: controller.currentUser.id,
+                type: ChatMessageType.chat,
+                status: ChatMessageStatus.delivered,
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                roomId: "63e2364b-e0b5-4b30-b392-595944f2955b",
+              )..sender = controller.currentUser;
+              onSend?.call(message);
+              controller.addMessage(message);
               controller.messageController.clear();
             },
           ),

@@ -29,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   List<ChatUser> _otherUsers = [];
   ChatUser? _currentUser;
   bool _isLoadingUsers = true;
+  List<ChatUser> allUsers = [];
 
   ThemeMode _themeMode = ThemeMode.light;
 
@@ -59,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       }
 
       // Map to ChatUser objects
-      final allUsers = usersResponse
+      allUsers = usersResponse
           .map<ChatUser>(
             (data) => ChatUser(
               id: data['id'] ?? '',
@@ -98,6 +99,7 @@ class _MyAppState extends State<MyApp> {
         _currentUser = currentUser;
         _otherUsers = otherUsers;
         _isLoadingUsers = false;
+        stream(currentUser, _svc, allUsers);
       });
     } catch (error) {
       print('Error loading users: $error');
@@ -122,6 +124,11 @@ class _MyAppState extends State<MyApp> {
               _themeMode = _themeMode == ThemeMode.light
                   ? ThemeMode.dark
                   : ThemeMode.light;
+              _currentUser = allUsers.last;
+              _otherUsers = allUsers
+                  .where((user) => user.id != _currentUser?.id)
+                  .toList();
+              stream(allUsers.last, _svc, allUsers);
             });
           },
         ),
@@ -132,7 +139,6 @@ class _MyAppState extends State<MyApp> {
             ? const Center(child: Text('No users found'))
             : ChatUi(
                 controller: ChatController(
-                  initialMessageList: const [],
                   scrollController: ScrollController(),
                   otherUsers: _otherUsers,
                   currentUser: _currentUser!,
@@ -144,11 +150,10 @@ class _MyAppState extends State<MyApp> {
                         .from('chat_messages')
                         .insert({
                           "message": message.message,
-                          "sender_id": _svc.items?.length.isEven == true
-                              ? _currentUser!.id
-                              : _otherUsers.first.id,
+                          "sender_id": message.senderId,
                           "type": message.type.name,
-                          "status": ChatMessageStatus.delivered.name,
+                          "status": ChatMessageStatus.sent.name,
+                          "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
                         });
                     log(result.toString());
                   } catch (e) {

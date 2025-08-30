@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 
 base class ChatController {
   ChatController({
-    required this.initialMessageList,
     required this.scrollController,
     required List<ChatUser> otherUsers,
     required this.currentUser,
@@ -15,9 +14,6 @@ base class ChatController {
   }) : _otherUsers = otherUsers.toMap<String, ChatUser>(
          getKey: (user) => user.id,
        );
-
-  /// Represents initial message list in chat which can be add by user.
-  List<ChatMessage> initialMessageList;
 
   ScrollController scrollController;
 
@@ -80,31 +76,22 @@ base class ChatController {
   /// Used to remove reply suggestions.
   void removeReplySuggestions() => _replySuggestion.value = [];
 
-  /// Represents message stream of chat
-  StreamController<List<ChatMessage>> messageStreamController =
-      StreamController();
-
   /// Used to add message in message list.
   void addMessage(ChatMessage message) {
-    initialMessageList.add(message);
-    if (messageStreamController.isClosed) return;
-    messageStreamController.sink.add(initialMessageList);
-    pagingController.value = PagingState(
-      keys: pagingController.keys,
+    // PagingState(
+    //   keys: pagingController.keys,
+    //   pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
+    //   hasNextPage: pagingController.hasNextPage,
+    //   error: pagingController.error,
+    //   isLoading: pagingController.isLoading,
+    // )
+    pagingController.value = pagingController.value.copyWith(
       pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
-      hasNextPage: pagingController.hasNextPage,
-      error: pagingController.error,
-      isLoading: pagingController.isLoading,
     );
   }
 
-  /// Function for loading data while pagination.
-  void loadMoreData(List<ChatMessage> messageList) {
-    /// Here, we have passed 0 index as we need to add data before first data
-    initialMessageList.insertAll(0, messageList);
-    if (messageStreamController.isClosed) return;
-    messageStreamController.sink.add(initialMessageList);
-  }
+  List<ChatMessage> get initialMessageList =>
+      pagingController.pages?.expand((page) => page).toList() ?? [];
 
   /// Function for setting reaction on specific chat bubble
   void setReaction({
@@ -138,8 +125,9 @@ base class ChatController {
       type: message.type,
       status: message.status,
     );
-    if (messageStreamController.isClosed) return;
-    messageStreamController.sink.add(initialMessageList);
+    pagingController.value = pagingController.value.copyWith(
+      pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
+    );
   }
 
   /// Function to scroll to last messages in chat view
@@ -191,7 +179,6 @@ base class ChatController {
     _showTypingIndicator.dispose();
     _replySuggestion.dispose();
     scrollController.dispose();
-    messageStreamController.close();
     pagingController.dispose();
     messageController.dispose();
   }

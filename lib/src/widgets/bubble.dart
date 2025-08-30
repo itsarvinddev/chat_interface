@@ -263,7 +263,7 @@ class _MessageCardState extends State<MessageCard>
                                   : 0,
                             ),
                       child: Text(
-                        '${widget.message.message} $textPadding\n\n${(widget.message.id)}\n\n${(widget.index + 1)}',
+                        '${widget.message.message} $textPadding',
                         textWidthBasis: TextWidthBasis.longestLine,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: biggerFont ? 40 : 16,
