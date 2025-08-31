@@ -5,6 +5,8 @@ import 'package:chatui/chatui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../utils/chat_by_date.dart';
+
 base class ChatController {
   ChatController({
     required this.scrollController,
@@ -79,31 +81,21 @@ base class ChatController {
 
   /// Used to add message in message list.
   void addMessage(ChatMessage message) {
-    // PagingState(
-    //   keys: pagingController.keys,
-    //   pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
-    //   hasNextPage: pagingController.hasNextPage,
-    //   error: pagingController.error,
-    //   isLoading: pagingController.isLoading,
-    // )
-    pagingController.value = pagingController.value.copyWith(
-      pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
-    );
+    /// message only add in last page of pagingController
+    /// with keep other pages along with old and new messages
+
+    final pages = List<List<ChatMessage>>.from(pagingController.pages!);
+    pages.first = [message, ...pages.first];
+    pagingController.value = pagingController.value.copyWith(pages: pages);
+    // pagingController.addItemToFirstPage(message);
   }
 
   void updateMessage(ChatMessage message) {
     try {
-      // List<ChatMessage> messages = List<ChatMessage>.of(
-      //   pagingController.items ?? [],
-      // );
-      // final index = messages.indexOf(message);
-      // messages[index] = message;
-      // final pages = pagingController.pages
-      //     ?.map((page) => [...messages])
-      //     .toList();
-      // pagingController.value = pagingController.value.copyWith(pages: pages);
       pagingController.mapItems(
-        (item) => item.copyWith(status: message.status),
+        (item) => item.id == message.id
+            ? item.copyWith(status: message.status)
+            : item,
       );
     } catch (e) {
       log('error: $e');
@@ -111,7 +103,9 @@ base class ChatController {
   }
 
   List<ChatMessage> get initialMessageList =>
-      pagingController.pages?.expand((page) => page).toList() ?? [];
+      pagingController.items ??
+      pagingController.pages?.expand((page) => page).toList() ??
+      [];
 
   /// Function for setting reaction on specific chat bubble
   void setReaction({
@@ -201,5 +195,26 @@ base class ChatController {
     scrollController.dispose();
     pagingController.dispose();
     messageController.dispose();
+  }
+
+  /// Determines if a date separator should be shown for the message at [index].
+  ///
+  /// A separator is shown for the very first message or when the date of the
+  /// current message is different from the previous one.
+  bool shouldShowDateSeparator(int index) {
+    // Always show for the first message in the list
+    if (index == 0) {
+      return true;
+    }
+
+    // Get the current and previous messages
+    final currentMessage = initialMessageList[index];
+    final previousMessage = initialMessageList[index - 1];
+
+    // Compare their creation dates
+    return !ChatDateUtils.isSameDay(
+      currentMessage.createdAt ?? DateTime.now(),
+      previousMessage.createdAt ?? DateTime.now(),
+    );
   }
 }

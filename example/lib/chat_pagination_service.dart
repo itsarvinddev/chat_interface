@@ -57,7 +57,7 @@ void stream(
     );
     channel
         .onPostgresChanges(
-          event: PostgresChangeEvent.insert,
+          event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'chat_messages',
           filter: PostgresChangeFilter(
@@ -65,42 +65,40 @@ void stream(
             column: 'room_id',
             value: "63e2364b-e0b5-4b30-b392-595944f2955b",
           ),
-          callback: (PostgresChangePayload payload) {
+          callback: (PostgresChangePayload payload) async {
             final message = ChatMessageMapper.fromMap(payload.newRecord);
             message.sender = allUsers.firstWhere(
               (user) => user.id == message.senderId,
             );
-            if (message.senderId == currentUser.id) return;
-            controller.value = controller.value.copyWith(
-              pages: controller.pages
-                  ?.map((page) => [message, ...page])
-                  .toList(),
-            );
-            supabase
-                .from('chat_messages')
-                .update({'status': ChatMessageStatus.seen.name})
-                .eq('id', message.id);
-          },
-        )
-        .onPostgresChanges(
-          event: PostgresChangeEvent.update,
-          schema: 'public',
-          table: 'chat_messages',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'room_id',
-            value: "63e2364b-e0b5-4b30-b392-595944f2955b",
-          ),
-          callback: (PostgresChangePayload payload) {
-            // final message = ChatMessageMapper.fromMap(payload.newRecord);
-            log(payload.newRecord.toString());
-            // message.sender = allUsers.firstWhere(
-            //   (user) => user.id == message.senderId,
-            // );
-            // if (message.senderId == currentUser.id) return;
-            controller.mapItems(
-              (item) => item.copyWith(status: ChatMessageStatus.seen),
-            );
+            final isSelfSender = message.senderId == currentUser.id;
+            if (payload.eventType == PostgresChangeEvent.insert) {
+              log(payload.eventType.name);
+              if (isSelfSender) return;
+
+              /// add new message to listing page
+              final pages = List<List<ChatMessage>>.from(controller.pages!);
+              pages.first = [message, ...pages.first];
+              controller.value = controller.value.copyWith(pages: pages);
+
+              /// update status to seen
+              await supabase
+                  .from('chat_messages')
+                  .update({'status': ChatMessageStatus.seen.name})
+                  .eq('id', message.id);
+              return;
+            }
+            if (payload.eventType == PostgresChangeEvent.update) {
+              log(payload.eventType.name);
+              final message = ChatMessageMapper.fromMap(payload.newRecord);
+              message.sender = allUsers.firstWhere(
+                (user) => user.id == message.senderId,
+              );
+              message.status = ChatMessageStatus.seen;
+              controller.mapItems(
+                (item) => item.id == message.id ? message : item,
+              );
+              return;
+            }
           },
         )
         .subscribe();

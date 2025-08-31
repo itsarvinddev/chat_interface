@@ -117,3 +117,77 @@ class HSLColor {
     );
   }
 }
+
+extension StringToDarkColor on String {
+  // Stable 32-bit FNV-1a hash for deterministic mapping across runs.
+  int _stableHash() {
+    int hash = 0x811C9DC5; // 2166136261
+    for (var i = 0; i < length; i++) {
+      hash ^= codeUnitAt(i);
+      hash = (hash * 0x01000193) & 0xFFFFFFFF; // 16777619
+    }
+    return hash & 0x7FFFFFFF; // keep positive
+  }
+
+  /// Deterministic dark color via HSL with clamped lightness.
+  /// Keeps colors dark by choosing lightness in [minLightness, maxLightness].
+  Color toDarkColor({
+    double minLightness = 0.18,
+    double maxLightness = 0.32,
+    double minSaturation = 0.55,
+    double maxSaturation = 0.85,
+  }) {
+    final hash = _stableHash();
+    final hue = (hash % 360).toDouble();
+    final satSeed = ((hash >> 8) & 0xFF) / 255.0;
+    final lightSeed = ((hash >> 16) & 0xFF) / 255.0;
+
+    final s = (minSaturation + satSeed * (maxSaturation - minSaturation)).clamp(
+      0.0,
+      1.0,
+    );
+    final l = (minLightness + lightSeed * (maxLightness - minLightness)).clamp(
+      0.0,
+      1.0,
+    );
+
+    return HSLColor.fromAHSL(1.0, hue, s, l).toColor();
+  }
+
+  /// Dark picks from Material swatches (700/800/900 shades).
+  Color toDarkSwatchColor() {
+    final swatches = <MaterialColor>[
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.blueGrey,
+      Colors.grey,
+    ];
+    final shades = <int>[700, 800, 900];
+    final hash = _stableHash();
+    final swatch = swatches[hash % swatches.length];
+    final shade = shades[(hash >> 8) % shades.length];
+    return swatch[shade]!;
+  }
+
+  /// High-contrast foreground for the generated dark color (black/white).
+  Color get contrastingOnDark {
+    final bg = toDarkColor();
+    final lum = bg.computeLuminance(); // 0=darkest, 1=lightest
+    return lum > 0.2 ? Colors.black : Colors.white;
+  }
+}

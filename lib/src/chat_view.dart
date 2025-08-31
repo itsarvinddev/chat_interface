@@ -2,14 +2,26 @@ import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
+import 'utils/chat_by_date.dart';
 import 'widgets/bubble.dart';
 import 'widgets/textfield.dart';
 
 class ChatUi extends StatelessWidget {
   final ChatController controller;
   final Future<bool> Function(ChatMessage message)? onSend;
+  final Widget Function(
+    ChatController controller,
+    ChatMessage message,
+    int index,
+  )?
+  customMessageBuilder;
 
-  const ChatUi({super.key, required this.controller, this.onSend});
+  const ChatUi({
+    super.key,
+    required this.controller,
+    this.onSend,
+    this.customMessageBuilder,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,22 +58,38 @@ class ChatUi extends StatelessWidget {
         ),
         child: PagingListener(
           controller: controller.pagingController,
-          builder: (context, state, fetchNextPage) =>
-              PagedListView<int, ChatMessage>(
-                state: state,
-                fetchNextPage: fetchNextPage,
-                reverse: true,
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                scrollController: controller.scrollController,
-                builderDelegate: PagedChildBuilderDelegate(
-                  itemBuilder: (context, item, index) => ChatBubble(
+          builder: (context, state, fetchNextPage) {
+            return PagedListView<int, ChatMessage>(
+              state: state,
+              fetchNextPage: fetchNextPage,
+              reverse: true,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              scrollController: controller.scrollController,
+              builderDelegate: PagedChildBuilderDelegate(
+                itemBuilder: (context, item, index) {
+                  // Figure out the previous message (for date comparison)
+                  final ChatMessage? prevMessage =
+                      (index < controller.initialMessageList.length - 1)
+                      ? controller.initialMessageList[index + 1]
+                      : null;
+
+                  // Show header if this is the first message OR date is different from previous
+                  final bool showDateHeader = !ChatDateUtils.isSameDay(
+                    item.createdAt?.toLocal() ?? DateTime.now(),
+                    prevMessage?.createdAt?.toLocal() ?? DateTime.now(),
+                  );
+
+                  return ChatBubble(
                     controller: controller,
-                    item: item,
+                    message: item,
                     index: index,
-                  ),
-                ),
+                    showHeader: showDateHeader,
+                    customMessageBuilder: customMessageBuilder,
+                  );
+                },
               ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: ChatTextField(

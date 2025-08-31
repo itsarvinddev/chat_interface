@@ -5,51 +5,77 @@ import 'package:chatui/src/extensions/string_to_color.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
+import 'package:screwdriver/screwdriver.dart';
 
+import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
+import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
   final ChatController controller;
-  final ChatMessage item;
+  final ChatMessage message;
   final int index;
+  final bool showHeader;
+  final Widget Function(
+    ChatController controller,
+    ChatMessage message,
+    int index,
+  )?
+  customMessageBuilder;
+
   const ChatBubble({
     super.key,
     required this.controller,
-    required this.item,
+    required this.message,
     required this.index,
+    this.showHeader = false,
+    this.customMessageBuilder,
   });
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: controller.isMessageBySelf(item)
-          ? MainAxisAlignment.end
-          : item.type == ChatMessageType.action
-          ? MainAxisAlignment.center
-          : MainAxisAlignment.start,
+    return Column(
       children: [
-        if (item.type == ChatMessageType.action)
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-            child: Text(
-              item.message,
-              textAlign: TextAlign.center,
-              style: context.theme.textTheme.labelSmall?.copyWith(
-                color: context.theme.colorScheme.onPrimaryContainer,
-              ),
+        if (showHeader)
+          ChatDate(
+            date: ChatDateUtils.formatChatDate(
+              message.createdAt ?? DateTime.now(),
             ),
-          )
-        else
-          MessageCard(
-            message: item,
-            currentUser: controller.currentUser,
-            special: controller.tailForIndex(index),
-            showSender:
-                controller.tailForIndex(index) &&
-                !controller.isMessageBySelf(item),
-            index: index,
           ),
+        Row(
+          mainAxisAlignment: controller.isMessageBySelf(message)
+              ? MainAxisAlignment.end
+              : message.type == ChatMessageType.action
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
+          children: [
+            switch (message.type) {
+              ChatMessageType.action => Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                child: Text(
+                  message.message,
+                  textAlign: TextAlign.center,
+                  style: context.theme.textTheme.labelSmall?.copyWith(
+                    color: context.theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+              ChatMessageType.chat => MessageCard(
+                message: message,
+                currentUser: controller.currentUser,
+                special: controller.tailForIndex(index),
+                showSender:
+                    controller.tailForIndex(index) &&
+                    !controller.isMessageBySelf(message),
+                index: index,
+              ),
+              ChatMessageType.custom =>
+                customMessageBuilder?.call(controller, message, index) ??
+                    const SizedBox.shrink(),
+            },
+          ],
+        ),
       ],
     );
   }
@@ -218,8 +244,11 @@ class _MessageCardState extends State<MessageCard>
                         widget.message.sender?.name ?? "Unknown",
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(
-                              color: (widget.message.sender?.name ?? "Unknown")
-                                  .toColorHSL(),
+                              color: context.theme.brightness == Brightness.dark
+                                  ? (widget.message.sender?.name ?? "Unknown")
+                                        .toColorHSL()
+                                  : (widget.message.sender?.name ?? "Unknown")
+                                        .toDarkColor(),
                             ),
                       ),
                     ),
@@ -315,10 +344,13 @@ class _MessageCardState extends State<MessageCard>
                     children: [
                       if (showTimeStamp) ...[
                         Text(
-                          widget.message.createdAt?.second.toString() ?? '',
+                          widget.message.createdAt?.toLocal().format(
+                                'h:mm a',
+                              ) ??
+                              '',
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
-                                fontSize: 11,
+                                fontSize: 10,
                                 color: messageHasText
                                     ? colorTheme.onSurface
                                     : Colors.white,
@@ -330,30 +362,12 @@ class _MessageCardState extends State<MessageCard>
                         Image.asset(
                           'assets/images/${widget.message.status.name.toUpperCase()}.png',
                           package: 'chatui',
-                          // color: widget.message.status.name != 'SEEN'
-                          //     ? messageHasText
-                          //           ? colorTheme.onPrimaryContainer
-                          //                 .withValues(alpha: 0.65)
-                          //                 .withBlue(
-                          //                   Theme.of(context).brightness ==
-                          //                           Brightness.dark
-                          //                       ? 255
-                          //                       : 150,
-                          //                 )
-                          //           : Theme.of(context).brightness ==
-                          //                 Brightness.dark
-                          //           ? Colors.white
-                          //           : colorTheme.onPrimaryContainer
-                          //                 .withValues(alpha: 0.7)
-                          //                 .withBlue(
-                          //                   Theme.of(context).brightness ==
-                          //                           Brightness.dark
-                          //                       ? 255
-                          //                       : 100,
-                          //                 )
-                          //     : null,
+                          color: switch (widget.message.status) {
+                            // ChatMessageStatus.seen => colorTheme.primary,
+                            ChatMessageStatus.seen => Colors.green,
+                            _ => colorTheme.outline.withValues(alpha: 0.7),
+                          },
                           width: 14.0,
-                          color: colorTheme.outline,
                         ),
                       ],
                       if (widget.special &&
