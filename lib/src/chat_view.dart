@@ -7,7 +7,7 @@ import 'widgets/textfield.dart';
 
 class ChatUi extends StatelessWidget {
   final ChatController controller;
-  final Future<void> Function(ChatMessage message)? onSend;
+  final Future<bool> Function(ChatMessage message)? onSend;
 
   const ChatUi({super.key, required this.controller, this.onSend});
 
@@ -51,6 +51,9 @@ class ChatUi extends StatelessWidget {
                 state: state,
                 fetchNextPage: fetchNextPage,
                 reverse: true,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                scrollController: controller.scrollController,
                 builderDelegate: PagedChildBuilderDelegate(
                   itemBuilder: (context, item, index) => ChatBubble(
                     controller: controller,
@@ -61,7 +64,10 @@ class ChatUi extends StatelessWidget {
               ),
         ),
       ),
-      bottomNavigationBar: ChatTextField(controller: controller, onSend: onSend),
+      bottomNavigationBar: ChatTextField(
+        controller: controller,
+        onSend: onSend,
+      ),
     );
   }
 }

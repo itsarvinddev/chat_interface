@@ -5,7 +5,7 @@ import 'package:screwdriver/screwdriver.dart';
 
 class ChatTextField extends StatelessWidget {
   final ChatController controller;
-  final Future<void> Function(ChatMessage message)? onSend;
+  final Future<bool> Function(ChatMessage message)? onSend;
   const ChatTextField({super.key, required this.controller, this.onSend});
 
   @override
@@ -17,6 +17,10 @@ class ChatTextField extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             controller: controller.messageController,
+            minLines: 1,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -24,7 +28,7 @@ class ChatTextField extends StatelessWidget {
               hintText: 'Type a message',
               suffixIcon: IconButton(
                 icon: const Icon(Icons.send),
-                onPressed: () {
+                onPressed: () async {
                   if (controller.messageController.text.trim().isNullOrEmpty) {
                     return;
                   }
@@ -32,28 +36,36 @@ class ChatTextField extends StatelessWidget {
                     message: controller.messageController.text.trim(),
                     senderId: controller.currentUser.id,
                     type: ChatMessageType.chat,
-                    status: ChatMessageStatus.delivered,
+                    status: ChatMessageStatus.sent,
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     roomId: "63e2364b-e0b5-4b30-b392-595944f2955b",
                   );
-                  onSend?.call(message);
                   controller.addMessage(message);
+                  final result = await onSend?.call(message);
+                  if (result == true) {
+                    message.status = ChatMessageStatus.delivered;
+                    controller.updateMessage(message);
+                  }
                   controller.messageController.clear();
                 },
               ),
             ),
-            onSubmitted: (value) {
+            onSubmitted: (value) async {
               if (value.trim().isNullOrEmpty) return;
               final message = ChatMessage(
                 message: value.trim(),
                 senderId: controller.currentUser.id,
                 type: ChatMessageType.chat,
-                status: ChatMessageStatus.delivered,
+                status: ChatMessageStatus.sent,
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
                 roomId: "63e2364b-e0b5-4b30-b392-595944f2955b",
               )..sender = controller.currentUser;
-              onSend?.call(message);
               controller.addMessage(message);
+              final result = await onSend?.call(message);
+              if (result == true) {
+                message.status = ChatMessageStatus.delivered;
+                controller.updateMessage(message);
+              }
               controller.messageController.clear();
             },
           ),

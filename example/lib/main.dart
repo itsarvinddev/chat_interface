@@ -152,12 +152,14 @@ class _MyAppState extends State<MyApp> {
                           "message": message.message,
                           "sender_id": message.senderId,
                           "type": message.type.name,
-                          "status": ChatMessageStatus.sent.name,
+                          "status": ChatMessageStatus.delivered.name,
                           "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
                         });
                     log(result.toString());
+                    return true;
                   } catch (e) {
                     log(e.toString());
+                    return false;
                   }
                 },
               ),

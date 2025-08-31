@@ -52,13 +52,19 @@ void stream(
     log('stream function called');
     final supabase = Supabase.instance.client;
     final channel = supabase.channel(
-      'public:chat_messages:room_id=eq.63e2364b-e0b5-4b30-b392-595944f2955b',
+      //  'public:chat_messages:room_id=eq.63e2364b-e0b5-4b30-b392-595944f2955b',
+      'chat_messages',
     );
     channel
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'chat_messages',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'room_id',
+            value: "63e2364b-e0b5-4b30-b392-595944f2955b",
+          ),
           callback: (PostgresChangePayload payload) {
             final message = ChatMessageMapper.fromMap(payload.newRecord);
             message.sender = allUsers.firstWhere(
@@ -69,6 +75,31 @@ void stream(
               pages: controller.pages
                   ?.map((page) => [message, ...page])
                   .toList(),
+            );
+            supabase
+                .from('chat_messages')
+                .update({'status': ChatMessageStatus.seen.name})
+                .eq('id', message.id);
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'chat_messages',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'room_id',
+            value: "63e2364b-e0b5-4b30-b392-595944f2955b",
+          ),
+          callback: (PostgresChangePayload payload) {
+            // final message = ChatMessageMapper.fromMap(payload.newRecord);
+            log(payload.newRecord.toString());
+            // message.sender = allUsers.firstWhere(
+            //   (user) => user.id == message.senderId,
+            // );
+            // if (message.senderId == currentUser.id) return;
+            controller.mapItems(
+              (item) => item.copyWith(status: ChatMessageStatus.seen),
             );
           },
         )

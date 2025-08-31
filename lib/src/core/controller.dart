@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:chatui/chatui.dart';
 import 'package:flutter/foundation.dart';
@@ -88,6 +89,25 @@ base class ChatController {
     pagingController.value = pagingController.value.copyWith(
       pages: pagingController.pages?.map((page) => [message, ...page]).toList(),
     );
+  }
+
+  void updateMessage(ChatMessage message) {
+    try {
+      // List<ChatMessage> messages = List<ChatMessage>.of(
+      //   pagingController.items ?? [],
+      // );
+      // final index = messages.indexOf(message);
+      // messages[index] = message;
+      // final pages = pagingController.pages
+      //     ?.map((page) => [...messages])
+      //     .toList();
+      // pagingController.value = pagingController.value.copyWith(pages: pages);
+      pagingController.mapItems(
+        (item) => item.copyWith(status: message.status),
+      );
+    } catch (e) {
+      log('error: $e');
+    }
   }
 
   List<ChatMessage> get initialMessageList =>

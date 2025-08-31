@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
-import 'emoji_parser.dart';
+import '../utils/emoji_parser.dart';
 
 class ChatBubble extends StatelessWidget {
   final ChatController controller;
