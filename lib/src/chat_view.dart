@@ -142,9 +142,6 @@ class _ChatUiState extends State<ChatUi> {
               scrollController: widget.controller.scrollController,
               builderDelegate: PagedChildBuilderDelegate(
                 itemBuilder: (context, item, index) {
-                  // final bool showDateHeader = controller
-                  //     .shouldShowDateSeparator(index);
-
                   // Use the same list the widget is rendering.
                   // Prefer the pagingController items; fall back to any local cache.
                   final items = widget.controller.messages;

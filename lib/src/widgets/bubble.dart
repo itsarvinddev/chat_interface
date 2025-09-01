@@ -300,14 +300,15 @@ class _MessageCardState extends State<MessageCard>
                                   ? 14.0
                                   : 0,
                             ),
-                      child: Text(
-                        '${widget.message.message} $textPadding',
-                        textWidthBasis: TextWidthBasis.longestLine,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: biggerFont ? 40 : 16,
-                          color: colorTheme.onSurface,
+                      child: MarkdownText(
+                        text: '${widget.message.message} $textPadding',
+                        styles: MarkdownTextStyles(
+                          defaultStyle: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                fontSize: biggerFont ? 40 : 16,
+                                color: colorTheme.onSurface,
+                              ),
                         ),
-                        softWrap: true,
                       ),
                     ),
                   ],

@@ -7,26 +7,48 @@ import 'package:screwdriver/screwdriver.dart';
 
 import 'chat_field.dart';
 
-class ChatInputContainer extends StatelessWidget {
+class ChatInputContainer extends StatefulWidget {
   final ChatController controller;
   final Future<bool> Function(ChatMessage message)? onSend;
   final Widget? leading;
+  final List<Widget>? actions;
   const ChatInputContainer({
     super.key,
     required this.controller,
     this.onSend,
     this.leading,
+    this.actions,
   });
+
+  @override
+  State<ChatInputContainer> createState() => _ChatInputContainerState();
+}
+
+class _ChatInputContainerState extends State<ChatInputContainer> {
+  bool hideElements = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.messageController.addListener(() {
+      setState(() {
+        hideElements = widget.controller.messageController.text
+            .trim()
+            .isNotNullOrEmpty;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.controller.messageController.removeListener(() {});
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorTheme = context.theme.colorScheme;
-    final hideElements = controller.messageController.text
-        .trim()
-        .isNotNullOrEmpty;
-
     return SafeArea(
-      //  bottom: defaultTargetPlatform.isAndroid,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5.0),
         child: Row(
@@ -43,60 +65,57 @@ class ChatInputContainer extends StatelessWidget {
                       : colorTheme.surfaceContainer,
                 ),
                 child: ChatField(
-                  leading: leading ?? const SizedBox(width: 12),
-                  focusNode: controller.focusNode,
-                  textController: controller.messageController,
-                  onSubmitted: (value) => controller.addMessage(
+                  leading: widget.leading ?? const SizedBox(width: 12),
+                  focusNode: widget.controller.focusNode,
+                  textController: widget.controller.messageController,
+                  onSubmitted: (value) => widget.controller.addMessage(
                     ChatMessage(
                       message: value,
-                      senderId: controller.currentUser.id,
-                      roomId: controller.currentUser.roomId,
+                      senderId: widget.controller.currentUser.id,
+                      roomId: widget.controller.currentUser.roomId,
                       status: ChatMessageStatus.pending,
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
                     ),
                   ),
-                  actions: [
-                    IconButton(
-                      style: IconButton.styleFrom(
-                        minimumSize: const Size(22, 22),
-                      ),
-                      onPressed: () {
-                        //   onAttachmentsIconPressed(context);
-                      },
-                      icon: Icon(
-                        Icons.attach_file_rounded,
-                        size: 24.0,
-                        color: context.theme.colorScheme.secondary,
-                      ),
-                    ),
-                    if (!hideElements) ...[
-                      IconButton(
-                        style: IconButton.styleFrom(
-                          minimumSize: const Size(22, 22),
+                  actions:
+                      widget.actions ??
+                      [
+                        IconButton(
+                          onPressed: () =>
+                              widget.controller.onTapAttachFile?.call(),
+                          icon: Icon(
+                            Icons.attach_file_rounded,
+                            size: 24.0,
+                            color: context.theme.colorScheme.secondary,
+                          ),
                         ),
-                        onPressed: () {
-                          //  controllerProvider.navigateToCameraView(context);
-                        },
-                        icon: Icon(
-                          Icons.camera_alt_rounded,
-                          size: 24.0,
-                          color: context.theme.colorScheme.secondary,
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: hideElements
+                              ? const SizedBox.shrink()
+                              : IconButton(
+                                  onPressed: () =>
+                                      widget.controller.onTapCamera?.call(),
+                                  icon: Icon(
+                                    Icons.camera_alt_rounded,
+                                    size: 24.0,
+                                    color: context.theme.colorScheme.secondary,
+                                  ),
+                                ),
                         ),
-                      ),
-                    ],
-                  ],
+                      ],
                 ),
               ),
             ),
             const SizedBox(width: 4.0),
             IconButton.filled(
-              onPressed: () => controller.addMessage(
+              onPressed: () => widget.controller.addMessage(
                 ChatMessage(
-                  message: controller.messageController.text.trim(),
-                  senderId: controller.currentUser.id,
-                  roomId: controller.currentUser.roomId,
+                  message: widget.controller.messageController.text.trim(),
+                  senderId: widget.controller.currentUser.id,
+                  roomId: widget.controller.currentUser.roomId,
                   status: ChatMessageStatus.pending,
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),

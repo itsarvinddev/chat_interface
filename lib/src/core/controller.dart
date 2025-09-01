@@ -45,6 +45,12 @@ class ChatController {
   /// Callback when a message is updated.
   Future<void> Function(ChatMessage message)? onMessageUpdated;
 
+  /// Callback when tap on camera button.
+  Future<void> Function()? onTapCamera;
+
+  /// Callback when tap on attach file button.
+  Future<void> Function()? onTapAttachFile;
+
   /// Exposes other users as an unmodifiable list.
   UnmodifiableListView<ChatUser> get otherUsers =>
       UnmodifiableListView(_otherUsers.values);

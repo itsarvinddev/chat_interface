@@ -2,38 +2,6 @@
 
 import 'package:flutter/material.dart';
 
-/// A collection of styles used for rendering Markdown text.
-/// This class remains unchanged.
-class MarkdownTextStyles {
-  final TextStyle? defaultStyle;
-  final TextStyle boldStyle;
-  final TextStyle italicStyle;
-  final TextStyle strikethroughStyle;
-  final TextStyle inlineCodeStyle;
-  final TextStyle codeBlockStyle;
-
-  MarkdownTextStyles({
-    this.defaultStyle,
-    this.boldStyle = const TextStyle(fontWeight: FontWeight.bold),
-    this.italicStyle = const TextStyle(fontStyle: FontStyle.italic),
-    this.strikethroughStyle = const TextStyle(
-      decoration: TextDecoration.lineThrough,
-    ),
-    this.inlineCodeStyle = const TextStyle(
-      fontFamily: 'monospace',
-      backgroundColor: Colors.white24,
-      // color: Colors.black,
-      // Add some padding for inline code for better visuals
-      letterSpacing: 0.8,
-    ),
-    this.codeBlockStyle = const TextStyle(
-      fontFamily: 'monospace',
-      backgroundColor: Color(0xFF212121),
-      color: Color(0xFFFAFAFA),
-    ),
-  });
-}
-
 /// Parses a Markdown-formatted string into a list of [TextSpan] widgets.
 ///
 /// This version uses a recursive approach to correctly handle nested styles.
@@ -147,22 +115,45 @@ class MarkdownText extends StatelessWidget {
         style: defaultTextStyle,
         children: parseMarkdownText(text, effectiveStyles),
       ),
+      softWrap: true,
+      textWidthBasis: TextWidthBasis.longestLine,
     );
   }
 }
 
-/// A [TextEditingController] that styles text in-place using Markdown syntax.
-///
-/// This implementation is robust and correctly handles cursor position,
-/// selection, and editing by styling the Markdown syntax characters
-/// instead of removing them.
+class MarkdownTextStyles {
+  final TextStyle? defaultStyle;
+  final TextStyle boldStyle;
+  final TextStyle italicStyle;
+  final TextStyle strikethroughStyle;
+  final TextStyle inlineCodeStyle;
+  final TextStyle codeBlockStyle;
+
+  MarkdownTextStyles({
+    this.defaultStyle,
+    this.boldStyle = const TextStyle(fontWeight: FontWeight.bold),
+    this.italicStyle = const TextStyle(fontStyle: FontStyle.italic),
+    this.strikethroughStyle = const TextStyle(
+      decoration: TextDecoration.lineThrough,
+    ),
+    this.inlineCodeStyle = const TextStyle(
+      fontFamily: 'monospace',
+      backgroundColor: Colors.white24,
+      letterSpacing: 0.8,
+    ),
+    this.codeBlockStyle = const TextStyle(
+      fontFamily: 'monospace',
+      backgroundColor: Color(0xFF212121),
+      color: Color(0xFFFAFAFA),
+    ),
+  });
+}
+
 class MarkdownTextEditingController extends TextEditingController {
   final MarkdownTextStyles styles;
 
   MarkdownTextEditingController({super.text, required this.styles});
 
-  /// A specialized recursive parser for the editing experience.
-  /// It styles the markdown characters themselves rather than removing them.
   List<TextSpan> _buildSpans(
     String text, {
     required TextStyle currentStyle,
@@ -182,9 +173,7 @@ class MarkdownTextEditingController extends TextEditingController {
         switch (delimiter) {
           case '`':
             newStyle = currentStyle.merge(styles.inlineCodeStyle);
-            // Add syntax, then recursively parse content, then add syntax
             children.add(TextSpan(text: delimiter, style: syntaxStyle));
-            // Inline code does not support nesting in this implementation
             children.add(TextSpan(text: content, style: newStyle));
             children.add(TextSpan(text: delimiter, style: syntaxStyle));
             break;
@@ -244,37 +233,41 @@ class MarkdownTextEditingController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    // The default text style for the entire field.
     final defaultStyle = style ?? const TextStyle();
 
-    // A subtle style for the Markdown syntax characters (*, _, ~, `).
     final syntaxStyle = defaultStyle.copyWith(
       color: defaultStyle.color?.withValues(alpha: 0.6),
     );
 
     final List<TextSpan> children = [];
-    final parts = text.split('```');
 
-    for (int i = 0; i < parts.length; i++) {
-      String part = parts[i];
-      if (i % 2 == 1) {
-        // This is a code block
+    // ✅ Do NOT insert/remove characters, just style them
+    final pattern = RegExp(r'```([\s\S]*?)```');
+    text.splitMapJoin(
+      pattern,
+      onMatch: (Match match) {
+        //  final fullMatch = match.group(0)!; // includes ```
+        final inner = match.group(1)!;
+
+        // Render exactly as typed: ```inner```
         children.add(TextSpan(text: '```', style: syntaxStyle));
-        children.add(TextSpan(text: part, style: styles.codeBlockStyle));
+        children.add(TextSpan(text: inner, style: styles.codeBlockStyle));
         children.add(TextSpan(text: '```', style: syntaxStyle));
-      } else {
-        // This is regular text that needs inline parsing
-        if (part.isNotEmpty) {
+        return '';
+      },
+      onNonMatch: (String nonMatch) {
+        if (nonMatch.isNotEmpty) {
           children.addAll(
             _buildSpans(
-              part,
+              nonMatch,
               currentStyle: defaultStyle,
               syntaxStyle: syntaxStyle,
             ),
           );
         }
-      }
-    }
+        return '';
+      },
+    );
 
     return TextSpan(style: defaultStyle, children: children);
   }
