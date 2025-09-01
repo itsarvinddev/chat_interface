@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:screwdriver/screwdriver.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
@@ -36,41 +37,47 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: Column(
-        children: [
-          if (showHeader)
-            ChatDate(
-              date: ChatDateUtils.formatChatDate(
-                message.createdAt ?? DateTime.now(),
-              ),
-            ),
-          Row(
-            mainAxisAlignment: controller.isMessageBySelf(message)
-                ? message.type == ChatMessageType.action
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.end
-                : message.type == ChatMessageType.action
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
-            children: [
-              switch (message.type) {
-                ChatMessageType.action => ChatAction(message: message),
-                ChatMessageType.chat => MessageCard(
-                  message: message,
-                  currentUser: controller.currentUser,
-                  special: controller.tailForIndex(index),
-                  showSender:
-                      controller.tailForIndex(index) &&
-                      !controller.isMessageBySelf(message),
-                  index: index,
+      child: VisibilityDetector(
+        key: ValueKey(message.id),
+        onVisibilityChanged: (visibility) {
+          if (visibility.visibleFraction < 0.1) return;
+          controller.onMarkAsSeen?.call(message);
+        },
+        child: Column(
+          crossAxisAlignment: controller.isMessageBySelf(message)
+              ? message.type == ChatMessageType.action
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.end
+              : message.type == ChatMessageType.action
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (showHeader)
+              Center(
+                child: ChatDate(
+                  date: ChatDateUtils.formatChatDate(
+                    message.createdAt ?? DateTime.now(),
+                  ),
                 ),
-                ChatMessageType.custom =>
-                  customMessageBuilder?.call(controller, message, index) ??
-                      const SizedBox.shrink(),
-              },
-            ],
-          ),
-        ],
+              ),
+            switch (message.type) {
+              ChatMessageType.action => ChatAction(message: message),
+              ChatMessageType.chat => MessageCard(
+                message: message,
+                currentUser: controller.currentUser,
+                special: controller.tailForIndex(index),
+                showSender:
+                    controller.tailForIndex(index) &&
+                    !controller.isMessageBySelf(message),
+                index: index,
+              ),
+              ChatMessageType.custom =>
+                customMessageBuilder?.call(controller, message, index) ??
+                    const SizedBox.shrink(),
+            },
+          ],
+        ),
       ),
     );
   }

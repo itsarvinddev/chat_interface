@@ -8,6 +8,7 @@ class ChatField extends StatelessWidget {
     required this.textController,
     this.onTextChanged,
     this.focusNode,
+    this.onSubmitted,
   });
 
   final Widget leading;
@@ -15,7 +16,7 @@ class ChatField extends StatelessWidget {
   final TextEditingController textController;
   final Function(String)? onTextChanged;
   final FocusNode? focusNode;
-
+  final Function(String)? onSubmitted;
   @override
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
@@ -24,7 +25,7 @@ class ChatField extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24.0),
         color: Theme.of(context).brightness == Brightness.dark
-            ? colorTheme.surface
+            ? colorTheme.surfaceContainer
             : colorTheme.surfaceContainerHighest,
       ),
       child: Row(
@@ -49,6 +50,7 @@ class ChatField extends StatelessWidget {
               ),
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
+              onSubmitted: onSubmitted,
             ),
           ),
           if (actions != null) ...[

@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'chat_pagination_service.dart';
 
+ValueNotifier<ThemeMode> _themeMode = ValueNotifier(ThemeMode.light);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
@@ -30,13 +32,34 @@ class _MyAppState extends State<MyApp> {
   ChatUser? _currentUser;
   bool _isLoadingUsers = true;
   List<ChatUser> allUsers = [];
-
-  ThemeMode _themeMode = ThemeMode.light;
+  late ChatController _controller;
 
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    _loadUsers().then((value) {
+      _controller.onMessageAdded = (message) async {
+        try {
+          final result = await Supabase.instance.client
+              .from('chat_messages')
+              .insert({
+                "message": message.message,
+                "sender_id": message.senderId,
+                "type": message.type.name,
+                "status": ChatMessageStatus.sent.name,
+                "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
+              });
+          log(result.toString());
+          _controller.updateMessage(
+            message.copyWith(status: ChatMessageStatus.sent),
+          );
+          return;
+        } catch (e) {
+          log(e.toString());
+          return;
+        }
+      };
+    });
   }
 
   @override
@@ -76,11 +99,10 @@ class _MyAppState extends State<MyApp> {
               ),
               lastReadAt: data['last_read_at'] != null
                   ? DateTime.parse(data['last_read_at'])
-                  : null,
+                  : DateTime.now(),
             ),
           )
           .toList();
-
       if (allUsers.isEmpty) {
         setState(() {
           _isLoadingUsers = false;
@@ -88,19 +110,25 @@ class _MyAppState extends State<MyApp> {
         return;
       }
 
-      final currentUser = allUsers.first;
+      _currentUser = allUsers.first;
 
       // Remove current user from other users list
       final otherUsers = allUsers
-          .where((user) => user.id != currentUser.id)
+          .where((user) => user.id != _currentUser?.id)
           .toList();
 
       setState(() {
-        _currentUser = currentUser;
+        _currentUser = _currentUser;
         _otherUsers = otherUsers;
         _isLoadingUsers = false;
-        stream(currentUser, _svc, allUsers);
+        stream(_currentUser ?? allUsers.first, _svc, allUsers);
       });
+      _controller = ChatController(
+        scrollController: ScrollController(),
+        otherUsers: _otherUsers,
+        currentUser: _currentUser ?? allUsers.first,
+        pagingController: _svc,
+      );
     } catch (error) {
       print('Error loading users: $error');
       setState(() {
@@ -111,58 +139,36 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      themeMode: _themeMode,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: Scaffold(
-        floatingActionButton: FloatingActionButton.small(
-          elevation: 0,
-          child: const Icon(Icons.brightness_4),
-          onPressed: () {
-            setState(() {
-              _themeMode = _themeMode == ThemeMode.light
-                  ? ThemeMode.dark
-                  : ThemeMode.light;
-              _currentUser = allUsers.last;
-              _otherUsers = allUsers
-                  .where((user) => user.id != _currentUser?.id)
-                  .toList();
-              stream(allUsers.last, _svc, allUsers);
-            });
-          },
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: _themeMode,
+      builder: (context, value, child) => MaterialApp(
+        themeMode: value,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        home: Scaffold(
+          floatingActionButton: FloatingActionButton.small(
+            elevation: 0,
+            child: const Icon(Icons.brightness_4),
+            onPressed: () {
+              setState(() {
+                _themeMode.value = value == ThemeMode.light
+                    ? ThemeMode.dark
+                    : ThemeMode.light;
+                _currentUser = allUsers.last;
+                _otherUsers = allUsers
+                    .where((user) => user.id != _currentUser?.id)
+                    .toList();
+                stream(_currentUser ?? allUsers.last, _svc, allUsers);
+              });
+            },
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+          body: _isLoadingUsers
+              ? const Center(child: CircularProgressIndicator())
+              : _currentUser == null
+              ? const Center(child: Text('No users found'))
+              : ChatUi(controller: _controller),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-        body: _isLoadingUsers
-            ? const Center(child: CircularProgressIndicator())
-            : _currentUser == null
-            ? const Center(child: Text('No users found'))
-            : ChatUi(
-                controller: ChatController(
-                  scrollController: ScrollController(),
-                  otherUsers: _otherUsers,
-                  currentUser: _currentUser!,
-                  pagingController: _svc,
-                ),
-                onSend: (message) async {
-                  try {
-                    final result = await Supabase.instance.client
-                        .from('chat_messages')
-                        .insert({
-                          "message": message.message,
-                          "sender_id": message.senderId,
-                          "type": message.type.name,
-                          "status": ChatMessageStatus.delivered.name,
-                          "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
-                        });
-                    log(result.toString());
-                    return true;
-                  } catch (e) {
-                    log(e.toString());
-                    return false;
-                  }
-                },
-              ),
       ),
     );
   }

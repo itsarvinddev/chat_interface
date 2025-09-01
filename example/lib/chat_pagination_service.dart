@@ -25,7 +25,6 @@ PagingController<int, ChatMessage> controller() =>
         final supabase = Supabase.instance.client;
         final start = pageKey * pageSize;
         final end = start + pageSize - 1;
-        log('start: $start, end: $end');
         final result = await supabase
             .from('chat_messages')
             .select('*, sender:chat_messages_sender_id_fkey(*)')
@@ -81,7 +80,9 @@ void stream(
               if (isSelfSender) return;
 
               /// add new message to listing page
-              final pages = List<List<ChatMessage>>.from(controller.pages!);
+              final pages = List<List<ChatMessage>>.from(
+                controller.pages ?? [],
+              );
               pages.first = [message, ...pages.first];
               controller.value = controller.value.copyWith(pages: pages);
 

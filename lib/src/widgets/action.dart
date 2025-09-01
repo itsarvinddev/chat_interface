@@ -1,5 +1,5 @@
 import 'package:chatui/chatui.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
 class ChatAction extends StatelessWidget {
@@ -8,11 +8,21 @@ class ChatAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: 'Action message: ${message.message}',
+    return Tooltip(
+      message: message.message,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      textStyle: context.theme.textTheme.labelSmall?.copyWith(
+        color: context.theme.colorScheme.onPrimaryContainer,
+      ),
+      decoration: BoxDecoration(
+        color: context.theme.colorScheme.primaryFixed,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        alignment: Alignment.center,
+        margin: EdgeInsets.symmetric(
+          vertical: 4,
+          horizontal: context.mediaQuery.size.width * 0.2,
+        ),
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
         decoration: BoxDecoration(
           color: context.theme.colorScheme.primaryContainer.withValues(

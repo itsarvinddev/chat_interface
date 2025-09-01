@@ -6,12 +6,8 @@ import 'utils/chat_by_date.dart';
 import 'widgets/bubble.dart';
 import 'widgets/input_container.dart';
 
-// Show/hide the "scroll to bottom" button.
-final ValueNotifier<bool> _showJumpToBottom = ValueNotifier<bool>(false);
-
 class ChatUi extends StatefulWidget {
   final ChatController controller;
-  final Future<bool> Function(ChatMessage message)? onSend;
   final Widget Function(
     ChatController controller,
     ChatMessage message,
@@ -22,7 +18,6 @@ class ChatUi extends StatefulWidget {
   const ChatUi({
     super.key,
     required this.controller,
-    this.onSend,
     this.customMessageBuilder,
   });
 
@@ -31,6 +26,9 @@ class ChatUi extends StatefulWidget {
 }
 
 class _ChatUiState extends State<ChatUi> {
+  // Show/hide the "scroll to bottom" button.
+  final ValueNotifier<bool> _showJumpToBottom = ValueNotifier<bool>(false);
+
   // How close to the bottom counts as "at bottom".
   static const double _bottomDelta = 24.0;
 
@@ -149,7 +147,7 @@ class _ChatUiState extends State<ChatUi> {
 
                   // Use the same list the widget is rendering.
                   // Prefer the pagingController items; fall back to any local cache.
-                  final items = widget.controller.initialMessageList;
+                  final items = widget.controller.messages;
 
                   // Viewport-aware header: with reverse: true, we must compare
                   // against index  1 (the previous item in display order).
@@ -174,10 +172,7 @@ class _ChatUiState extends State<ChatUi> {
           },
         ),
       ),
-      bottomNavigationBar: ChatInputContainer(
-        controller: widget.controller,
-        // onSend: widget.onSend,
-      ),
+      bottomNavigationBar: ChatInputContainer(controller: widget.controller),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: _showJumpToBottom,
         builder: (context, show, _) {

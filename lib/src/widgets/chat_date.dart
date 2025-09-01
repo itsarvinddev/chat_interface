@@ -13,21 +13,20 @@ class ChatDate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-    int transparency = shouldBeTransparent ? 200 : 255;
+    double transparency = shouldBeTransparent ? 0.2 : 1;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: isDarkTheme
-            ? Color.fromARGB(transparency, 24, 34, 40)
-            : Color.fromARGB(transparency, 233, 232, 232),
+        color: context.theme.colorScheme.tertiaryContainer.withValues(
+          alpha: transparency,
+        ),
       ),
       margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 24),
       child: Text(
         date,
         style: TextStyle(
-          color: isDarkTheme ? context.colorScheme.secondary : Colors.black54,
+          color: context.theme.colorScheme.onTertiaryContainer,
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),

@@ -35,6 +35,9 @@ class ChatUser with ChatUserMappable {
   /// Provides last read message at.
   DateTime? lastReadAt;
 
+  /// Provides room id of user.
+  String roomId;
+
   ChatUser({
     this.id = "",
     this.name = "",
@@ -44,6 +47,7 @@ class ChatUser with ChatUserMappable {
     this.role = ChatUserRole.member,
     this.lastReadMessage,
     this.lastReadAt,
+    this.roomId = "",
   });
 }
 
