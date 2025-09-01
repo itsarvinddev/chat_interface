@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:chatui/chatui.dart';
 import 'package:chatui/src/extensions/string_to_color.dart';
+import 'package:chatui/src/widgets/link_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
@@ -9,6 +10,7 @@ import 'package:screwdriver/screwdriver.dart';
 
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
+import 'action.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -33,50 +35,43 @@ class ChatBubble extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (showHeader)
-          ChatDate(
-            date: ChatDateUtils.formatChatDate(
-              message.createdAt ?? DateTime.now(),
+    return RepaintBoundary(
+      child: Column(
+        children: [
+          if (showHeader)
+            ChatDate(
+              date: ChatDateUtils.formatChatDate(
+                message.createdAt ?? DateTime.now(),
+              ),
             ),
-          ),
-        Row(
-          mainAxisAlignment: controller.isMessageBySelf(message)
-              ? MainAxisAlignment.end
-              : message.type == ChatMessageType.action
-              ? MainAxisAlignment.center
-              : MainAxisAlignment.start,
-          children: [
-            switch (message.type) {
-              ChatMessageType.action => Container(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                child: Text(
-                  message.message,
-                  textAlign: TextAlign.center,
-                  style: context.theme.textTheme.labelSmall?.copyWith(
-                    color: context.theme.colorScheme.onPrimaryContainer,
-                  ),
+          Row(
+            mainAxisAlignment: controller.isMessageBySelf(message)
+                ? message.type == ChatMessageType.action
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.end
+                : message.type == ChatMessageType.action
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
+            children: [
+              switch (message.type) {
+                ChatMessageType.action => ChatAction(message: message),
+                ChatMessageType.chat => MessageCard(
+                  message: message,
+                  currentUser: controller.currentUser,
+                  special: controller.tailForIndex(index),
+                  showSender:
+                      controller.tailForIndex(index) &&
+                      !controller.isMessageBySelf(message),
+                  index: index,
                 ),
-              ),
-              ChatMessageType.chat => MessageCard(
-                message: message,
-                currentUser: controller.currentUser,
-                special: controller.tailForIndex(index),
-                showSender:
-                    controller.tailForIndex(index) &&
-                    !controller.isMessageBySelf(message),
-                index: index,
-              ),
-              ChatMessageType.custom =>
-                customMessageBuilder?.call(controller, message, index) ??
-                    const SizedBox.shrink(),
-            },
-          ],
-        ),
-      ],
+                ChatMessageType.custom =>
+                  customMessageBuilder?.call(controller, message, index) ??
+                      const SizedBox.shrink(),
+              },
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -132,13 +127,15 @@ class _MessageCardState extends State<MessageCard>
     int padding = 2;
 
     if (!biggerFont) {
-      if (isSentMessageCard) {
-        padding = defaultTargetPlatform.isAndroid
-            ? (widget.special ? 13 : 12)
-            : (widget.special ? 17 : 16);
-      } else {
-        padding = defaultTargetPlatform.isAndroid ? 8 : 12;
-      }
+      // if (isSentMessageCard) {
+      //   padding = defaultTargetPlatform.isAndroid
+      //       ? (widget.special ? 13 : 12)
+      //       : (widget.special ? 17 : 16);
+      // } else {
+      //   padding = defaultTargetPlatform.isAndroid ? 8 : 12;
+      // }
+
+      padding = (widget.special ? 17 : 16);
     }
 
     final textPadding = '\u00A0' * padding;
@@ -268,6 +265,11 @@ class _MessageCardState extends State<MessageCard>
                     // ),
                   ],
                   if (messageHasText) ...[
+                    if (widget.message.message.contains('http'))
+                      ChatLinkPreview(
+                        message: widget.message,
+                        isMessageBySelf: isSentMessageCard,
+                      ),
                     Padding(
                       padding: hasAttachment
                           ? const EdgeInsets.only(left: 4.0 /* top: 4.0 */)
@@ -344,10 +346,7 @@ class _MessageCardState extends State<MessageCard>
                     children: [
                       if (showTimeStamp) ...[
                         Text(
-                          widget.message.createdAt?.toLocal().format(
-                                'h:mm a',
-                              ) ??
-                              '',
+                          widget.message.createdAt?.format('h:mm a') ?? '',
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 fontSize: 10,

@@ -35,9 +35,11 @@ PagingController<int, ChatMessage> controller() =>
             .range(start, end);
         return result
             .map(
-              (e) =>
-                  ChatMessageMapper.fromMap(e)
-                    ..sender = ChatUserMapper.fromMap(e['sender']),
+              (e) => ChatMessageMapper.fromMap(e)
+                ..sender = ChatUserMapper.fromMap(e['sender'])
+                ..createdAt = DateTime.tryParse(
+                  e['created_at'].toString(),
+                )?.toLocal(),
             )
             .toList();
       },
@@ -67,6 +69,9 @@ void stream(
           ),
           callback: (PostgresChangePayload payload) async {
             final message = ChatMessageMapper.fromMap(payload.newRecord);
+            message.createdAt = DateTime.tryParse(
+              payload.newRecord['created_at'].toString(),
+            )?.toLocal();
             message.sender = allUsers.firstWhere(
               (user) => user.id == message.senderId,
             );
@@ -90,6 +95,9 @@ void stream(
             if (payload.eventType == PostgresChangeEvent.update) {
               log(payload.eventType.name);
               final message = ChatMessageMapper.fromMap(payload.newRecord);
+              message.createdAt = DateTime.tryParse(
+                payload.newRecord['created_at'].toString(),
+              )?.toLocal();
               message.sender = allUsers.firstWhere(
                 (user) => user.id == message.senderId,
               );
