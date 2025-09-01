@@ -23,7 +23,11 @@ class ChatLinkPreview extends StatelessWidget {
       ),
       child: AnyLinkPreview(
         key: ValueKey(message.message),
-        link: message.message,
+        link:
+            message.message.startsWith("http") ||
+                message.message.startsWith("https")
+            ? message.message
+            : "https://${message.message}",
         displayDirection: UIDirection.uiDirectionHorizontal,
         bodyMaxLines: 5,
         bodyTextOverflow: TextOverflow.ellipsis,
