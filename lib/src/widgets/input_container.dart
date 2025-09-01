@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
@@ -9,15 +7,11 @@ import 'chat_field.dart';
 
 class ChatInputContainer extends StatefulWidget {
   final ChatController controller;
-  final Future<bool> Function(ChatMessage message)? onSend;
-  final Widget? leading;
-  final List<Widget>? actions;
+  final ChatUiConfig config;
   const ChatInputContainer({
     super.key,
     required this.controller,
-    this.onSend,
-    this.leading,
-    this.actions,
+    this.config = const ChatUiConfig(),
   });
 
   @override
@@ -50,14 +44,14 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
     final colorTheme = context.theme.colorScheme;
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               child: Container(
-                margin: const EdgeInsets.only(left: 3.0, top: 4.0),
+                margin: const EdgeInsets.only(left: 3.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.0),
                   color: Theme.of(context).brightness == Brightness.dark
@@ -65,7 +59,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       : colorTheme.surfaceContainer,
                 ),
                 child: ChatField(
-                  leading: widget.leading ?? const SizedBox(width: 12),
+                  leading: widget.config.leading ?? const SizedBox(width: 12),
                   focusNode: widget.controller.focusNode,
                   textController: widget.controller.messageController,
                   onSubmitted: (value) => widget.controller.addMessage(
@@ -80,7 +74,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                     ),
                   ),
                   actions:
-                      widget.actions ??
+                      widget.config.actions ??
                       [
                         IconButton(
                           onPressed: () =>

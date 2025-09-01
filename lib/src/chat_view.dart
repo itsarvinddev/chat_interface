@@ -6,19 +6,25 @@ import 'utils/chat_by_date.dart';
 import 'widgets/bubble.dart';
 import 'widgets/input_container.dart';
 
+typedef CustomMessageBuilder =
+    Widget Function(ChatController controller, ChatMessage message, int index);
+
+class ChatUiConfig {
+  final CustomMessageBuilder? customMessageBuilder;
+  final Widget? leading;
+  final List<Widget>? actions;
+
+  const ChatUiConfig({this.customMessageBuilder, this.leading, this.actions});
+}
+
 class ChatUi extends StatefulWidget {
   final ChatController controller;
-  final Widget Function(
-    ChatController controller,
-    ChatMessage message,
-    int index,
-  )?
-  customMessageBuilder;
+  final ChatUiConfig config;
 
   const ChatUi({
     super.key,
     required this.controller,
-    this.customMessageBuilder,
+    this.config = const ChatUiConfig(),
   });
 
   @override
@@ -117,7 +123,6 @@ class _ChatUiState extends State<ChatUi> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat')),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -161,7 +166,7 @@ class _ChatUiState extends State<ChatUi> {
                     message: item,
                     index: index,
                     showHeader: showDateHeader,
-                    customMessageBuilder: widget.customMessageBuilder,
+                    config: widget.config,
                   );
                 },
               ),
@@ -169,7 +174,10 @@ class _ChatUiState extends State<ChatUi> {
           },
         ),
       ),
-      bottomNavigationBar: ChatInputContainer(controller: widget.controller),
+      bottomNavigationBar: ChatInputContainer(
+        controller: widget.controller,
+        config: widget.config,
+      ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: _showJumpToBottom,
         builder: (context, show, _) {

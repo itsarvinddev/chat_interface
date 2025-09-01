@@ -19,12 +19,7 @@ class ChatBubble extends StatelessWidget {
   final ChatMessage message;
   final int index;
   final bool showHeader;
-  final Widget Function(
-    ChatController controller,
-    ChatMessage message,
-    int index,
-  )?
-  customMessageBuilder;
+  final ChatUiConfig config;
 
   const ChatBubble({
     super.key,
@@ -32,7 +27,7 @@ class ChatBubble extends StatelessWidget {
     required this.message,
     required this.index,
     this.showHeader = false,
-    this.customMessageBuilder,
+    this.config = const ChatUiConfig(),
   });
   @override
   Widget build(BuildContext context) {
@@ -73,7 +68,7 @@ class ChatBubble extends StatelessWidget {
                 index: index,
               ),
               ChatMessageType.custom =>
-                customMessageBuilder?.call(controller, message, index) ??
+                config.customMessageBuilder?.call(controller, message, index) ??
                     const SizedBox.shrink(),
             },
           ],

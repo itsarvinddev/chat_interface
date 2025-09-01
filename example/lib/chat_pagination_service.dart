@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:chatui/chatui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-int pageSize = 20;
+int pageSize = 100;
 
 PagingController<int, ChatMessage> controller() =>
     PagingController<int, ChatMessage>(
