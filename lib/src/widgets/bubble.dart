@@ -12,6 +12,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
 import 'action.dart';
+import 'attachment_viewer.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -60,6 +61,7 @@ class ChatBubble extends StatelessWidget {
               ChatMessageType.action => ChatAction(message: message),
               ChatMessageType.chat => MessageCard(
                 message: message,
+                controller: controller,
                 currentUser: controller.currentUser,
                 special: controller.tailForIndex(index),
                 showSender:
@@ -86,6 +88,7 @@ class MessageCard extends StatefulWidget {
     this.special = false,
     this.showSender = false,
     this.index = 0,
+    required this.controller,
   });
 
   final ChatMessage message;
@@ -93,6 +96,7 @@ class MessageCard extends StatefulWidget {
   final ChatUser currentUser;
   final bool showSender;
   final int index;
+  final ChatController controller;
   @override
   State<MessageCard> createState() => _MessageCardState();
 }
@@ -253,25 +257,40 @@ class _MessageCardState extends State<MessageCard>
                     ),
                   ],
                   if (hasAttachment) ...[
-                    // ConstrainedBox(
-                    //   constraints: BoxConstraints(
-                    //     maxHeight: height < width
-                    //         ? 0.65 * width
-                    //         : double.infinity,
-                    //   ),
-                    //   child: AttachmentPreview(
-                    //     message: widget.message,
-                    //     width: width,
-                    //     height: height,
-                    //   ),
-                    // ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: height < width
+                            ? 0.65 * width
+                            : double.infinity,
+                      ),
+                      child: AttachmentPreview(
+                        message: widget.message,
+                        width: width,
+                        height: height,
+                        controller: widget.controller,
+                      ),
+                    ),
                   ],
                   if (messageHasText) ...[
-                    if (widget.message.message.contains('http'))
-                      ChatLinkPreview(
-                        message: widget.message,
-                        isMessageBySelf: isSentMessageCard,
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final matches = urlRegex.allMatches(
+                          widget.message.message,
+                        );
+                        final url =
+                            matches.firstOrNull?.group(0) ??
+                            widget.message.message;
+                        final isUrl = Uri.tryParse(url) != null;
+
+                        if (matches.isNotNullOrEmpty && isUrl) {
+                          return ChatLinkPreview(
+                            message: widget.message.copyWith(message: url),
+                            isMessageBySelf: isSentMessageCard,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                     Padding(
                       padding: hasAttachment
                           ? const EdgeInsets.only(left: 4.0 /* top: 4.0 */)

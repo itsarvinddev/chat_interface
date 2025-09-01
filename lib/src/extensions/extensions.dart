@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:screwdriver/screwdriver.dart';
 
 extension TargetPlatformExtension on TargetPlatform {
   bool get isAndroid => this == TargetPlatform.android;
@@ -55,3 +57,66 @@ extension ListExtension<T> on List<T> {
   }
 }
 
+String strFormattedSize(num size) {
+  size /= 1024;
+
+  final suffixes = ["KB", "MB", "GB", "TB"];
+  String suffix = "";
+
+  for (suffix in suffixes) {
+    if (size < 1024) {
+      break;
+    }
+
+    size /= 1024;
+  }
+
+  return "${size.toStringAsFixed(2)}$suffix";
+}
+
+String formattedDateTime(
+  DateTime dateTime, [
+  bool timeOnly = false,
+  bool meridiem = false,
+]) {
+  DateTime now = DateTime.now();
+  DateTime date = dateTime;
+
+  if (timeOnly || now.isSameDateAs(date)) {
+    return meridiem
+        ? DateFormat('hh:mm a').format(date)
+        : DateFormat('HH:mm').format(date);
+  }
+
+  if (date.isYesterday) {
+    return 'Yesterday';
+  }
+
+  return DateFormat.yMd().format(date);
+}
+
+String timeFromSeconds(int seconds, [bool minWidth4 = false]) {
+  if (seconds == 0) return "0:00";
+
+  String result = DateFormat('HH:mm:ss').format(
+    DateTime(2022, 1, 1, 0, 0, seconds),
+  );
+
+  List resultParts = result.split(':');
+  for (int i = 0; i < resultParts.length; i++) {
+    if (resultParts[i] != "00") break;
+    resultParts[i] = "";
+  }
+  resultParts.removeWhere((element) => element == "");
+
+  if (minWidth4 && resultParts.length == 1) {
+    resultParts = ["0", ...resultParts];
+  }
+
+  return resultParts.join(':');
+}
+
+ final RegExp urlRegex = RegExp(
+    r'((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})(:[0-9]{1,5})?(\/[^\s]*)?)',
+    caseSensitive: false,
+  );

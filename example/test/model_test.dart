@@ -39,5 +39,35 @@ void main() {
     expect(decodedAttachment.fileName, 'test.png');
     expect(decodedAttachment.type, ChatAttachmentType.image);
     expect(decodedAttachment.file?.path, 'test.png');
+
+    urlRegexTest();
   });
+}
+
+void urlRegexTest() {
+  final RegExp urlRegex = RegExp(
+    r'((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})(:[0-9]{1,5})?(\/[^\s]*)?)',
+    caseSensitive: false,
+  );
+
+  final testStrings = [
+    "Check this out: https://allreserve.in",
+    "Visit www.google.com for search",
+    "My site is arvind.dev",
+    "This is not a link: hello.worldly",
+    "http://localhost:3000/test",
+    "random text without link",
+  ];
+
+  for (var text in testStrings) {
+    final matches = urlRegex.allMatches(text);
+    if (matches.isNotEmpty) {
+      print("✅ Found URLs in: \"$text\"");
+      for (var match in matches) {
+        print("   → ${match.group(0)}");
+      }
+    } else {
+      print("❌ No URL in: \"$text\"");
+    }
+  }
 }

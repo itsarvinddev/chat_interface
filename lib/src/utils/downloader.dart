@@ -6,6 +6,48 @@ import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+enum DownloadState { idle, running, success, error, canceled }
+
+class ChatDownloadProgress {
+  final int received;
+  final int? total;
+  final DownloadState state;
+
+  double? get fraction =>
+      (total != null && total! > 0) ? received / total! : null;
+
+  const ChatDownloadProgress({
+    required this.received,
+    required this.total,
+    required this.state,
+  });
+
+  factory ChatDownloadProgress.running(int received, int? total) =>
+      ChatDownloadProgress(
+        received: received,
+        total: total,
+        state: DownloadState.running,
+      );
+
+  factory ChatDownloadProgress.success(int total) => ChatDownloadProgress(
+    received: total,
+    total: total,
+    state: DownloadState.success,
+  );
+
+  factory ChatDownloadProgress.error() => const ChatDownloadProgress(
+    received: 0,
+    total: null,
+    state: DownloadState.error,
+  );
+
+  factory ChatDownloadProgress.canceled() => const ChatDownloadProgress(
+    received: 0,
+    total: null,
+    state: DownloadState.canceled,
+  );
+}
+
 typedef DownloadingProgress = void Function(int received, int? total); // bytes
 typedef DebugLogger = void Function(String message);
 
