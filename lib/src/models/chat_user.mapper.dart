@@ -127,6 +127,32 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$lastReadAt,
     opt: true,
   );
+  static String _$roomId(ChatUser v) => v.roomId;
+  static const Field<ChatUser, String> _f$roomId = Field(
+    'roomId',
+    _$roomId,
+    opt: true,
+    def: "",
+  );
+  static String _$status(ChatUser v) => v.status;
+  static const Field<ChatUser, String> _f$status = Field(
+    'status',
+    _$status,
+    opt: true,
+    def: "",
+  );
+  static DateTime? _$createdAt(ChatUser v) => v.createdAt;
+  static const Field<ChatUser, DateTime> _f$createdAt = Field(
+    'createdAt',
+    _$createdAt,
+    opt: true,
+  );
+  static DateTime? _$updatedAt(ChatUser v) => v.updatedAt;
+  static const Field<ChatUser, DateTime> _f$updatedAt = Field(
+    'updatedAt',
+    _$updatedAt,
+    opt: true,
+  );
 
   @override
   final MappableFields<ChatUser> fields = const {
@@ -138,6 +164,10 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     #role: _f$role,
     #lastReadMessage: _f$lastReadMessage,
     #lastReadAt: _f$lastReadAt,
+    #roomId: _f$roomId,
+    #status: _f$status,
+    #createdAt: _f$createdAt,
+    #updatedAt: _f$updatedAt,
   };
 
   static ChatUser _instantiate(DecodingData data) {
@@ -150,6 +180,10 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
       role: data.dec(_f$role),
       lastReadMessage: data.dec(_f$lastReadMessage),
       lastReadAt: data.dec(_f$lastReadAt),
+      roomId: data.dec(_f$roomId),
+      status: data.dec(_f$status),
+      createdAt: data.dec(_f$createdAt),
+      updatedAt: data.dec(_f$updatedAt),
     );
   }
 
@@ -222,6 +256,10 @@ abstract class ChatUserCopyWith<$R, $In extends ChatUser, $Out>
     ChatUserRole? role,
     ChatMessage? lastReadMessage,
     DateTime? lastReadAt,
+    String? roomId,
+    String? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   ChatUserCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -254,6 +292,10 @@ class _ChatUserCopyWithImpl<$R, $Out>
     ChatUserRole? role,
     Object? lastReadMessage = $none,
     Object? lastReadAt = $none,
+    String? roomId,
+    String? status,
+    Object? createdAt = $none,
+    Object? updatedAt = $none,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -264,6 +306,10 @@ class _ChatUserCopyWithImpl<$R, $Out>
       if (role != null) #role: role,
       if (lastReadMessage != $none) #lastReadMessage: lastReadMessage,
       if (lastReadAt != $none) #lastReadAt: lastReadAt,
+      if (roomId != null) #roomId: roomId,
+      if (status != null) #status: status,
+      if (createdAt != $none) #createdAt: createdAt,
+      if (updatedAt != $none) #updatedAt: updatedAt,
     }),
   );
   @override
@@ -276,6 +322,10 @@ class _ChatUserCopyWithImpl<$R, $Out>
     role: data.get(#role, or: $value.role),
     lastReadMessage: data.get(#lastReadMessage, or: $value.lastReadMessage),
     lastReadAt: data.get(#lastReadAt, or: $value.lastReadAt),
+    roomId: data.get(#roomId, or: $value.roomId),
+    status: data.get(#status, or: $value.status),
+    createdAt: data.get(#createdAt, or: $value.createdAt),
+    updatedAt: data.get(#updatedAt, or: $value.updatedAt),
   );
 
   @override

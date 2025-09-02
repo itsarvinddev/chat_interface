@@ -84,7 +84,7 @@ class ChatController {
     try {
       pagingController.mapItems(
         (item) => item.id == message.id
-            ? item.copyWith(status: message.status)
+            ? item.copyWith(chatStatus: message.chatStatus)
             : item,
       );
       await onMessageUpdated?.call(message);

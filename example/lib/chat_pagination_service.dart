@@ -102,7 +102,7 @@ void stream(
               message.sender = allUsers.firstWhere(
                 (user) => user.id == message.senderId,
               );
-              message.status = ChatMessageStatus.seen;
+              message.chatStatus = ChatMessageStatus.seen;
               controller.mapItems(
                 (item) => item.id == message.id ? message : item,
               );

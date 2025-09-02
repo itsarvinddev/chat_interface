@@ -12,7 +12,7 @@ class ChatMessage with ChatMessageMappable {
   String message = "";
   ChatAttachment? attachment;
   ChatMessageType type = ChatMessageType.chat;
-  ChatMessageStatus status = ChatMessageStatus.pending;
+  ChatMessageStatus chatStatus = ChatMessageStatus.pending;
   @MappableField(key: 'image_type')
   ChatImageType imageType = ChatImageType.network;
   List<ChatReaction> reactions = [];
@@ -31,6 +31,7 @@ class ChatMessage with ChatMessageMappable {
   DateTime? updatedAt;
   @MappableField(key: 'edited_at')
   DateTime? editedAt;
+  String status = "";
 
   /// Key for accessing the widget's render box.
   final GlobalKey key = GlobalKey();
@@ -43,7 +44,7 @@ class ChatMessage with ChatMessageMappable {
     this.message = "",
     this.attachment,
     this.type = ChatMessageType.chat,
-    this.status = ChatMessageStatus.pending,
+    this.chatStatus = ChatMessageStatus.pending,
     this.imageType = ChatImageType.network,
     this.reactions = const [],
     this.replyMessage,
@@ -54,6 +55,7 @@ class ChatMessage with ChatMessageMappable {
     this.createdAt,
     this.updatedAt,
     this.editedAt,
+    this.status = "",
   }) : sender = ChatUser(id: senderId);
 
   bool get isReactionsEmpty => reactions.isNullOrEmpty;

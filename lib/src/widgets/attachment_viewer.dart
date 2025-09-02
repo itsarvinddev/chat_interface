@@ -330,7 +330,7 @@ class _AttachedVoiceViewerState extends State<AttachedVoiceViewer> {
         ? const Color.fromARGB(255, 235, 234, 234)
         : context.colorScheme.primary;
 
-    final micColor = widget.message.status == ChatMessageStatus.seen
+    final micColor = widget.message.chatStatus == ChatMessageStatus.seen
         ? context.colorScheme.primary
         : iconColor;
 

@@ -54,10 +54,10 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     opt: true,
     def: ChatMessageType.chat,
   );
-  static ChatMessageStatus _$status(ChatMessage v) => v.status;
-  static const Field<ChatMessage, ChatMessageStatus> _f$status = Field(
-    'status',
-    _$status,
+  static ChatMessageStatus _$chatStatus(ChatMessage v) => v.chatStatus;
+  static const Field<ChatMessage, ChatMessageStatus> _f$chatStatus = Field(
+    'chatStatus',
+    _$chatStatus,
     opt: true,
     def: ChatMessageStatus.pending,
   );
@@ -135,6 +135,13 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     key: r'edited_at',
     opt: true,
   );
+  static String _$status(ChatMessage v) => v.status;
+  static const Field<ChatMessage, String> _f$status = Field(
+    'status',
+    _$status,
+    opt: true,
+    def: "",
+  );
   static GlobalKey<State<StatefulWidget>> _$key(ChatMessage v) => v.key;
   static const Field<ChatMessage, GlobalKey<State<StatefulWidget>>> _f$key =
       Field('key', _$key, mode: FieldMode.member);
@@ -175,7 +182,7 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     #message: _f$message,
     #attachment: _f$attachment,
     #type: _f$type,
-    #status: _f$status,
+    #chatStatus: _f$chatStatus,
     #imageType: _f$imageType,
     #reactions: _f$reactions,
     #replyMessage: _f$replyMessage,
@@ -186,6 +193,7 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     #createdAt: _f$createdAt,
     #updatedAt: _f$updatedAt,
     #editedAt: _f$editedAt,
+    #status: _f$status,
     #key: _f$key,
     #sender: _f$sender,
     #isReactionsEmpty: _f$isReactionsEmpty,
@@ -200,7 +208,7 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
       message: data.dec(_f$message),
       attachment: data.dec(_f$attachment),
       type: data.dec(_f$type),
-      status: data.dec(_f$status),
+      chatStatus: data.dec(_f$chatStatus),
       imageType: data.dec(_f$imageType),
       reactions: data.dec(_f$reactions),
       replyMessage: data.dec(_f$replyMessage),
@@ -211,6 +219,7 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
       createdAt: data.dec(_f$createdAt),
       updatedAt: data.dec(_f$updatedAt),
       editedAt: data.dec(_f$editedAt),
+      status: data.dec(_f$status),
     );
   }
 
@@ -290,7 +299,7 @@ abstract class ChatMessageCopyWith<$R, $In extends ChatMessage, $Out>
     String? message,
     ChatAttachment? attachment,
     ChatMessageType? type,
-    ChatMessageStatus? status,
+    ChatMessageStatus? chatStatus,
     ChatImageType? imageType,
     List<ChatReaction>? reactions,
     ChatReplyMessage? replyMessage,
@@ -301,6 +310,7 @@ abstract class ChatMessageCopyWith<$R, $In extends ChatMessage, $Out>
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? editedAt,
+    String? status,
   });
   ChatMessageCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -344,7 +354,7 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     String? message,
     Object? attachment = $none,
     ChatMessageType? type,
-    ChatMessageStatus? status,
+    ChatMessageStatus? chatStatus,
     ChatImageType? imageType,
     List<ChatReaction>? reactions,
     Object? replyMessage = $none,
@@ -355,13 +365,14 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     Object? createdAt = $none,
     Object? updatedAt = $none,
     Object? editedAt = $none,
+    String? status,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
       if (message != null) #message: message,
       if (attachment != $none) #attachment: attachment,
       if (type != null) #type: type,
-      if (status != null) #status: status,
+      if (chatStatus != null) #chatStatus: chatStatus,
       if (imageType != null) #imageType: imageType,
       if (reactions != null) #reactions: reactions,
       if (replyMessage != $none) #replyMessage: replyMessage,
@@ -372,6 +383,7 @@ class _ChatMessageCopyWithImpl<$R, $Out>
       if (createdAt != $none) #createdAt: createdAt,
       if (updatedAt != $none) #updatedAt: updatedAt,
       if (editedAt != $none) #editedAt: editedAt,
+      if (status != null) #status: status,
     }),
   );
   @override
@@ -380,7 +392,7 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     message: data.get(#message, or: $value.message),
     attachment: data.get(#attachment, or: $value.attachment),
     type: data.get(#type, or: $value.type),
-    status: data.get(#status, or: $value.status),
+    chatStatus: data.get(#chatStatus, or: $value.chatStatus),
     imageType: data.get(#imageType, or: $value.imageType),
     reactions: data.get(#reactions, or: $value.reactions),
     replyMessage: data.get(#replyMessage, or: $value.replyMessage),
@@ -391,6 +403,7 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     createdAt: data.get(#createdAt, or: $value.createdAt),
     updatedAt: data.get(#updatedAt, or: $value.updatedAt),
     editedAt: data.get(#editedAt, or: $value.editedAt),
+    status: data.get(#status, or: $value.status),
   );
 
   @override

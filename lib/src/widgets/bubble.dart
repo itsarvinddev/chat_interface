@@ -381,9 +381,9 @@ class _MessageCardState extends State<MessageCard>
                       if (isSentMessageCard) ...[
                         const SizedBox(width: 4.0),
                         Image.asset(
-                          'assets/images/${widget.message.status.name.toUpperCase()}.png',
+                          'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
                           package: 'chatui',
-                          color: switch (widget.message.status) {
+                          color: switch (widget.message.chatStatus) {
                             // ChatMessageStatus.seen => colorTheme.primary,
                             ChatMessageStatus.seen => Colors.green,
                             _ => colorTheme.outline.withValues(alpha: 0.7),

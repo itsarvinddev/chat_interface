@@ -38,6 +38,15 @@ class ChatUser with ChatUserMappable {
   /// Provides room id of user.
   String roomId;
 
+  /// Provides status of user.
+  String status;
+
+  /// Provides is createdAt of user.
+  DateTime? createdAt;
+
+  /// Provides is deleted of user.
+  DateTime? updatedAt;
+
   ChatUser({
     this.id = "",
     this.name = "",
@@ -48,6 +57,9 @@ class ChatUser with ChatUserMappable {
     this.lastReadMessage,
     this.lastReadAt,
     this.roomId = "",
+    this.status = "",
+    this.createdAt,
+    this.updatedAt,
   });
 }
 

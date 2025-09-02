@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
               });
           log(result.toString());
           _controller.updateMessage(
-            message.copyWith(status: ChatMessageStatus.sent),
+            message.copyWith(chatStatus: ChatMessageStatus.sent),
           );
           return;
         } catch (e) {
