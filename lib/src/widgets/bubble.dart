@@ -12,7 +12,6 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
 import 'action.dart';
-import 'attachment_viewer.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -257,19 +256,19 @@ class _MessageCardState extends State<MessageCard>
                     ),
                   ],
                   if (hasAttachment) ...[
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: height < width
-                            ? 0.65 * width
-                            : double.infinity,
-                      ),
-                      child: AttachmentPreview(
-                        message: widget.message,
-                        width: width,
-                        height: height,
-                        controller: widget.controller,
-                      ),
-                    ),
+                    // ConstrainedBox(
+                    //   constraints: BoxConstraints(
+                    //     maxHeight: height < width
+                    //         ? 0.65 * width
+                    //         : double.infinity,
+                    //   ),
+                    //   child: AttachmentPreview(
+                    //     message: widget.message,
+                    //     width: width,
+                    //     height: height,
+                    //     controller: widget.controller,
+                    //   ),
+                    // ),
                   ],
                   if (messageHasText) ...[
                     Builder(

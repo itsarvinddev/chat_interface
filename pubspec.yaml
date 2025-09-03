@@ -28,12 +28,12 @@ dependencies:
   visibility_detector: ^0.4.0+2
   flutter_keyboard_visibility: ^6.0.0
   swipe_to: ^1.0.6
-  video_player: ^2.7.0
-  open_file_plus: ^3.4.1
+  # video_player: ^2.7.0
+  # open_file_plus: ^3.4.1
 
-  audioplayers: ^5.1.0
-  flutter_sound: ^9.2.13
-  audio_session: ^0.1.16
+  # audioplayers: ^5.1.0
+  # flutter_sound: ^9.2.13
+  # audio_session: ^0.1.16
 
 dev_dependencies:
   flutter_test:
