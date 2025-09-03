@@ -16,6 +16,7 @@ export 'src/models/message.dart';
 export 'src/utils/debounce.dart';
 export 'src/utils/downloader.dart';
 export 'src/utils/duration_mapper.dart';
+export 'src/utils/file_picker_utils.dart';
 export 'src/utils/markdown_parser.dart';
 
 /// Initialize the ChatUI package
