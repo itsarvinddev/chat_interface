@@ -123,6 +123,22 @@ class ChatController {
         next.type == ChatMessageType.action;
   }
 
+  /// Room object for the chat.
+  late Object? _room;
+
+  /// Sets the room object for the chat.
+  void setRoom(Object? room) {
+    _room = room;
+  }
+
+  /// Gets the room object for the chat.
+  Object? getRoom() {
+    return _room;
+  }
+
+  /// Typed room getter for convenience.
+  T? getRoomAs<T>() => _room is T ? _room as T : null;
+
   /// Disposes resources safely.
   void dispose() {
     if (scrollController.hasClients) {
