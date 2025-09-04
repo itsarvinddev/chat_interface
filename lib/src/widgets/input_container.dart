@@ -55,8 +55,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.0),
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? colorTheme.surface
-                      : colorTheme.surfaceContainer,
+                      ? colorTheme.surfaceContainer
+                      : colorTheme.surfaceContainerHighest,
                 ),
                 child: ChatField(
                   leading: widget.config.leading ?? const SizedBox(width: 12),

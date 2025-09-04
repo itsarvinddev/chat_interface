@@ -1,213 +1,209 @@
-// import 'dart:async';
-// import 'dart:io';
+import 'dart:async';
+import 'dart:io';
 
-// import 'package:audioplayers/audioplayers.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:chatui/chatui.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_screwdriver/flutter_screwdriver.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:open_file_plus/open_file_plus.dart';
-// import 'package:screwdriver/screwdriver.dart';
+import 'package:chatui/chatui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screwdriver/flutter_screwdriver.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 
-// import '../utils/painters.dart';
-// import '../utils/storage_paths.dart';
-// import '../utils/uploader.dart';
-// import 'attachment_renderers.dart';
-// import 'progress_btn.dart';
+import '../utils/storage_paths.dart';
+import '../utils/uploader.dart';
+import 'attachment_renderers.dart';
+import 'progress_btn.dart';
 
-// class AttachmentPreview extends StatefulWidget {
-//   const AttachmentPreview({
-//     super.key,
-//     required this.message,
-//     required this.width,
-//     required this.height,
-//     required this.controller,
-//   });
+class AttachmentPreview extends StatefulWidget {
+  const AttachmentPreview({
+    super.key,
+    required this.message,
+    required this.width,
+    required this.height,
+    required this.controller,
+  });
 
-//   final ChatMessage message;
-//   final double width;
-//   final double height;
-//   final ChatController controller;
-//   @override
-//   State<AttachmentPreview> createState() => _AttachmentPreviewState();
-// }
+  final ChatMessage message;
+  final double width;
+  final double height;
+  final ChatController controller;
+  @override
+  State<AttachmentPreview> createState() => _AttachmentPreviewState();
+}
 
-// class _AttachmentPreviewState extends State<AttachmentPreview> {
-//   bool _doesAttachmentExist() {
-//     final fileName = widget.message.attachment!.fileName;
-//     final file = File(DeviceStorage.getMediaFilePath(fileName));
+class _AttachmentPreviewState extends State<AttachmentPreview> {
+  bool _doesAttachmentExist() {
+    final fileName = widget.message.attachment!.fileName;
+    final file = File(DeviceStorage.getMediaFilePath(fileName));
 
-//     if (file.existsSync()) {
-//       widget.message.attachment!.file = XFile(file.path);
-//       return true;
-//     }
+    if (file.existsSync()) {
+      widget.message.attachment!.file = XFile(file.path);
+      return true;
+    }
 
-//     return false;
-//   }
+    return false;
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return switch (widget.message.attachment!.type) {
-//       ChatAttachmentType.audio => AttachedAudioViewer(
-//         message: widget.message,
-//         doesAttachmentExist: _doesAttachmentExist(),
-//         onDownloadComplete: () => setState(() {}),
-//         controller: widget.controller,
-//       ),
-//       ChatAttachmentType.voice => AttachedVoiceViewer(
-//         message: widget.message,
-//         doesAttachmentExist: _doesAttachmentExist(),
-//         onDownloadComplete: () => setState(() {}),
-//         controller: widget.controller,
-//       ),
-//       ChatAttachmentType.document => AttachedDocumentViewer(
-//         message: widget.message,
-//         doesAttachmentExist: _doesAttachmentExist(),
-//         onDownloadComplete: () => setState(() {}),
-//         controller: widget.controller,
-//       ),
-//       _ => AttachedImageVideoViewer(
-//         width: widget.width,
-//         height: widget.height,
-//         message: widget.message,
-//         doesAttachmentExist: _doesAttachmentExist(),
-//         onDownloadComplete: () => setState(() {}),
-//         controller: widget.controller,
-//       ),
-//     };
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return switch (widget.message.attachment!.type) {
+      // ChatAttachmentType.audio => AttachedAudioViewer(
+      //   message: widget.message,
+      //   doesAttachmentExist: _doesAttachmentExist(),
+      //   onDownloadComplete: () => setState(() {}),
+      //   controller: widget.controller,
+      // ),
+      // ChatAttachmentType.voice => AttachedVoiceViewer(
+      //   message: widget.message,
+      //   doesAttachmentExist: _doesAttachmentExist(),
+      //   onDownloadComplete: () => setState(() {}),
+      //   controller: widget.controller,
+      // ),
+      ChatAttachmentType.document => AttachedDocumentViewer(
+        message: widget.message,
+        doesAttachmentExist: _doesAttachmentExist(),
+        onDownloadComplete: () => setState(() {}),
+        controller: widget.controller,
+      ),
+      _ => AttachedImageVideoViewer(
+        width: widget.width,
+        height: widget.height,
+        message: widget.message,
+        doesAttachmentExist: _doesAttachmentExist(),
+        onDownloadComplete: () => setState(() {}),
+        controller: widget.controller,
+      ),
+    };
+  }
+}
 
-// class AttachedImageVideoViewer extends StatefulWidget {
-//   final double width;
-//   final double height;
-//   final ChatMessage message;
-//   final bool doesAttachmentExist;
-//   final VoidCallback onDownloadComplete;
-//   final ChatController controller;
+class AttachedImageVideoViewer extends StatefulWidget {
+  final double width;
+  final double height;
+  final ChatMessage message;
+  final bool doesAttachmentExist;
+  final VoidCallback onDownloadComplete;
+  final ChatController controller;
 
-//   const AttachedImageVideoViewer({
-//     super.key,
-//     required this.width,
-//     required this.height,
-//     required this.message,
-//     required this.doesAttachmentExist,
-//     required this.onDownloadComplete,
-//     required this.controller,
-//   });
+  const AttachedImageVideoViewer({
+    super.key,
+    required this.width,
+    required this.height,
+    required this.message,
+    required this.doesAttachmentExist,
+    required this.onDownloadComplete,
+    required this.controller,
+  });
 
-//   @override
-//   State<AttachedImageVideoViewer> createState() =>
-//       _AttachedImageVideoViewerState();
-// }
+  @override
+  State<AttachedImageVideoViewer> createState() =>
+      _AttachedImageVideoViewerState();
+}
 
-// class _AttachedImageVideoViewerState extends State<AttachedImageVideoViewer> {
-//   late final String sender;
+class _AttachedImageVideoViewerState extends State<AttachedImageVideoViewer> {
+  late final String sender;
 
-//   @override
-//   void initState() {
-//     final self = widget.controller.currentUser;
-//     final clientIsSender = widget.message.senderId == self.id;
-//     sender = clientIsSender ? "You" : widget.message.sender?.name ?? "Unknown";
+  @override
+  void initState() {
+    final self = widget.controller.currentUser;
+    final clientIsSender = widget.message.senderId == self.id;
+    sender = clientIsSender ? "You" : widget.message.sender?.name ?? "Unknown";
 
-//     super.initState();
-//   }
+    super.initState();
+  }
 
-//   Future<void> navigateToViewer() async {
-//     final file = widget.message.attachment!.file;
-//     final focusNode = widget.controller.focusNode;
-//     focusNode?.unfocus();
+  Future<void> navigateToViewer() async {
+    final file = widget.message.attachment!.file;
+    final focusNode = widget.controller.focusNode;
+    focusNode?.unfocus();
 
-//     Future.delayed(
-//       Duration(
-//         milliseconds: MediaQuery.of(context).viewInsets.bottom > 0 ? 300 : 0,
-//       ),
-//       () async {
-//         if (!mounted || file == null) return;
-//         await Navigator.of(context).push(
-//           MaterialPageRoute(
-//             builder: (context) => AttachmentViewer(
-//               file: File(file.path),
-//               message: widget.message,
-//               sender: sender,
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
+    Future.delayed(
+      Duration(
+        milliseconds: MediaQuery.of(context).viewInsets.bottom > 0 ? 300 : 0,
+      ),
+      () async {
+        if (!mounted || file == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AttachmentViewer(
+              file: File(file.path),
+              message: widget.message,
+              sender: sender,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final file = widget.message.attachment!.file;
-//     final bool isAttachmentUploaded =
-//         widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
+  @override
+  Widget build(BuildContext context) {
+    final file = widget.message.attachment!.file;
+    final bool isAttachmentUploaded =
+        widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
 
-//     final background = sender == "You"
-//         ? const Color.fromARGB(255, 0, 0, 0)
-//         : const Color.fromARGB(150, 0, 0, 0);
+    final background = sender == "You"
+        ? const Color.fromARGB(255, 0, 0, 0)
+        : const Color.fromARGB(150, 0, 0, 0);
 
-//     return Stack(
-//       alignment: Alignment.center,
-//       children: [
-//         GestureDetector(
-//           onTap: navigateToViewer,
-//           child: ClipRRect(
-//             borderRadius: BorderRadius.circular(8.0),
-//             child: Stack(
-//               alignment: Alignment.center,
-//               children: [
-//                 Container(
-//                   color: background,
-//                   width: widget.width,
-//                   height: widget.height,
-//                 ),
-//                 if (file != null) ...[
-//                   SizedBox(
-//                     width: widget.width,
-//                     height: widget.height,
-//                     child: Hero(
-//                       tag: widget.message.id,
-//                       child: AttachmentRenderer(
-//                         attachment: File(file.path),
-//                         attachmentType: widget.message.attachment!.type,
-//                         fit: BoxFit.cover,
-//                         controllable: false,
-//                         fadeIn: true,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ],
-//             ),
-//           ),
-//         ),
-//         if (!widget.doesAttachmentExist) ...[
-//           DownloadingAttachment(
-//             message: widget.message,
-//             onDone: widget.onDownloadComplete,
-//             showSize: true,
-//           ),
-//         ] else if (!isAttachmentUploaded) ...[
-//           UploadingAttachment(message: widget.message, showSize: true),
-//         ] else if (widget.message.attachment!.type ==
-//             ChatAttachmentType.video) ...[
-//           CircleAvatar(
-//             backgroundColor: const Color.fromARGB(255, 209, 208, 208),
-//             foregroundColor: Colors.black87,
-//             radius: 25,
-//             child: GestureDetector(
-//               onTap: navigateToViewer,
-//               child: const Icon(Icons.play_arrow_rounded, size: 40),
-//             ),
-//           ),
-//         ],
-//       ],
-//     );
-//   }
-// }
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        GestureDetector(
+          onTap: navigateToViewer,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  color: background,
+                  width: widget.width,
+                  height: widget.height,
+                ),
+                if (file != null) ...[
+                  SizedBox(
+                    width: widget.width,
+                    height: widget.height,
+                    child: Hero(
+                      tag: widget.message.id,
+                      child: AttachmentRenderer(
+                        attachment: File(file.path),
+                        attachmentType: widget.message.attachment!.type,
+                        fit: BoxFit.cover,
+                        controllable: false,
+                        fadeIn: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (!widget.doesAttachmentExist) ...[
+          DownloadingAttachment(
+            message: widget.message,
+            onDone: widget.onDownloadComplete,
+            showSize: true,
+          ),
+        ] else if (!isAttachmentUploaded) ...[
+          UploadingAttachment(message: widget.message, showSize: true),
+        ] else if (widget.message.attachment!.type ==
+            ChatAttachmentType.video) ...[
+          CircleAvatar(
+            backgroundColor: const Color.fromARGB(255, 209, 208, 208),
+            foregroundColor: Colors.black87,
+            radius: 25,
+            child: GestureDetector(
+              onTap: navigateToViewer,
+              child: const Icon(Icons.play_arrow_rounded, size: 40),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
 
 // class AttachedVoiceViewer extends StatefulWidget {
 //   final ChatMessage message;
@@ -965,584 +961,584 @@
 //   }
 // }
 
-// class AttachedDocumentViewer extends StatefulWidget {
-//   final ChatMessage message;
-//   final bool doesAttachmentExist;
-//   final VoidCallback onDownloadComplete;
-//   final ChatController controller;
-//   const AttachedDocumentViewer({
-//     super.key,
-//     required this.message,
-//     required this.doesAttachmentExist,
-//     required this.onDownloadComplete,
-//     required this.controller,
-//   });
+class AttachedDocumentViewer extends StatefulWidget {
+  final ChatMessage message;
+  final bool doesAttachmentExist;
+  final VoidCallback onDownloadComplete;
+  final ChatController controller;
+  const AttachedDocumentViewer({
+    super.key,
+    required this.message,
+    required this.doesAttachmentExist,
+    required this.onDownloadComplete,
+    required this.controller,
+  });
 
-//   @override
-//   State<AttachedDocumentViewer> createState() => _AttachedDocumentViewerState();
-// }
+  @override
+  State<AttachedDocumentViewer> createState() => _AttachedDocumentViewerState();
+}
 
-// class _AttachedDocumentViewerState extends State<AttachedDocumentViewer> {
-//   late final ChatUser self;
-//   late final bool clientIsSender;
+class _AttachedDocumentViewerState extends State<AttachedDocumentViewer> {
+  late final ChatUser self;
+  late final bool clientIsSender;
 
-//   @override
-//   void initState() {
-//     self = widget.controller.currentUser;
-//     clientIsSender = widget.message.senderId == self.id;
+  @override
+  void initState() {
+    self = widget.controller.currentUser;
+    clientIsSender = widget.message.senderId == self.id;
 
-//     super.initState();
-//   }
+    super.initState();
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final file = widget.message.attachment!.file;
-//     final bool isAttachmentUploaded =
-//         widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
-//     final attachment = widget.message.attachment!;
-//     final ext = attachment.fileExtension;
+  @override
+  Widget build(BuildContext context) {
+    final file = widget.message.attachment!.file;
+    final bool isAttachmentUploaded =
+        widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
+    final attachment = widget.message.attachment!;
+    final ext = attachment.fileExtension;
 
-//     Widget? trailing;
-//     if (!widget.doesAttachmentExist) {
-//       trailing = DownloadingAttachment(
-//         message: widget.message,
-//         onDone: widget.onDownloadComplete,
-//       );
-//     } else if (!isAttachmentUploaded) {
-//       trailing = UploadingAttachment(message: widget.message);
-//     }
+    Widget? trailing;
+    if (!widget.doesAttachmentExist) {
+      trailing = DownloadingAttachment(
+        message: widget.message,
+        onDone: widget.onDownloadComplete,
+      );
+    } else if (!isAttachmentUploaded) {
+      trailing = UploadingAttachment(message: widget.message);
+    }
 
-//     final backgroundColor = clientIsSender
-//         ? Theme.of(context).colorScheme.primary
-//         : Theme.of(context).colorScheme.primaryContainer;
+    final backgroundColor = clientIsSender
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.primaryContainer;
 
-//     String fileName = attachment.fileName;
-//     final len = fileName.length;
-//     if (fileName.length > 20) {
-//       fileName =
-//           "${fileName.substring(0, 15)}....${fileName.substring(len - 6, len)}";
-//     }
+    String fileName = attachment.fileName;
+    final len = fileName.length;
+    if (fileName.length > 20) {
+      fileName =
+          "${fileName.substring(0, 15)}....${fileName.substring(len - 6, len)}";
+    }
 
-//     return GestureDetector(
-//       onTap: () async {
-//         if (!widget.doesAttachmentExist) return;
-//         await OpenFile.open(file!.path);
-//       },
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-//         decoration: BoxDecoration(
-//           color: backgroundColor,
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//         child: Row(
-//           mainAxisSize: MainAxisSize.min,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             Container(
-//               width: 34,
-//               height: 40,
-//               decoration: BoxDecoration(
-//                 color: context.colorScheme.primaryContainer,
-//                 borderRadius: BorderRadius.only(topRight: Radius.circular(20)),
-//                 boxShadow: [
-//                   BoxShadow(blurRadius: 1, color: Color.fromARGB(80, 0, 0, 0)),
-//                 ],
-//               ),
-//               padding: const EdgeInsets.symmetric(horizontal: 4.0),
-//               child: Center(
-//                 child: Text(
-//                   ext.toUpperCase(),
-//                   style: const TextStyle(
-//                     color: Colors.black,
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 9,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(fileName, style: const TextStyle(fontSize: 14)),
-//                   Text(
-//                     "${strFormattedSize(attachment.fileSize)} · $ext",
-//                     style: const TextStyle(
-//                       fontSize: 12,
-//                       color: Colors.blueGrey,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             if (widget.message.message.length > 10) ...[const Spacer()],
-//             trailing ?? const Text(''),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+    return GestureDetector(
+      onTap: () async {
+        if (!widget.doesAttachmentExist) return;
+        await OpenFile.open(file!.path);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 34,
+              height: 40,
+              decoration: BoxDecoration(
+                color: context.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.only(topRight: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(blurRadius: 1, color: Color.fromARGB(80, 0, 0, 0)),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Center(
+                child: Text(
+                  ext.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 9,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(fileName, style: const TextStyle(fontSize: 14)),
+                  Text(
+                    "${strFormattedSize(attachment.fileSize)} · $ext",
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.blueGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (widget.message.message.length > 10) ...[const Spacer()],
+            trailing ?? const Text(''),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-// class AttachmentViewer extends StatefulWidget {
-//   const AttachmentViewer({
-//     super.key,
-//     required this.file,
-//     required this.message,
-//     required this.sender,
-//   });
-//   final File file;
-//   final ChatMessage message;
-//   final String sender;
+class AttachmentViewer extends StatefulWidget {
+  const AttachmentViewer({
+    super.key,
+    required this.file,
+    required this.message,
+    required this.sender,
+  });
+  final File file;
+  final ChatMessage message;
+  final String sender;
 
-//   @override
-//   State<AttachmentViewer> createState() => _AttachmentViewerState();
-// }
+  @override
+  State<AttachmentViewer> createState() => _AttachmentViewerState();
+}
 
-// class _AttachmentViewerState extends State<AttachmentViewer> {
-//   bool showControls = true;
-//   SystemUiOverlayStyle currentStyle = const SystemUiOverlayStyle(
-//     statusBarColor: Color.fromARGB(206, 0, 0, 0),
-//     systemNavigationBarColor: Colors.black,
-//     systemNavigationBarDividerColor: Colors.black,
-//   );
+class _AttachmentViewerState extends State<AttachmentViewer> {
+  bool showControls = true;
+  SystemUiOverlayStyle currentStyle = const SystemUiOverlayStyle(
+    statusBarColor: Color.fromARGB(206, 0, 0, 0),
+    systemNavigationBarColor: Colors.black,
+    systemNavigationBarDividerColor: Colors.black,
+  );
 
-//   @override
-//   Widget build(BuildContext context) {
-//     String title = widget.sender;
-//     String formattedTime = formattedDateTime(
-//       widget.message.createdAt ?? DateTime.now(),
-//     );
+  @override
+  Widget build(BuildContext context) {
+    String title = widget.sender;
+    String formattedTime = formattedDateTime(
+      widget.message.createdAt ?? DateTime.now(),
+    );
 
-//     return Theme(
-//       data: Theme.of(context).copyWith(
-//         iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
-//       ),
-//       child: AnnotatedRegion(
-//         value: currentStyle,
-//         child: Scaffold(
-//           backgroundColor: Colors.black,
-//           body: GestureDetector(
-//             onTap: () => setState(() {
-//               showControls = !showControls;
-//             }),
-//             child: Stack(
-//               children: [
-//                 InteractiveViewer(
-//                   child: Align(
-//                     child: Hero(
-//                       tag: widget.message.id,
-//                       child: AttachmentRenderer(
-//                         attachment: widget.file,
-//                         attachmentType: widget.message.attachment!.type,
-//                         fit: BoxFit.contain,
-//                         controllable: true,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//                 if (showControls) ...[
-//                   SafeArea(
-//                     child: Container(
-//                       height: 60,
-//                       color: const Color.fromARGB(206, 0, 0, 0),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           Expanded(
-//                             flex: 2,
-//                             child: Row(
-//                               children: [
-//                                 IconButton(
-//                                   onPressed: () => Navigator.pop(context),
-//                                   icon: const Icon(Icons.arrow_back),
-//                                 ),
-//                                 Column(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: [
-//                                     Text(
-//                                       title,
-//                                       style: context.textTheme.titleLarge
-//                                           ?.copyWith(color: Colors.white),
-//                                     ),
-//                                     Text(
-//                                       formattedTime,
-//                                       style: const TextStyle(
-//                                         fontSize: 14,
-//                                         color: Colors.grey,
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                           const Expanded(
-//                             flex: 1,
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                               children: [
-//                                 Icon(Icons.star_border_outlined),
-//                                 Icon(Icons.turn_slight_right),
-//                                 Icon(Icons.more_vert),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+    return Theme(
+      data: Theme.of(context).copyWith(
+        iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
+      ),
+      child: AnnotatedRegion(
+        value: currentStyle,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: GestureDetector(
+            onTap: () => setState(() {
+              showControls = !showControls;
+            }),
+            child: Stack(
+              children: [
+                InteractiveViewer(
+                  child: Align(
+                    child: Hero(
+                      tag: widget.message.id,
+                      child: AttachmentRenderer(
+                        attachment: widget.file,
+                        attachmentType: widget.message.attachment!.type,
+                        fit: BoxFit.contain,
+                        controllable: true,
+                      ),
+                    ),
+                  ),
+                ),
+                if (showControls) ...[
+                  SafeArea(
+                    child: Container(
+                      height: 60,
+                      color: const Color.fromARGB(206, 0, 0, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(Icons.arrow_back),
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      style: context.textTheme.titleLarge
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                    Text(
+                                      formattedTime,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(Icons.star_border_outlined),
+                                Icon(Icons.turn_slight_right),
+                                Icon(Icons.more_vert),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-// class DownloadingAttachment extends StatefulWidget {
-//   const DownloadingAttachment({
-//     super.key,
-//     required this.message,
-//     required this.onDone,
-//     this.showSize = false,
-//     this.controller,
-//   });
+class DownloadingAttachment extends StatefulWidget {
+  const DownloadingAttachment({
+    super.key,
+    required this.message,
+    required this.onDone,
+    this.showSize = false,
+    this.controller,
+  });
 
-//   final ChatMessage message;
-//   final VoidCallback onDone;
-//   final bool showSize;
-//   final ChatController? controller;
-//   @override
-//   State<DownloadingAttachment> createState() => _DownloadingAttachmentState();
-// }
+  final ChatMessage message;
+  final VoidCallback onDone;
+  final bool showSize;
+  final ChatController? controller;
+  @override
+  State<DownloadingAttachment> createState() => _DownloadingAttachmentState();
+}
 
-// class _DownloadingAttachmentState extends State<DownloadingAttachment> {
-//   late bool isDownloading;
-//   late bool clientIsSender;
+class _DownloadingAttachmentState extends State<DownloadingAttachment> {
+  late bool isDownloading;
+  late bool clientIsSender;
 
-//   DownloadTask? _task;
-//   final _progressController =
-//       StreamController<ChatDownloadProgress>.broadcast();
+  DownloadTask? _task;
+  final _progressController =
+      StreamController<ChatDownloadProgress>.broadcast();
 
-//   @override
-//   void initState() {
-//     super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-//     isDownloading = widget.message.attachment!.autoDownload;
-//     clientIsSender =
-//         widget.controller?.currentUser.id == widget.message.senderId;
+    isDownloading = widget.message.attachment!.autoDownload;
+    clientIsSender =
+        widget.controller?.currentUser.id == widget.message.senderId;
 
-//     if (isDownloading) {
-//       download();
-//     }
-//   }
+    if (isDownloading) {
+      download();
+    }
+  }
 
-//   Future<void> download() async {
-//     final url = widget.message.attachment!.url;
+  Future<void> download() async {
+    final url = widget.message.attachment!.url;
 
-//     final task = await GenericFileDownloader.createTask(
-//       url: url,
-//       options: const DownloadOptions(
-//         saveDirectory: SaveDirectory.appDocuments,
-//         enableResume: true,
-//       ),
-//       onProgress: (received, total) {
-//         _progressController.add(ChatDownloadProgress.running(received, total));
-//       },
-//       onDebug: (msg) {
-//         debugPrint("Downloader: $msg");
-//       },
-//     );
+    final task = await GenericFileDownloader.createTask(
+      url: url,
+      options: const DownloadOptions(
+        saveDirectory: SaveDirectory.appDocuments,
+        enableResume: true,
+      ),
+      onProgress: (received, total) {
+        _progressController.add(ChatDownloadProgress.running(received, total));
+      },
+      onDebug: (msg) {
+        debugPrint("Downloader: $msg");
+      },
+    );
 
-//     _task = task;
-//     setState(() => isDownloading = true);
+    _task = task;
+    setState(() => isDownloading = true);
 
-//     try {
-//       final file = await task.start();
-//       _progressController.add(
-//         ChatDownloadProgress.success(await file.length()),
-//       );
-//       widget.onDone();
-//     } catch (e) {
-//       if (task.isPaused) {
-//         _progressController.add(ChatDownloadProgress.canceled());
-//       } else {
-//         _progressController.add(ChatDownloadProgress.error());
-//       }
-//       setState(() => isDownloading = false);
-//     }
-//   }
+    try {
+      final file = await task.start();
+      _progressController.add(
+        ChatDownloadProgress.success(await file.length()),
+      );
+      widget.onDone();
+    } catch (e) {
+      if (task.isPaused) {
+        _progressController.add(ChatDownloadProgress.canceled());
+      } else {
+        _progressController.add(ChatDownloadProgress.error());
+      }
+      setState(() => isDownloading = false);
+    }
+  }
 
-//   Future<void> cancel() async {
-//     await _task?.cancel();
-//     _progressController.add(ChatDownloadProgress.canceled());
-//     setState(() => isDownloading = false);
-//   }
+  Future<void> cancel() async {
+    await _task?.cancel();
+    _progressController.add(ChatDownloadProgress.canceled());
+    setState(() => isDownloading = false);
+  }
 
-//   @override
-//   void dispose() {
-//     _progressController.close();
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    _progressController.close();
+    super.dispose();
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     const overlayColor = Color.fromARGB(150, 0, 0, 0);
+  @override
+  Widget build(BuildContext context) {
+    const overlayColor = Color.fromARGB(150, 0, 0, 0);
 
-//     if (!isDownloading) {
-//       return Column(
-//         mainAxisSize: MainAxisSize.min,
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           InkWell(
-//             onTap: download,
-//             child: Container(
-//               padding: const EdgeInsets.all(4),
-//               decoration: BoxDecoration(
-//                 color: widget.showSize ? overlayColor : Colors.transparent,
-//                 border: Border.all(
-//                   width: 2,
-//                   color: context.colorScheme.primary,
-//                 ),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Icon(
-//                 Icons.download_rounded,
-//                 color: context.colorScheme.primary,
-//               ),
-//             ),
-//           ),
-//           if (widget.showSize) ...[
-//             const SizedBox(height: 4.0),
-//             Container(
-//               decoration: BoxDecoration(
-//                 color: overlayColor,
-//                 borderRadius: BorderRadius.circular(100),
-//               ),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: Text(
-//                   strFormattedSize(widget.message.attachment!.fileSize),
-//                   style: TextStyle(
-//                     color: context.colorScheme.primary,
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 12,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ],
-//       );
-//     }
+    if (!isDownloading) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: download,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: widget.showSize ? overlayColor : Colors.transparent,
+                border: Border.all(
+                  width: 2,
+                  color: context.colorScheme.primary,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.download_rounded,
+                color: context.colorScheme.primary,
+              ),
+            ),
+          ),
+          if (widget.showSize) ...[
+            const SizedBox(height: 4.0),
+            Container(
+              decoration: BoxDecoration(
+                color: overlayColor,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  strFormattedSize(widget.message.attachment!.fileSize),
+                  style: TextStyle(
+                    color: context.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    }
 
-//     final noProgressIndicator = ProgressCancelBtn(
-//       onTap: cancel,
-//       overlayColor: widget.showSize ? overlayColor : Colors.transparent,
-//     );
+    final noProgressIndicator = ProgressCancelBtn(
+      onTap: cancel,
+      overlayColor: widget.showSize ? overlayColor : Colors.transparent,
+    );
 
-//     return StreamBuilder<ChatDownloadProgress>(
-//       stream: _progressController.stream,
-//       builder: (context, snapshot) {
-//         final progress = snapshot.data;
+    return StreamBuilder<ChatDownloadProgress>(
+      stream: _progressController.stream,
+      builder: (context, snapshot) {
+        final progress = snapshot.data;
 
-//         if (progress == null) {
-//           return noProgressIndicator;
-//         }
+        if (progress == null) {
+          return noProgressIndicator;
+        }
 
-//         switch (progress.state) {
-//           case DownloadState.running:
-//             return ProgressCancelBtn(
-//               onTap: cancel,
-//               progressValue: progress.fraction,
-//               overlayColor: widget.showSize ? overlayColor : Colors.transparent,
-//             );
-//           case DownloadState.success:
-//             return const CircularProgressIndicator(strokeWidth: 3.0);
-//           case DownloadState.error:
-//             return const Icon(Icons.error, color: Colors.red);
-//           case DownloadState.canceled:
-//             return noProgressIndicator;
-//           case DownloadState.idle:
-//           // ignore: unreachable_switch_default
-//           default:
-//             return noProgressIndicator;
-//         }
-//       },
-//     );
-//   }
-// }
+        switch (progress.state) {
+          case DownloadState.running:
+            return ProgressCancelBtn(
+              onTap: cancel,
+              progressValue: progress.fraction,
+              overlayColor: widget.showSize ? overlayColor : Colors.transparent,
+            );
+          case DownloadState.success:
+            return const CircularProgressIndicator(strokeWidth: 3.0);
+          case DownloadState.error:
+            return const Icon(Icons.error, color: Colors.red);
+          case DownloadState.canceled:
+            return noProgressIndicator;
+          case DownloadState.idle:
+          // ignore: unreachable_switch_default
+          default:
+            return noProgressIndicator;
+        }
+      },
+    );
+  }
+}
 
-// class UploadingAttachment extends StatefulWidget {
-//   final ChatMessage message;
-//   final bool showSize;
-//   final ChatController? controller;
-//   const UploadingAttachment({
-//     super.key,
-//     required this.message,
-//     this.showSize = false,
-//     this.controller,
-//   });
+class UploadingAttachment extends StatefulWidget {
+  final ChatMessage message;
+  final bool showSize;
+  final ChatController? controller;
+  const UploadingAttachment({
+    super.key,
+    required this.message,
+    this.showSize = false,
+    this.controller,
+  });
 
-//   @override
-//   State<UploadingAttachment> createState() => _UploadingAttachmentState();
-// }
+  @override
+  State<UploadingAttachment> createState() => _UploadingAttachmentState();
+}
 
-// class _UploadingAttachmentState extends State<UploadingAttachment> {
-//   late bool isUploading;
-//   late bool clientIsSender;
+class _UploadingAttachmentState extends State<UploadingAttachment> {
+  late bool isUploading;
+  late bool clientIsSender;
 
-//   GenericFileUploader? _uploader;
-//   final _progressController = StreamController<UploadProgress>.broadcast();
+  GenericFileUploader? _uploader;
+  final _progressController = StreamController<UploadProgress>.broadcast();
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     isUploading =
-//         widget.message.attachment!.uploadStatus == UploadStatus.uploading;
+  @override
+  void initState() {
+    super.initState();
+    isUploading =
+        widget.message.attachment!.uploadStatus == UploadStatus.uploading;
 
-//     clientIsSender =
-//         widget.controller?.currentUser.id == widget.message.senderId;
+    clientIsSender =
+        widget.controller?.currentUser.id == widget.message.senderId;
 
-//     if (isUploading) {
-//       upload();
-//     }
-//   }
+    if (isUploading) {
+      upload();
+    }
+  }
 
-//   Future<void> upload() async {
-//     final file = File(widget.message.attachment!.file!.path);
-//     final url = widget.message.attachment!.url;
+  Future<void> upload() async {
+    final file = File(widget.message.attachment!.file!.path);
+    final url = widget.message.attachment!.url;
 
-//     _uploader = await GenericFileUploader.create(
-//       url: url,
-//       file: file,
-//       onProgress: (sent, total) {
-//         _progressController.add(UploadProgress.running(sent, total));
-//       },
-//       onDebug: (msg) => debugPrint("Uploader: $msg"),
-//     );
+    _uploader = await GenericFileUploader.create(
+      url: url,
+      file: file,
+      onProgress: (sent, total) {
+        _progressController.add(UploadProgress.running(sent, total));
+      },
+      onDebug: (msg) => debugPrint("Uploader: $msg"),
+    );
 
-//     setState(() => isUploading = true);
+    setState(() => isUploading = true);
 
-//     try {
-//       await _uploader!.start();
-//       _progressController.add(UploadProgress.success(await file.length()));
-//     } catch (_) {
-//       _progressController.add(UploadProgress.error());
-//       setState(() => isUploading = false);
-//     }
-//   }
+    try {
+      await _uploader!.start();
+      _progressController.add(UploadProgress.success(await file.length()));
+    } catch (_) {
+      _progressController.add(UploadProgress.error());
+      setState(() => isUploading = false);
+    }
+  }
 
-//   Future<void> stopUpload() async {
-//     await _uploader?.cancel();
-//     _progressController.add(UploadProgress.canceled());
-//     setState(() => isUploading = false);
-//   }
+  Future<void> stopUpload() async {
+    await _uploader?.cancel();
+    _progressController.add(UploadProgress.canceled());
+    setState(() => isUploading = false);
+  }
 
-//   @override
-//   void dispose() {
-//     _progressController.close();
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    _progressController.close();
+    super.dispose();
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (widget.message.attachment!.uploadStatus == UploadStatus.preparing) {
-//       return const SizedBox(width: 10, height: 10);
-//     }
+  @override
+  Widget build(BuildContext context) {
+    if (widget.message.attachment!.uploadStatus == UploadStatus.preparing) {
+      return const SizedBox(width: 10, height: 10);
+    }
 
-//     const overlayColor = Color.fromARGB(150, 0, 0, 0);
+    const overlayColor = Color.fromARGB(150, 0, 0, 0);
 
-//     if (!isUploading) {
-//       return Column(
-//         mainAxisSize: MainAxisSize.min,
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           InkWell(
-//             onTap: upload,
-//             child: Container(
-//               padding: const EdgeInsets.all(4),
-//               decoration: BoxDecoration(
-//                 color: widget.showSize ? overlayColor : Colors.transparent,
-//                 border: Border.all(
-//                   width: 2,
-//                   color: context.colorScheme.primary,
-//                 ),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Icon(
-//                 Icons.upload_rounded,
-//                 color: context.colorScheme.primary,
-//               ),
-//             ),
-//           ),
-//           if (widget.showSize) ...[
-//             const SizedBox(height: 4.0),
-//             Container(
-//               decoration: BoxDecoration(
-//                 color: overlayColor,
-//                 borderRadius: BorderRadius.circular(100),
-//               ),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: Text(
-//                   strFormattedSize(widget.message.attachment!.fileSize),
-//                   style: TextStyle(
-//                     color: context.colorScheme.primary,
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 12,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ],
-//       );
-//     }
+    if (!isUploading) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: upload,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: widget.showSize ? overlayColor : Colors.transparent,
+                border: Border.all(
+                  width: 2,
+                  color: context.colorScheme.primary,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.upload_rounded,
+                color: context.colorScheme.primary,
+              ),
+            ),
+          ),
+          if (widget.showSize) ...[
+            const SizedBox(height: 4.0),
+            Container(
+              decoration: BoxDecoration(
+                color: overlayColor,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  strFormattedSize(widget.message.attachment!.fileSize),
+                  style: TextStyle(
+                    color: context.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    }
 
-//     final noProgressIndicator = ProgressCancelBtn(
-//       onTap: stopUpload,
-//       overlayColor: widget.showSize ? overlayColor : Colors.transparent,
-//     );
+    final noProgressIndicator = ProgressCancelBtn(
+      onTap: stopUpload,
+      overlayColor: widget.showSize ? overlayColor : Colors.transparent,
+    );
 
-//     return StreamBuilder<UploadProgress>(
-//       stream: _progressController.stream,
-//       builder: (context, snapshot) {
-//         final progress = snapshot.data;
+    return StreamBuilder<UploadProgress>(
+      stream: _progressController.stream,
+      builder: (context, snapshot) {
+        final progress = snapshot.data;
 
-//         if (progress == null) {
-//           return noProgressIndicator;
-//         }
+        if (progress == null) {
+          return noProgressIndicator;
+        }
 
-//         switch (progress.state) {
-//           case UploadState.running:
-//             return ProgressCancelBtn(
-//               onTap: stopUpload,
-//               overlayColor: widget.showSize ? overlayColor : Colors.transparent,
-//               progressValue: progress.fraction,
-//             );
-//           case UploadState.success:
-//             return const CircularProgressIndicator(strokeWidth: 3.0);
-//           case UploadState.error:
-//             WidgetsBinding.instance.addPostFrameCallback((_) {
-//               if (!mounted) return;
-//               setState(() => isUploading = false);
-//             });
-//             return const Icon(Icons.error, color: Colors.red);
-//           case UploadState.canceled:
-//             return noProgressIndicator;
-//           case UploadState.idle:
-//           // ignore: unreachable_switch_default
-//           default:
-//             return noProgressIndicator;
-//         }
-//       },
-//     );
-//   }
-// }
+        switch (progress.state) {
+          case UploadState.running:
+            return ProgressCancelBtn(
+              onTap: stopUpload,
+              overlayColor: widget.showSize ? overlayColor : Colors.transparent,
+              progressValue: progress.fraction,
+            );
+          case UploadState.success:
+            return const CircularProgressIndicator(strokeWidth: 3.0);
+          case UploadState.error:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              setState(() => isUploading = false);
+            });
+            return const Icon(Icons.error, color: Colors.red);
+          case UploadState.canceled:
+            return noProgressIndicator;
+          case UploadState.idle:
+          // ignore: unreachable_switch_default
+          default:
+            return noProgressIndicator;
+        }
+      },
+    );
+  }
+}
