@@ -242,14 +242,13 @@ class _MessageCardState extends State<MessageCard>
                           : EdgeInsets.zero,
                       child: Text(
                         widget.message.sender?.name ?? "Unknown",
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: context.theme.brightness == Brightness.dark
-                                  ? (widget.message.sender?.name ?? "Unknown")
-                                        .toColorHSL()
-                                  : (widget.message.sender?.name ?? "Unknown")
-                                        .toDarkColor(),
-                            ),
+                        style: chatTheme.senderNameTextStyle.copyWith(
+                          color: context.theme.brightness == Brightness.dark
+                              ? (widget.message.sender?.name ?? "Unknown")
+                                    .toColorHSL()
+                              : (widget.message.sender?.name ?? "Unknown")
+                                    .toDarkColor(),
+                        ),
                       ),
                     ),
                   ],

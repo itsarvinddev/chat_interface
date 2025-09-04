@@ -41,6 +41,12 @@ class ChatTheme {
   /// Color for attachment buttons
   final Color attachmentButtonColor;
   
+  /// Background color for date labels
+  final Color dateLabelBackgroundColor;
+  
+  /// Text color for date labels
+  final Color dateLabelTextColor;
+  
   /// Text style for sent messages
   final TextStyle sentMessageTextStyle;
   
@@ -52,6 +58,12 @@ class ChatTheme {
   
   /// Text style for input field
   final TextStyle inputTextStyle;
+  
+  /// Text style for sender names
+  final TextStyle senderNameTextStyle;
+  
+  /// Text style for date labels
+  final TextStyle dateLabelTextStyle;
   
   /// Border radius for message bubbles
   final BorderRadius messageBorderRadius;
@@ -85,10 +97,14 @@ class ChatTheme {
     required this.inputBorderColor,
     required this.sendButtonColor,
     required this.attachmentButtonColor,
+    required this.dateLabelBackgroundColor,
+    required this.dateLabelTextColor,
     required this.sentMessageTextStyle,
     required this.receivedMessageTextStyle,
     required this.timestampTextStyle,
     required this.inputTextStyle,
+    required this.senderNameTextStyle,
+    required this.dateLabelTextStyle,
     required this.messageBorderRadius,
     required this.inputBorderRadius,
     required this.messagePadding,
@@ -113,6 +129,8 @@ class ChatTheme {
       inputBorderColor: Colors.grey.shade300,
       sendButtonColor: Colors.blue,
       attachmentButtonColor: Colors.grey.shade600,
+      dateLabelBackgroundColor: Colors.grey.shade300,
+      dateLabelTextColor: Colors.grey.shade700,
       sentMessageTextStyle: const TextStyle(
         fontSize: 16,
         color: Colors.white,
@@ -128,6 +146,16 @@ class ChatTheme {
       inputTextStyle: const TextStyle(
         fontSize: 16,
         color: Colors.black87,
+      ),
+      senderNameTextStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade700,
+      ),
+      dateLabelTextStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade700,
       ),
       messageBorderRadius: BorderRadius.circular(18),
       inputBorderRadius: BorderRadius.circular(25),
@@ -154,6 +182,8 @@ class ChatTheme {
       inputBorderColor: Colors.grey.shade600,
       sendButtonColor: Colors.blue.shade300,
       attachmentButtonColor: Colors.grey.shade400,
+      dateLabelBackgroundColor: Colors.grey.shade700,
+      dateLabelTextColor: Colors.grey.shade300,
       sentMessageTextStyle: const TextStyle(
         fontSize: 16,
         color: Colors.white,
@@ -169,6 +199,16 @@ class ChatTheme {
       inputTextStyle: const TextStyle(
         fontSize: 16,
         color: Colors.white,
+      ),
+      senderNameTextStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade300,
+      ),
+      dateLabelTextStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade300,
       ),
       messageBorderRadius: BorderRadius.circular(18),
       inputBorderRadius: BorderRadius.circular(25),
@@ -200,6 +240,8 @@ class ChatTheme {
       inputBorderColor: colorScheme.outline,
       sendButtonColor: colorScheme.primary,
       attachmentButtonColor: colorScheme.outline,
+      dateLabelBackgroundColor: colorScheme.tertiaryContainer,
+      dateLabelTextColor: colorScheme.onTertiaryContainer,
       sentMessageTextStyle: materialTheme.textTheme.bodyMedium?.copyWith(
         color: colorScheme.onPrimary,
       ) ?? TextStyle(fontSize: 16, color: colorScheme.onPrimary),
@@ -212,6 +254,22 @@ class ChatTheme {
       inputTextStyle: materialTheme.textTheme.bodyMedium?.copyWith(
         color: colorScheme.onSurface,
       ) ?? TextStyle(fontSize: 16, color: colorScheme.onSurface),
+      senderNameTextStyle: materialTheme.textTheme.labelMedium?.copyWith(
+        color: colorScheme.outline,
+        fontWeight: FontWeight.w600,
+      ) ?? TextStyle(
+        fontSize: 12, 
+        fontWeight: FontWeight.w600,
+        color: colorScheme.outline,
+      ),
+      dateLabelTextStyle: materialTheme.textTheme.labelMedium?.copyWith(
+        color: colorScheme.onTertiaryContainer,
+        fontWeight: FontWeight.w600,
+      ) ?? TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: colorScheme.onTertiaryContainer,
+      ),
       messageBorderRadius: BorderRadius.circular(18),
       inputBorderRadius: BorderRadius.circular(25),
       messagePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -236,10 +294,14 @@ class ChatTheme {
     Color? inputBorderColor,
     Color? sendButtonColor,
     Color? attachmentButtonColor,
+    Color? dateLabelBackgroundColor,
+    Color? dateLabelTextColor,
     TextStyle? sentMessageTextStyle,
     TextStyle? receivedMessageTextStyle,
     TextStyle? timestampTextStyle,
     TextStyle? inputTextStyle,
+    TextStyle? senderNameTextStyle,
+    TextStyle? dateLabelTextStyle,
     BorderRadius? messageBorderRadius,
     BorderRadius? inputBorderRadius,
     EdgeInsets? messagePadding,
@@ -261,10 +323,14 @@ class ChatTheme {
       inputBorderColor: inputBorderColor ?? this.inputBorderColor,
       sendButtonColor: sendButtonColor ?? this.sendButtonColor,
       attachmentButtonColor: attachmentButtonColor ?? this.attachmentButtonColor,
+      dateLabelBackgroundColor: dateLabelBackgroundColor ?? this.dateLabelBackgroundColor,
+      dateLabelTextColor: dateLabelTextColor ?? this.dateLabelTextColor,
       sentMessageTextStyle: sentMessageTextStyle ?? this.sentMessageTextStyle,
       receivedMessageTextStyle: receivedMessageTextStyle ?? this.receivedMessageTextStyle,
       timestampTextStyle: timestampTextStyle ?? this.timestampTextStyle,
       inputTextStyle: inputTextStyle ?? this.inputTextStyle,
+      senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
+      dateLabelTextStyle: dateLabelTextStyle ?? this.dateLabelTextStyle,
       messageBorderRadius: messageBorderRadius ?? this.messageBorderRadius,
       inputBorderRadius: inputBorderRadius ?? this.inputBorderRadius,
       messagePadding: messagePadding ?? this.messagePadding,
