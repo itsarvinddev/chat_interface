@@ -13,6 +13,8 @@ export 'src/extensions/extensions.dart';
 export 'src/models/chat_user.dart';
 export 'src/models/enums.dart';
 export 'src/models/message.dart';
+export 'src/theme/chat_theme.dart';
+export 'src/theme/chat_theme_provider.dart';
 export 'src/utils/debounce.dart';
 export 'src/utils/downloader.dart';
 export 'src/utils/duration_mapper.dart';

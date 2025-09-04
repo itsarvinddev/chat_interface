@@ -2,6 +2,8 @@ import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
+import 'theme/chat_theme.dart';
+import 'theme/chat_theme_provider.dart';
 import 'utils/chat_by_date.dart';
 import 'widgets/bubble.dart';
 import 'widgets/input_container.dart';
@@ -13,8 +15,14 @@ class ChatUiConfig {
   final CustomMessageBuilder? customMessageBuilder;
   final Widget? leading;
   final List<Widget>? actions;
+  final ChatTheme? theme;
 
-  const ChatUiConfig({this.customMessageBuilder, this.leading, this.actions});
+  const ChatUiConfig({
+    this.customMessageBuilder, 
+    this.leading, 
+    this.actions,
+    this.theme,
+  });
 }
 
 class ChatUi extends StatefulWidget {
@@ -122,20 +130,26 @@ class _ChatUiState extends State<ChatUi> {
       );
     }
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(
-              "https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png",
-            ),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              context.theme.colorScheme.surfaceContainerHigh,
-              BlendMode.srcATop,
+    // Use provided theme or fallback to auto-generated theme from Material theme
+    final chatTheme = widget.config.theme ?? ChatTheme.fromMaterialTheme(Theme.of(context));
+
+    return ChatThemeProvider(
+      theme: chatTheme,
+      child: Scaffold(
+        body: Container(
+          color: chatTheme.backgroundColor,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(
+                "https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png",
+              ),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                chatTheme.backgroundColor.withOpacity(0.1),
+                BlendMode.srcATop,
+              ),
             ),
           ),
-        ),
         child: PagingListener(
           controller: widget.controller.pagingController,
           builder: (context, state, fetchNextPage) {

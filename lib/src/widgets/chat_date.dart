@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
+import '../theme/chat_theme_provider.dart';
+
 class ChatDate extends StatelessWidget {
   const ChatDate({
     super.key,
@@ -13,11 +15,12 @@ class ChatDate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final chatTheme = ChatThemeProvider.of(context);
     double transparency = shouldBeTransparent ? 0.2 : 1;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: context.theme.colorScheme.tertiaryContainer.withValues(
+        color: chatTheme.dateLabelBackgroundColor.withValues(
           alpha: transparency,
         ),
       ),
@@ -25,11 +28,7 @@ class ChatDate extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 24),
       child: Text(
         date,
-        style: TextStyle(
-          color: context.theme.colorScheme.onTertiaryContainer,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
+        style: chatTheme.dateLabelTextStyle,
       ),
     );
   }

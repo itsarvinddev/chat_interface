@@ -9,8 +9,10 @@ import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:screwdriver/screwdriver.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../theme/chat_theme_provider.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
+import '../utils/markdown_parser.dart';
 import 'action.dart';
 import 'attachment_viewer.dart';
 import 'chat_date.dart';
@@ -115,6 +117,7 @@ class _MessageCardState extends State<MessageCard>
   Widget build(BuildContext context) {
     super.build(context);
     final colorTheme = context.theme.colorScheme;
+    final chatTheme = ChatThemeProvider.of(context);
     final size = MediaQuery.of(context).size;
     final hasAttachment = widget.message.attachment != null;
     final attachmentType = widget.message.attachment?.type;
@@ -181,27 +184,21 @@ class _MessageCardState extends State<MessageCard>
                 : size.width * 0.80 + (widget.special ? 10 : 0),
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: widget.special && !isSentMessageCard
-                  ? const Radius.circular(4)
-                  : const Radius.circular(12.0),
-              topRight: widget.special && isSentMessageCard
-                  ? const Radius.circular(4)
-                  : const Radius.circular(12.0),
-              bottomLeft: const Radius.circular(12.0),
-              bottomRight: const Radius.circular(12.0),
-            ),
-            color: isSentMessageCard
-                ? ElevationOverlay.applySurfaceTint(
-                    colorTheme.inversePrimary,
-                    colorTheme.surface,
-                    0,
+            borderRadius: widget.special
+                ? BorderRadius.only(
+                    topLeft: !isSentMessageCard
+                        ? const Radius.circular(4)
+                        : chatTheme.messageBorderRadius.topLeft,
+                    topRight: isSentMessageCard
+                        ? const Radius.circular(4)
+                        : chatTheme.messageBorderRadius.topRight,
+                    bottomLeft: chatTheme.messageBorderRadius.bottomLeft,
+                    bottomRight: chatTheme.messageBorderRadius.bottomRight,
                   )
-                : ElevationOverlay.applySurfaceTint(
-                    colorTheme.surfaceBright,
-                    colorTheme.primary,
-                    10,
-                  ),
+                : chatTheme.messageBorderRadius,
+            color: isSentMessageCard
+                ? chatTheme.sentMessageBackgroundColor
+                : chatTheme.receivedMessageBackgroundColor,
           ),
           margin: EdgeInsets.only(
             bottom: 3.0,
@@ -245,14 +242,13 @@ class _MessageCardState extends State<MessageCard>
                           : EdgeInsets.zero,
                       child: Text(
                         widget.message.sender?.name ?? "Unknown",
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: context.theme.brightness == Brightness.dark
-                                  ? (widget.message.sender?.name ?? "Unknown")
-                                        .toColorHSL()
-                                  : (widget.message.sender?.name ?? "Unknown")
-                                        .toDarkColor(),
-                            ),
+                        style: chatTheme.senderNameTextStyle.copyWith(
+                          color: context.theme.brightness == Brightness.dark
+                              ? (widget.message.sender?.name ?? "Unknown")
+                                    .toColorHSL()
+                              : (widget.message.sender?.name ?? "Unknown")
+                                    .toDarkColor(),
+                        ),
                       ),
                     ),
                   ],
@@ -317,11 +313,11 @@ class _MessageCardState extends State<MessageCard>
                       child: MarkdownText(
                         text: '${widget.message.message} $textPadding',
                         styles: MarkdownTextStyles(
-                          defaultStyle: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                fontSize: biggerFont ? 40 : 16,
-                                color: colorTheme.onSurface,
-                              ),
+                          defaultStyle: (isSentMessageCard 
+                              ? chatTheme.sentMessageTextStyle 
+                              : chatTheme.receivedMessageTextStyle).copyWith(
+                            fontSize: biggerFont ? 40 : null,
+                          ),
                         ),
                       ),
                     ),
@@ -369,13 +365,12 @@ class _MessageCardState extends State<MessageCard>
                       if (showTimeStamp) ...[
                         Text(
                           widget.message.createdAt?.format('h:mm a') ?? '',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                fontSize: 10,
-                                color: messageHasText
-                                    ? colorTheme.onSurface
-                                    : Colors.white,
-                              ),
+                          style: chatTheme.timestampTextStyle.copyWith(
+                            fontSize: 10,
+                            color: messageHasText
+                                ? chatTheme.timestampColor
+                                : Colors.white,
+                          ),
                         ),
                       ],
                       if (isSentMessageCard) ...[
