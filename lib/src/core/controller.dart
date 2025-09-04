@@ -55,6 +55,10 @@ class ChatController {
   UnmodifiableListView<ChatUser> get otherUsers =>
       UnmodifiableListView(_otherUsers.values);
 
+  /// Returns the all users.
+  UnmodifiableListView<ChatUser> get allUsers =>
+      UnmodifiableListView([currentUser, ..._otherUsers.values]);
+
   /// Returns the current list of messages.
   List<ChatMessage> get messages {
     if (pagingController.items != null) {
@@ -67,27 +71,29 @@ class ChatController {
   }
 
   /// Adds a new message to the top of the first page.
-  Future<void> addMessage(ChatMessage message) async {
+  Future<void> addMessage(ChatMessage message, {bool callApi = true}) async {
     try {
-      messageController.clear();
       final pages = List<List<ChatMessage>>.from(pagingController.pages!);
       pages.first = [message, ...pages.first];
       pagingController.value = pagingController.value.copyWith(pages: pages);
-      await onMessageAdded?.call(message);
+      if (callApi) {
+        messageController.clear();
+        await onMessageAdded?.call(message);
+      }
     } catch (e, stack) {
       debugPrint('Error adding message: $e\n$stack');
     }
   }
 
   /// Updates an existing message by ID.
-  Future<void> updateMessage(ChatMessage message) async {
+  Future<void> updateMessage(ChatMessage message, {bool callApi = true}) async {
     try {
       pagingController.mapItems(
-        (item) => item.id == message.id
-            ? item.copyWith(chatStatus: message.chatStatus)
-            : item,
+        (item) => item.id == message.id ? message : item,
       );
-      await onMessageUpdated?.call(message);
+      if (callApi) {
+        await onMessageUpdated?.call(message);
+      }
     } catch (e, stack) {
       debugPrint('Error updating message: $e\n$stack');
     }
