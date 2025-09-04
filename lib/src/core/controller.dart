@@ -70,6 +70,8 @@ class ChatController {
     return [];
   }
 
+  String Function()? uuidGenerator;
+
   /// Adds a new message to the top of the first page.
   Future<void> addMessage(ChatMessage message, {bool callApi = true}) async {
     try {

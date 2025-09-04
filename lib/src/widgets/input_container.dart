@@ -76,6 +76,9 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
+                      id:
+                          controller.uuidGenerator?.call() ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
                     ),
                   ),
                   actions:
@@ -118,6 +121,9 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
+                  id:
+                      controller.uuidGenerator?.call() ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
                 ),
               ),
               style: IconButton.styleFrom(
