@@ -12,6 +12,7 @@ class ChatMessage with ChatMessageMappable {
   String message = "";
   ChatAttachment? attachment;
   ChatMessageType type = ChatMessageType.chat;
+  @MappableField(key: 'chat_status')
   ChatMessageStatus chatStatus = ChatMessageStatus.pending;
   @MappableField(key: 'image_type')
   ChatImageType imageType = ChatImageType.network;

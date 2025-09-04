@@ -58,6 +58,7 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
   static const Field<ChatMessage, ChatMessageStatus> _f$chatStatus = Field(
     'chatStatus',
     _$chatStatus,
+    key: r'chat_status',
     opt: true,
     def: ChatMessageStatus.pending,
   );
