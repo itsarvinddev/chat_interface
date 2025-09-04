@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/chat_theme_provider.dart';
+
 class ChatField extends StatelessWidget {
   const ChatField({
     super.key,
@@ -20,13 +22,12 @@ class ChatField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
+    final chatTheme = ChatThemeProvider.of(context);
     return Container(
       // padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.0),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? colorTheme.surfaceContainer
-            : colorTheme.surfaceContainerHighest,
+        borderRadius: chatTheme.inputBorderRadius,
+        color: chatTheme.inputBackgroundColor,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,8 +42,9 @@ class ChatField extends StatelessWidget {
               textCapitalization: TextCapitalization.sentences,
               maxLines: 6,
               minLines: 1,
-              cursorColor: colorTheme.primary,
+              cursorColor: chatTheme.primaryColor,
               cursorHeight: 20,
+              style: chatTheme.inputTextStyle,
               decoration: const InputDecoration(
                 hintText: 'Message',
                 border: InputBorder.none,

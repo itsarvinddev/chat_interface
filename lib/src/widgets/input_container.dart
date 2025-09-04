@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:screwdriver/screwdriver.dart';
 
+import '../theme/chat_theme_provider.dart';
 import 'chat_field.dart';
 
 class ChatInputContainer extends StatefulWidget {
@@ -42,6 +43,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
   @override
   Widget build(BuildContext context) {
     final colorTheme = context.theme.colorScheme;
+    final chatTheme = ChatThemeProvider.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
@@ -53,10 +55,12 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
               child: Container(
                 margin: const EdgeInsets.only(left: 3.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24.0),
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? colorTheme.surfaceContainer
-                      : colorTheme.surfaceContainerHighest,
+                  borderRadius: chatTheme.inputBorderRadius,
+                  color: chatTheme.inputBackgroundColor,
+                  border: Border.all(
+                    color: chatTheme.inputBorderColor,
+                    width: 1.0,
+                  ),
                 ),
                 child: ChatField(
                   leading: widget.config.leading ?? const SizedBox(width: 12),
@@ -82,7 +86,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                           icon: Icon(
                             Icons.attach_file_rounded,
                             size: 24.0,
-                            color: context.theme.colorScheme.secondary,
+                            color: chatTheme.attachmentButtonColor,
                           ),
                         ),
                         AnimatedSwitcher(
@@ -95,7 +99,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                                   icon: Icon(
                                     Icons.camera_alt_rounded,
                                     size: 24.0,
-                                    color: context.theme.colorScheme.secondary,
+                                    color: chatTheme.attachmentButtonColor,
                                   ),
                                 ),
                         ),
@@ -123,8 +127,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                 enableFeedback: true,
                 shadowColor: colorTheme.surfaceContainerHigh,
                 iconSize: 24,
-                backgroundColor: colorTheme.primary,
-                foregroundColor: colorTheme.surface,
+                backgroundColor: chatTheme.sendButtonColor,
+                foregroundColor: chatTheme.sentMessageTextColor,
                 minimumSize: const Size(42, 42),
               ),
               tooltip: 'Send',

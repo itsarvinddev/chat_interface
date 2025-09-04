@@ -168,7 +168,26 @@ class _MyAppState extends State<MyApp> {
               ? const Center(child: CircularProgressIndicator())
               : _currentUser == null
               ? const Center(child: Text('No users found'))
-              : ChatUi(controller: _controller),
+              : ChatUi(
+                  controller: _controller,
+                  config: ChatUiConfig(
+                    theme: value == ThemeMode.light
+                        ? ChatTheme.light().copyWith(
+                            // Custom light theme with purple accents
+                            primaryColor: Colors.purple,
+                            sentMessageBackgroundColor: Colors.purple,
+                            sendButtonColor: Colors.purple,
+                            messageBorderRadius: BorderRadius.circular(16),
+                          )
+                        : ChatTheme.dark().copyWith(
+                            // Custom dark theme with green accents
+                            primaryColor: Colors.green,
+                            sentMessageBackgroundColor: Colors.green.shade700,
+                            sendButtonColor: Colors.green,
+                            messageBorderRadius: BorderRadius.circular(20),
+                          ),
+                  ),
+                ),
         ),
       ),
     );
