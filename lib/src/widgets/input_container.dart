@@ -35,11 +35,11 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
     });
   }
 
-  @override
-  void dispose() {
-    controller.messageController.removeListener(() {});
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   controller.messageController.removeListener(() {});
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
