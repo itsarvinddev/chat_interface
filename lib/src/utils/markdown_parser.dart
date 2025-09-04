@@ -110,13 +110,14 @@ class MarkdownText extends StatelessWidget {
       codeBlockStyle: defaultTextStyle.merge(styles.codeBlockStyle),
     );
 
-    return RichText(
-      text: TextSpan(
+    return SelectableText.rich(
+      TextSpan(
         style: defaultTextStyle,
         children: parseMarkdownText(text, effectiveStyles),
       ),
-      softWrap: true,
+      // softWrap: true,
       textWidthBasis: TextWidthBasis.longestLine,
+      selectionColor: defaultTextStyle.color?.withValues(alpha: 0.25),
     );
   }
 }

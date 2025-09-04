@@ -9,31 +9,28 @@ import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:screwdriver/screwdriver.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '../theme/chat_theme_provider.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
-import '../utils/markdown_parser.dart';
 import 'action.dart';
 import 'attachment_viewer.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
-  final ChatController controller;
   final ChatMessage message;
   final int index;
   final bool showHeader;
-  final ChatUiConfig config;
 
   const ChatBubble({
     super.key,
-    required this.controller,
     required this.message,
     required this.index,
     this.showHeader = false,
-    this.config = const ChatUiConfig(),
   });
   @override
   Widget build(BuildContext context) {
+    final controller = ChatControllerProvider.of(context);
+    final config = ChatUiConfigProvider.of(context);
+    final special = controller.tailForIndex(index) || showHeader;
     return RepaintBoundary(
       child: VisibilityDetector(
         key: ValueKey(message.id),
@@ -65,10 +62,8 @@ class ChatBubble extends StatelessWidget {
                 message: message,
                 controller: controller,
                 currentUser: controller.currentUser,
-                special: controller.tailForIndex(index),
-                showSender:
-                    controller.tailForIndex(index) &&
-                    !controller.isMessageBySelf(message),
+                special: special,
+                showSender: special && !controller.isMessageBySelf(message),
                 index: index,
               ),
               ChatMessageType.custom =>
@@ -313,11 +308,11 @@ class _MessageCardState extends State<MessageCard>
                       child: MarkdownText(
                         text: '${widget.message.message} $textPadding',
                         styles: MarkdownTextStyles(
-                          defaultStyle: (isSentMessageCard 
-                              ? chatTheme.sentMessageTextStyle 
-                              : chatTheme.receivedMessageTextStyle).copyWith(
-                            fontSize: biggerFont ? 40 : null,
-                          ),
+                          defaultStyle:
+                              (isSentMessageCard
+                                      ? chatTheme.sentMessageTextStyle
+                                      : chatTheme.receivedMessageTextStyle)
+                                  .copyWith(fontSize: biggerFont ? 40 : null),
                         ),
                       ),
                     ),

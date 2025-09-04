@@ -3,17 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:screwdriver/screwdriver.dart';
 
-import '../theme/chat_theme_provider.dart';
 import 'chat_field.dart';
 
 class ChatInputContainer extends StatefulWidget {
-  final ChatController controller;
-  final ChatUiConfig config;
-  const ChatInputContainer({
-    super.key,
-    required this.controller,
-    this.config = const ChatUiConfig(),
-  });
+  const ChatInputContainer({super.key});
 
   @override
   State<ChatInputContainer> createState() => _ChatInputContainerState();
@@ -21,22 +14,30 @@ class ChatInputContainer extends StatefulWidget {
 
 class _ChatInputContainerState extends State<ChatInputContainer> {
   bool hideElements = false;
+  ChatUiConfig get config => ChatUiConfigProvider.of(context);
+  ChatController get controller => ChatControllerProvider.of(context);
 
   @override
   void initState() {
     super.initState();
-    widget.controller.messageController.addListener(() {
-      setState(() {
-        hideElements = widget.controller.messageController.text
-            .trim()
-            .isNotNullOrEmpty;
+    Future.microtask(() {
+      // if (mounted) {
+      //   config = ChatUiConfigProvider.of(context);
+      //   controller = ChatControllerProvider.of(context);
+      // }
+      controller.messageController.addListener(() {
+        setState(() {
+          hideElements = controller.messageController.text
+              .trim()
+              .isNotNullOrEmpty;
+        });
       });
     });
   }
 
   @override
   void dispose() {
-    widget.controller.messageController.removeListener(() {});
+    controller.messageController.removeListener(() {});
     super.dispose();
   }
 
@@ -59,18 +60,18 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                   color: chatTheme.inputBackgroundColor,
                   border: Border.all(
                     color: chatTheme.inputBorderColor,
-                    width: 1.0,
+                    width: chatTheme.inputBorderWidth,
                   ),
                 ),
                 child: ChatField(
-                  leading: widget.config.leading ?? const SizedBox(width: 12),
-                  focusNode: widget.controller.focusNode,
-                  textController: widget.controller.messageController,
-                  onSubmitted: (value) => widget.controller.addMessage(
+                  leading: config.leading ?? const SizedBox(width: 12),
+                  focusNode: controller.focusNode,
+                  textController: controller.messageController,
+                  onSubmitted: (value) => controller.addMessage(
                     ChatMessage(
                       message: value,
-                      senderId: widget.controller.currentUser.id,
-                      roomId: widget.controller.currentUser.roomId,
+                      senderId: controller.currentUser.id,
+                      roomId: controller.currentUser.roomId,
                       chatStatus: ChatMessageStatus.pending,
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
@@ -78,11 +79,10 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                     ),
                   ),
                   actions:
-                      widget.config.actions ??
+                      config.actions ??
                       [
                         IconButton(
-                          onPressed: () =>
-                              widget.controller.onTapAttachFile?.call(),
+                          onPressed: () => controller.onTapAttachFile?.call(),
                           icon: Icon(
                             Icons.attach_file_rounded,
                             size: 24.0,
@@ -95,7 +95,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                               ? const SizedBox.shrink()
                               : IconButton(
                                   onPressed: () =>
-                                      widget.controller.onTapCamera?.call(),
+                                      controller.onTapCamera?.call(),
                                   icon: Icon(
                                     Icons.camera_alt_rounded,
                                     size: 24.0,
@@ -109,11 +109,11 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
             ),
             const SizedBox(width: 4.0),
             IconButton.filled(
-              onPressed: () => widget.controller.addMessage(
+              onPressed: () => controller.addMessage(
                 ChatMessage(
-                  message: widget.controller.messageController.text.trim(),
-                  senderId: widget.controller.currentUser.id,
-                  roomId: widget.controller.currentUser.roomId,
+                  message: controller.messageController.text.trim(),
+                  senderId: controller.currentUser.id,
+                  roomId: controller.currentUser.roomId,
                   chatStatus: ChatMessageStatus.pending,
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),

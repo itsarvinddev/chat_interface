@@ -5,8 +5,7 @@ import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../utils/storage_paths.dart';
 import '../utils/uploader.dart';
@@ -1022,7 +1021,9 @@ class _AttachedDocumentViewerState extends State<AttachedDocumentViewer> {
     return GestureDetector(
       onTap: () async {
         if (!widget.doesAttachmentExist) return;
-        await OpenFile.open(file!.path);
+
+        final params = ShareParams(files: [XFile(file!.path)]);
+        SharePlus.instance.share(params);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

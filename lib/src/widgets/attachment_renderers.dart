@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AttachmentRenderer extends StatelessWidget {
   const AttachmentRenderer({
@@ -292,7 +292,8 @@ class DocumentViewer extends StatelessWidget {
         ? compactView
         : GestureDetector(
             onTap: () async {
-              await OpenFile.open(document.path);
+              final params = ShareParams(files: [XFile(document.path)]);
+              SharePlus.instance.share(params);
             },
             child: Center(
               child: Column(

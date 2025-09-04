@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
 import '../theme/chat_theme_provider.dart';
 
@@ -26,10 +25,7 @@ class ChatDate extends StatelessWidget {
       ),
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 24),
-      child: Text(
-        date,
-        style: chatTheme.dateLabelTextStyle,
-      ),
+      child: Text(date, style: chatTheme.dateLabelTextStyle),
     );
   }
 }

@@ -21,7 +21,6 @@ class ChatField extends StatelessWidget {
   final Function(String)? onSubmitted;
   @override
   Widget build(BuildContext context) {
-    final colorTheme = Theme.of(context).colorScheme;
     final chatTheme = ChatThemeProvider.of(context);
     return Container(
       // padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
@@ -45,11 +44,7 @@ class ChatField extends StatelessWidget {
               cursorColor: chatTheme.primaryColor,
               cursorHeight: 20,
               style: chatTheme.inputTextStyle,
-              decoration: const InputDecoration(
-                hintText: 'Message',
-                border: InputBorder.none,
-                isDense: true,
-              ),
+              decoration: chatTheme.inputDecoration,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
               onSubmitted: onSubmitted,

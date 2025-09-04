@@ -118,7 +118,9 @@ class ChatController {
 
     final msg = items[index];
     final next = index + 1 < items.length ? items[index + 1] : null;
-    return next == null || next.senderId != msg.senderId;
+    return next == null ||
+        next.senderId != msg.senderId ||
+        next.type == ChatMessageType.action;
   }
 
   /// Disposes resources safely.
