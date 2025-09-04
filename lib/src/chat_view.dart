@@ -191,7 +191,7 @@ class _ChatUiState extends State<ChatUi> {
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(30, 30),
                           enableFeedback: true,
-                          shadowColor: context.theme.colorScheme.onSurface,
+                          shadowColor: context.theme.colorScheme.shadow,
                         ),
                         onPressed: widget.controller.scrollToLastMessage,
                         tooltip: 'Jump to bottom',

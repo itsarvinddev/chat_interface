@@ -238,13 +238,19 @@ class ChatTheme {
         colorScheme.surfaceContainerHigh,
         BlendMode.srcATop,
       ),
-      sentMessageBackgroundColor: colorScheme.primary,
-      receivedMessageBackgroundColor: isDark
-          ? colorScheme.surfaceContainerHighest
-          : colorScheme.surfaceContainerHighest,
-      sentMessageTextColor: colorScheme.onPrimary,
-      receivedMessageTextColor: colorScheme.onSurfaceVariant,
-      timestampColor: colorScheme.outline,
+      sentMessageBackgroundColor: ElevationOverlay.applySurfaceTint(
+        colorScheme.inversePrimary,
+        colorScheme.surface,
+        0,
+      ),
+      receivedMessageBackgroundColor: ElevationOverlay.applySurfaceTint(
+        colorScheme.surfaceBright,
+        colorScheme.primary,
+        10,
+      ),
+      sentMessageTextColor: colorScheme.onSurface,
+      receivedMessageTextColor: colorScheme.onSurface,
+      timestampColor: colorScheme.onSurface.withValues(alpha: 0.7),
       inputTextColor: colorScheme.onSurface,
       inputBackgroundColor: isDark
           ? colorScheme.surfaceContainer
@@ -257,19 +263,22 @@ class ChatTheme {
       dateLabelTextColor: colorScheme.onTertiaryContainer,
       sentMessageTextStyle:
           materialTheme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onPrimary,
+            color: colorScheme.onSurface,
           ) ??
-          TextStyle(fontSize: 16, color: colorScheme.onPrimary),
+          TextStyle(fontSize: 16, color: colorScheme.onSurface),
       receivedMessageTextStyle:
           materialTheme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
+            color: colorScheme.onSurface,
           ) ??
-          TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+          TextStyle(fontSize: 16, color: colorScheme.onSurface),
       timestampTextStyle:
           materialTheme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.outline,
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
           ) ??
-          TextStyle(fontSize: 12, color: colorScheme.outline),
+          TextStyle(
+            fontSize: 12,
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
       inputTextStyle:
           materialTheme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface,

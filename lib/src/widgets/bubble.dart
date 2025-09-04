@@ -197,7 +197,7 @@ class _MessageCardState extends State<MessageCard>
           ),
           margin: EdgeInsets.only(
             bottom: 3.0,
-            top: widget.special ? 6.0 : 0,
+            top: widget.special ? 3.5 : 0,
             left: widget.special ? 6 : 16.0,
             right: widget.special ? 6 : 16.0,
           ),
@@ -266,11 +266,11 @@ class _MessageCardState extends State<MessageCard>
                     Builder(
                       builder: (context) {
                         final matches = urlRegex.allMatches(
-                          widget.message.message,
+                          widget.message.message.toLowerCase(),
                         );
                         final url =
                             matches.firstOrNull?.group(0) ??
-                            widget.message.message;
+                            widget.message.message.toLowerCase();
                         final isUrl = Uri.tryParse(url) != null;
 
                         if (matches.isNotNullOrEmpty && isUrl) {
@@ -362,6 +362,7 @@ class _MessageCardState extends State<MessageCard>
                           widget.message.createdAt?.format('h:mm a') ?? '',
                           style: chatTheme.timestampTextStyle.copyWith(
                             fontSize: 10,
+                            fontWeight: FontWeight.w600,
                             color: messageHasText
                                 ? chatTheme.timestampColor
                                 : Colors.white,

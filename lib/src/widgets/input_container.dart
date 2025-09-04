@@ -128,7 +128,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                 shadowColor: colorTheme.surfaceContainerHigh,
                 iconSize: 24,
                 backgroundColor: chatTheme.sendButtonColor,
-                foregroundColor: chatTheme.sentMessageTextColor,
+                foregroundColor: chatTheme.inputBackgroundColor,
                 minimumSize: const Size(42, 42),
               ),
               tooltip: 'Send',

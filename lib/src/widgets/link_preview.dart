@@ -24,7 +24,7 @@ class ChatLinkPreview extends StatelessWidget {
         right: isMessageBySelf ? 4.0 : 0.0,
         bottom: 6.0,
       ),
-      child: lookupMimeType(message.message) == 'image/jpeg'
+      child: lookupMimeType(message.message.toLowerCase()) == 'image/jpeg'
           ? ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: GestureDetector(
@@ -33,7 +33,7 @@ class ChatLinkPreview extends StatelessWidget {
                   SharePlus.instance.share(params);
                 },
                 child: CachedNetworkImage(
-                  imageUrl: message.message,
+                  imageUrl: message.message.toLowerCase(),
                   placeholder: (context, url) => const SizedBox.shrink(),
                   errorWidget: (context, url, error) => const SizedBox.shrink(),
                   fit: BoxFit.cover,
