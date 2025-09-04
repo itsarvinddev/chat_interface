@@ -89,7 +89,25 @@ class ChatController {
   Future<void> updateMessage(ChatMessage message, {bool callApi = true}) async {
     try {
       pagingController.mapItems(
-        (item) => item.id == message.id ? message : item,
+        (item) => item.id == message.id
+            ? item.copyWith(
+                message: message.message,
+                status: message.status,
+                attachment: message.attachment,
+                chatStatus: message.chatStatus,
+                imageType: message.imageType,
+                reactions: message.reactions,
+                replyMessage: message.replyMessage,
+                senderId: message.senderId,
+                roomId: message.roomId,
+                duration: message.duration,
+                metadata: message.metadata,
+                createdAt: message.createdAt,
+                updatedAt: message.updatedAt,
+                editedAt: message.editedAt,
+                type: message.type,
+              )
+            : item,
       );
       if (callApi) {
         await onMessageUpdated?.call(message);
