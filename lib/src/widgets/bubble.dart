@@ -16,22 +16,21 @@ import 'attachment_viewer.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
-  final ChatController controller;
   final ChatMessage message;
   final int index;
   final bool showHeader;
-  final ChatUiConfig config;
 
   const ChatBubble({
     super.key,
-    required this.controller,
     required this.message,
     required this.index,
     this.showHeader = false,
-    this.config = const ChatUiConfig(),
   });
   @override
   Widget build(BuildContext context) {
+    final controller = ChatControllerProvider.of(context);
+    final config = ChatUiConfigProvider.of(context);
+    final special = controller.tailForIndex(index) || showHeader;
     return RepaintBoundary(
       child: VisibilityDetector(
         key: ValueKey(message.id),
@@ -63,14 +62,12 @@ class ChatBubble extends StatelessWidget {
                 message: message,
                 controller: controller,
                 currentUser: controller.currentUser,
-                special: controller.tailForIndex(index),
-                showSender:
-                    controller.tailForIndex(index) &&
-                    !controller.isMessageBySelf(message),
+                special: special,
+                showSender: special && !controller.isMessageBySelf(message),
                 index: index,
               ),
               ChatMessageType.custom =>
-                config.customMessageBuilder?.call(controller, message, index) ??
+                config.customMessage?.call(controller, message, index) ??
                     const SizedBox.shrink(),
             },
           ],
@@ -115,6 +112,7 @@ class _MessageCardState extends State<MessageCard>
   Widget build(BuildContext context) {
     super.build(context);
     final colorTheme = context.theme.colorScheme;
+    final chatTheme = ChatThemeProvider.of(context);
     final size = MediaQuery.of(context).size;
     final hasAttachment = widget.message.attachment != null;
     final attachmentType = widget.message.attachment?.type;
@@ -181,31 +179,25 @@ class _MessageCardState extends State<MessageCard>
                 : size.width * 0.80 + (widget.special ? 10 : 0),
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: widget.special && !isSentMessageCard
-                  ? const Radius.circular(4)
-                  : const Radius.circular(12.0),
-              topRight: widget.special && isSentMessageCard
-                  ? const Radius.circular(4)
-                  : const Radius.circular(12.0),
-              bottomLeft: const Radius.circular(12.0),
-              bottomRight: const Radius.circular(12.0),
-            ),
-            color: isSentMessageCard
-                ? ElevationOverlay.applySurfaceTint(
-                    colorTheme.inversePrimary,
-                    colorTheme.surface,
-                    0,
+            borderRadius: widget.special
+                ? BorderRadius.only(
+                    topLeft: !isSentMessageCard
+                        ? const Radius.circular(4)
+                        : chatTheme.messageBorderRadius.topLeft,
+                    topRight: isSentMessageCard
+                        ? const Radius.circular(4)
+                        : chatTheme.messageBorderRadius.topRight,
+                    bottomLeft: chatTheme.messageBorderRadius.bottomLeft,
+                    bottomRight: chatTheme.messageBorderRadius.bottomRight,
                   )
-                : ElevationOverlay.applySurfaceTint(
-                    colorTheme.surfaceBright,
-                    colorTheme.primary,
-                    10,
-                  ),
+                : chatTheme.messageBorderRadius,
+            color: isSentMessageCard
+                ? chatTheme.sentMessageBackgroundColor
+                : chatTheme.receivedMessageBackgroundColor,
           ),
           margin: EdgeInsets.only(
             bottom: 3.0,
-            top: widget.special ? 6.0 : 0,
+            top: widget.special ? 3.5 : 0,
             left: widget.special ? 6 : 16.0,
             right: widget.special ? 6 : 16.0,
           ),
@@ -245,14 +237,13 @@ class _MessageCardState extends State<MessageCard>
                           : EdgeInsets.zero,
                       child: Text(
                         widget.message.sender?.name ?? "Unknown",
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: context.theme.brightness == Brightness.dark
-                                  ? (widget.message.sender?.name ?? "Unknown")
-                                        .toColorHSL()
-                                  : (widget.message.sender?.name ?? "Unknown")
-                                        .toDarkColor(),
-                            ),
+                        style: chatTheme.senderNameTextStyle.copyWith(
+                          color: context.theme.brightness == Brightness.dark
+                              ? (widget.message.sender?.name ?? "Unknown")
+                                    .toColorHSL()
+                              : (widget.message.sender?.name ?? "Unknown")
+                                    .toDarkColor(),
+                        ),
                       ),
                     ),
                   ],
@@ -275,11 +266,11 @@ class _MessageCardState extends State<MessageCard>
                     Builder(
                       builder: (context) {
                         final matches = urlRegex.allMatches(
-                          widget.message.message,
+                          widget.message.message.toLowerCase(),
                         );
                         final url =
                             matches.firstOrNull?.group(0) ??
-                            widget.message.message;
+                            widget.message.message.toLowerCase();
                         final isUrl = Uri.tryParse(url) != null;
 
                         if (matches.isNotNullOrEmpty && isUrl) {
@@ -317,11 +308,11 @@ class _MessageCardState extends State<MessageCard>
                       child: MarkdownText(
                         text: '${widget.message.message} $textPadding',
                         styles: MarkdownTextStyles(
-                          defaultStyle: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                fontSize: biggerFont ? 40 : 16,
-                                color: colorTheme.onSurface,
-                              ),
+                          defaultStyle:
+                              (isSentMessageCard
+                                      ? chatTheme.sentMessageTextStyle
+                                      : chatTheme.receivedMessageTextStyle)
+                                  .copyWith(fontSize: biggerFont ? 40 : null),
                         ),
                       ),
                     ),
@@ -369,13 +360,13 @@ class _MessageCardState extends State<MessageCard>
                       if (showTimeStamp) ...[
                         Text(
                           widget.message.createdAt?.format('h:mm a') ?? '',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                fontSize: 10,
-                                color: messageHasText
-                                    ? colorTheme.onSurface
-                                    : Colors.white,
-                              ),
+                          style: chatTheme.timestampTextStyle.copyWith(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: messageHasText
+                                ? chatTheme.timestampColor
+                                : Colors.white,
+                          ),
                         ),
                       ],
                       if (isSentMessageCard) ...[
@@ -384,7 +375,6 @@ class _MessageCardState extends State<MessageCard>
                           'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
                           package: 'chatui',
                           color: switch (widget.message.chatStatus) {
-                            // ChatMessageStatus.seen => colorTheme.primary,
                             ChatMessageStatus.seen => Colors.green,
                             _ => colorTheme.outline.withValues(alpha: 0.7),
                           },

@@ -139,6 +139,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeMode,
       builder: (context, value, child) => MaterialApp(
@@ -146,7 +147,6 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData.light(),
         darkTheme: ThemeData.dark(),
         home: Scaffold(
-          appBar: AppBar(title: const Text('Chat')),
           floatingActionButton: FloatingActionButton.small(
             elevation: 0,
             child: const Icon(Icons.brightness_4),

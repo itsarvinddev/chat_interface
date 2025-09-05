@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
+// import 'package:video_player/video_player.dart';
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
-import 'package:open_file_plus/open_file_plus.dart';
-import 'package:video_player/video_player.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AttachmentRenderer extends StatelessWidget {
   const AttachmentRenderer({
@@ -31,10 +30,10 @@ class AttachmentRenderer extends StatelessWidget {
     switch (attachmentType) {
       case ChatAttachmentType.image:
         return ImageViewer(image: attachment, fit: fit);
-      case ChatAttachmentType.video:
-        return VideoViewer(video: attachment, controllable: controllable);
-      case ChatAttachmentType.audio:
-        return AudioViewer(audio: attachment, controllable: controllable);
+      // case ChatAttachmentType.video:
+      //   return VideoViewer(video: attachment, controllable: controllable);
+      // case ChatAttachmentType.audio:
+      //   return AudioViewer(audio: attachment, controllable: controllable);
       default:
         return DocumentViewer(document: attachment, compact: compact);
     }
@@ -52,204 +51,204 @@ class ImageViewer extends StatelessWidget {
   }
 }
 
-class VideoViewer extends StatefulWidget {
-  const VideoViewer({
-    super.key,
-    required this.video,
-    required this.controllable,
-  });
-  final File video;
-  final bool controllable;
+// class VideoViewer extends StatefulWidget {
+//   const VideoViewer({
+//     super.key,
+//     required this.video,
+//     required this.controllable,
+//   });
+//   final File video;
+//   final bool controllable;
 
-  @override
-  State<VideoViewer> createState() => _VideoViewerState();
-}
+//   @override
+//   State<VideoViewer> createState() => _VideoViewerState();
+// }
 
-class _VideoViewerState extends State<VideoViewer> {
-  late final VideoPlayerController videoController;
-  Timer timer = Timer(Duration.zero, () {});
-  bool showControls = true;
+// class _VideoViewerState extends State<VideoViewer> {
+//   late final VideoPlayerController videoController;
+//   Timer timer = Timer(Duration.zero, () {});
+//   bool showControls = true;
 
-  @override
-  void initState() {
-    videoController = VideoPlayerController.file(widget.video);
-    videoController.initialize().then((value) {
-      if (widget.controllable) {
-        videoController.play();
-        showControls = false;
-      }
+//   @override
+//   void initState() {
+//     videoController = VideoPlayerController.file(widget.video);
+//     videoController.initialize().then((value) {
+//       if (widget.controllable) {
+//         videoController.play();
+//         showControls = false;
+//       }
 
-      setState(() {});
-    });
-    videoController.addListener(playerListener);
+//       setState(() {});
+//     });
+//     videoController.addListener(playerListener);
 
-    super.initState();
-  }
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    videoController.removeListener(playerListener);
-    videoController.dispose();
-    timer.cancel();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     videoController.removeListener(playerListener);
+//     videoController.dispose();
+//     timer.cancel();
+//     super.dispose();
+//   }
 
-  void playerListener() {
-    if (videoController.value.position == videoController.value.duration) {
-      videoController.seekTo(Duration.zero);
-      setState(() {});
-    }
-  }
+//   void playerListener() {
+//     if (videoController.value.position == videoController.value.duration) {
+//       videoController.seekTo(Duration.zero);
+//       setState(() {});
+//     }
+//   }
 
-  void changePlayState() {
-    if (videoController.value.isPlaying) {
-      videoController.pause();
-    } else {
-      videoController.play();
-    }
+//   void changePlayState() {
+//     if (videoController.value.isPlaying) {
+//       videoController.pause();
+//     } else {
+//       videoController.play();
+//     }
 
-    toggleControls();
-  }
+//     toggleControls();
+//   }
 
-  void toggleControls() {
-    showControls = !showControls;
-    if (timer.isActive) timer.cancel();
+//   void toggleControls() {
+//     showControls = !showControls;
+//     if (timer.isActive) timer.cancel();
 
-    timer = Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      setState(() {
-        showControls = false;
-      });
-    });
+//     timer = Timer(const Duration(seconds: 2), () {
+//       if (!mounted) return;
+//       setState(() {
+//         showControls = false;
+//       });
+//     });
 
-    setState(() {});
-  }
+//     setState(() {});
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (!videoController.value.isInitialized) {
-      return SizedBox(
-        width: videoController.value.size.width,
-        height: videoController.value.size.height,
-      );
-    }
+//   @override
+//   Widget build(BuildContext context) {
+//     if (!videoController.value.isInitialized) {
+//       return SizedBox(
+//         width: videoController.value.size.width,
+//         height: videoController.value.size.height,
+//       );
+//     }
 
-    Widget button = videoController.value.isPlaying
-        ? CircleAvatar(
-            backgroundColor: const Color.fromARGB(255, 209, 208, 208),
-            radius: 25,
-            child: GestureDetector(
-              onTap: () => changePlayState(),
-              child: const Icon(Icons.pause_rounded, size: 30),
-            ),
-          )
-        : CircleAvatar(
-            backgroundColor: const Color.fromARGB(255, 209, 208, 208),
-            radius: 25,
-            child: GestureDetector(
-              onTap: () => changePlayState(),
-              child: const Icon(Icons.play_arrow_rounded, size: 30),
-            ),
-          );
+//     Widget button = videoController.value.isPlaying
+//         ? CircleAvatar(
+//             backgroundColor: const Color.fromARGB(255, 209, 208, 208),
+//             radius: 25,
+//             child: GestureDetector(
+//               onTap: () => changePlayState(),
+//               child: const Icon(Icons.pause_rounded, size: 30),
+//             ),
+//           )
+//         : CircleAvatar(
+//             backgroundColor: const Color.fromARGB(255, 209, 208, 208),
+//             radius: 25,
+//             child: GestureDetector(
+//               onTap: () => changePlayState(),
+//               child: const Icon(Icons.play_arrow_rounded, size: 30),
+//             ),
+//           );
 
-    return widget.controllable
-        ? GestureDetector(
-            onTap: toggleControls,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AspectRatio(
-                  aspectRatio: videoController.value.aspectRatio,
-                  child: VideoPlayer(videoController),
-                ),
-                if (showControls) ...[button],
-              ],
-            ),
-          )
-        : AspectRatio(
-            aspectRatio: videoController.value.aspectRatio,
-            child: VideoPlayer(videoController),
-          );
-  }
-}
+//     return widget.controllable
+//         ? GestureDetector(
+//             onTap: toggleControls,
+//             child: Stack(
+//               alignment: Alignment.center,
+//               children: [
+//                 AspectRatio(
+//                   aspectRatio: videoController.value.aspectRatio,
+//                   child: VideoPlayer(videoController),
+//                 ),
+//                 if (showControls) ...[button],
+//               ],
+//             ),
+//           )
+//         : AspectRatio(
+//             aspectRatio: videoController.value.aspectRatio,
+//             child: VideoPlayer(videoController),
+//           );
+//   }
+// }
 
-class AudioViewer extends StatefulWidget {
-  const AudioViewer({
-    super.key,
-    required this.audio,
-    required this.controllable,
-  });
+// class AudioViewer extends StatefulWidget {
+//   const AudioViewer({
+//     super.key,
+//     required this.audio,
+//     required this.controllable,
+//   });
 
-  final File audio;
-  final bool controllable;
+//   final File audio;
+//   final bool controllable;
 
-  @override
-  State<AudioViewer> createState() => _AudioViewerState();
-}
+//   @override
+//   State<AudioViewer> createState() => _AudioViewerState();
+// }
 
-class _AudioViewerState extends State<AudioViewer> {
-  final player = AudioPlayer();
+// class _AudioViewerState extends State<AudioViewer> {
+//   final player = AudioPlayer();
 
-  @override
-  void initState() {
-    player.onPlayerComplete.listen((event) {
-      setState(() {});
-    });
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     player.onPlayerComplete.listen((event) {
+//       setState(() {});
+//     });
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    player.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     player.dispose();
+//     super.dispose();
+//   }
 
-  void changePlayState() async {
-    if (player.state == PlayerState.playing) {
-      await player.pause();
-    } else {
-      if (player.state == PlayerState.completed) {
-        await player.play(
-          DeviceFileSource(widget.audio.path),
-          position: const Duration(seconds: 0),
-        );
-      }
-      await player.play(DeviceFileSource(widget.audio.path));
-    }
+//   void changePlayState() async {
+//     if (player.state == PlayerState.playing) {
+//       await player.pause();
+//     } else {
+//       if (player.state == PlayerState.completed) {
+//         await player.play(
+//           DeviceFileSource(widget.audio.path),
+//           position: const Duration(seconds: 0),
+//         );
+//       }
+//       await player.play(DeviceFileSource(widget.audio.path));
+//     }
 
-    setState(() {});
-  }
+//     setState(() {});
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.controllable
-        ? GestureDetector(
-            onTap: () => changePlayState(),
-            child: Stack(
-              fit: StackFit.loose,
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  Icons.music_note_rounded,
-                  size: MediaQuery.of(context).size.width * 0.80,
-                ),
-                if (player.state != PlayerState.playing) ...[
-                  CircleAvatar(
-                    backgroundColor: const Color.fromARGB(255, 209, 208, 208),
-                    radius: 40,
-                    child: IconButton(
-                      padding: const EdgeInsets.all(0),
-                      onPressed: () => changePlayState(),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 50),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          )
-        : const Center(child: Icon(Icons.music_note_rounded));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return widget.controllable
+//         ? GestureDetector(
+//             onTap: () => changePlayState(),
+//             child: Stack(
+//               fit: StackFit.loose,
+//               alignment: Alignment.center,
+//               children: [
+//                 Icon(
+//                   Icons.music_note_rounded,
+//                   size: MediaQuery.of(context).size.width * 0.80,
+//                 ),
+//                 if (player.state != PlayerState.playing) ...[
+//                   CircleAvatar(
+//                     backgroundColor: const Color.fromARGB(255, 209, 208, 208),
+//                     radius: 40,
+//                     child: IconButton(
+//                       padding: const EdgeInsets.all(0),
+//                       onPressed: () => changePlayState(),
+//                       icon: const Icon(Icons.play_arrow_rounded, size: 50),
+//                     ),
+//                   ),
+//                 ],
+//               ],
+//             ),
+//           )
+//         : const Center(child: Icon(Icons.music_note_rounded));
+//   }
+// }
 
 class DocumentViewer extends StatelessWidget {
   const DocumentViewer({
@@ -293,7 +292,8 @@ class DocumentViewer extends StatelessWidget {
         ? compactView
         : GestureDetector(
             onTap: () async {
-              await OpenFile.open(document.path);
+              final params = ShareParams(files: [XFile(document.path)]);
+              SharePlus.instance.share(params);
             },
             child: Center(
               child: Column(

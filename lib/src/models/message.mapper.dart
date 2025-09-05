@@ -65,7 +65,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
   static const Field<ChatMessage, ChatImageType> _f$imageType = Field(
     'imageType',
     _$imageType,
-    key: r'image_type',
     opt: true,
     def: ChatImageType.network,
   );
@@ -80,14 +79,12 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
   static const Field<ChatMessage, ChatReplyMessage> _f$replyMessage = Field(
     'replyMessage',
     _$replyMessage,
-    key: r'reply_message',
     opt: true,
   );
   static String _$senderId(ChatMessage v) => v.senderId;
   static const Field<ChatMessage, String> _f$senderId = Field(
     'senderId',
     _$senderId,
-    key: r'sender_id',
     opt: true,
     def: "",
   );
@@ -95,7 +92,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
   static const Field<ChatMessage, String> _f$roomId = Field(
     'roomId',
     _$roomId,
-    key: r'room_id',
     opt: true,
     def: "",
   );
@@ -118,21 +114,18 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
   static const Field<ChatMessage, DateTime> _f$createdAt = Field(
     'createdAt',
     _$createdAt,
-    key: r'created_at',
     opt: true,
   );
   static DateTime? _$updatedAt(ChatMessage v) => v.updatedAt;
   static const Field<ChatMessage, DateTime> _f$updatedAt = Field(
     'updatedAt',
     _$updatedAt,
-    key: r'updated_at',
     opt: true,
   );
   static DateTime? _$editedAt(ChatMessage v) => v.editedAt;
   static const Field<ChatMessage, DateTime> _f$editedAt = Field(
     'editedAt',
     _$editedAt,
-    key: r'edited_at',
     opt: true,
   );
   static String _$status(ChatMessage v) => v.status;

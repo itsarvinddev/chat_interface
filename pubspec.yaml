@@ -1,6 +1,6 @@
 name: chatui
 description: "A new Flutter package project."
-version: 0.0.1
+version: 0.0.2
 homepage: "https://github.com/yourusername/your-repo"
 
 environment:
@@ -28,12 +28,12 @@ dependencies:
   visibility_detector: ^0.4.0+2
   flutter_keyboard_visibility: ^6.0.0
   swipe_to: ^1.0.6
-  video_player: ^2.7.0
-  open_file_plus: ^3.4.1
+  # video_player: ^2.7.0
+  share_plus: ^11.1.0
 
-  audioplayers: ^5.1.0
-  flutter_sound: ^9.2.13
-  audio_session: ^0.1.16
+  # audioplayers: ^5.1.0
+  # flutter_sound: ^9.2.13
+  # audio_session: ^0.1.16
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +57,5 @@ flutter:
     - assets/images/SENT.png
     - assets/images/DELIVERED.png
     - assets/images/SEEN.png
-    - assets/images/dark/chat_bg.png
-    - assets/images/chat_bg.png
-    - assets/images/logo.png
+    - assets/images/image.png
     - assets/images/avatar.png

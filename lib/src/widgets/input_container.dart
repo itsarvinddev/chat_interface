@@ -6,13 +6,7 @@ import 'package:screwdriver/screwdriver.dart';
 import 'chat_field.dart';
 
 class ChatInputContainer extends StatefulWidget {
-  final ChatController controller;
-  final ChatUiConfig config;
-  const ChatInputContainer({
-    super.key,
-    required this.controller,
-    this.config = const ChatUiConfig(),
-  });
+  const ChatInputContainer({super.key});
 
   @override
   State<ChatInputContainer> createState() => _ChatInputContainerState();
@@ -20,28 +14,37 @@ class ChatInputContainer extends StatefulWidget {
 
 class _ChatInputContainerState extends State<ChatInputContainer> {
   bool hideElements = false;
+  ChatUiConfig get config => ChatUiConfigProvider.of(context);
+  ChatController get controller => ChatControllerProvider.of(context);
 
   @override
   void initState() {
     super.initState();
-    widget.controller.messageController.addListener(() {
-      setState(() {
-        hideElements = widget.controller.messageController.text
-            .trim()
-            .isNotNullOrEmpty;
+    Future.microtask(() {
+      // if (mounted) {
+      //   config = ChatUiConfigProvider.of(context);
+      //   controller = ChatControllerProvider.of(context);
+      // }
+      controller.messageController.addListener(() {
+        setState(() {
+          hideElements = controller.messageController.text
+              .trim()
+              .isNotNullOrEmpty;
+        });
       });
     });
   }
 
-  @override
-  void dispose() {
-    widget.controller.messageController.removeListener(() {});
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   controller.messageController.removeListener(() {});
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     final colorTheme = context.theme.colorScheme;
+    final chatTheme = ChatThemeProvider.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
@@ -53,28 +56,33 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
               child: Container(
                 margin: const EdgeInsets.only(left: 3.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24.0),
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? colorTheme.surface
-                      : colorTheme.surfaceContainer,
+                  borderRadius: chatTheme.inputBorderRadius,
+                  color: chatTheme.inputBackgroundColor,
+                  border: Border.all(
+                    color: chatTheme.inputBorderColor,
+                    width: chatTheme.inputBorderWidth,
+                  ),
                 ),
                 child: ChatField(
-                  leading: widget.config.leading ?? const SizedBox(width: 12),
-                  focusNode: widget.controller.focusNode,
-                  textController: widget.controller.messageController,
-                  onSubmitted: (value) => widget.controller.addMessage(
+                  leading: config.leading ?? const SizedBox(width: 12),
+                  focusNode: controller.focusNode,
+                  textController: controller.messageController,
+                  onSubmitted: (value) => controller.addMessage(
                     ChatMessage(
                       message: value,
-                      senderId: widget.controller.currentUser.id,
-                      roomId: widget.controller.currentUser.roomId,
+                      senderId: controller.currentUser.id,
+                      roomId: controller.currentUser.roomId,
                       chatStatus: ChatMessageStatus.pending,
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
+                      id:
+                          controller.uuidGenerator?.call() ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
                     ),
                   ),
                   actions:
-                      widget.config.actions ??
+                      config.actions ??
                       [
                         IconButton(
                           onPressed: () {
@@ -87,7 +95,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                           icon: Icon(
                             Icons.attach_file_rounded,
                             size: 24.0,
-                            color: context.theme.colorScheme.secondary,
+                            color: chatTheme.attachmentButtonColor,
                           ),
                         ),
                         AnimatedSwitcher(
@@ -105,7 +113,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                                   icon: Icon(
                                     Icons.camera_alt_rounded,
                                     size: 24.0,
-                                    color: context.theme.colorScheme.secondary,
+                                    color: chatTheme.attachmentButtonColor,
                                   ),
                                 ),
                         ),
@@ -115,15 +123,18 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
             ),
             const SizedBox(width: 4.0),
             IconButton.filled(
-              onPressed: () => widget.controller.addMessage(
+              onPressed: () => controller.addMessage(
                 ChatMessage(
-                  message: widget.controller.messageController.text.trim(),
-                  senderId: widget.controller.currentUser.id,
-                  roomId: widget.controller.currentUser.roomId,
+                  message: controller.messageController.text.trim(),
+                  senderId: controller.currentUser.id,
+                  roomId: controller.currentUser.roomId,
                   chatStatus: ChatMessageStatus.pending,
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
+                  id:
+                      controller.uuidGenerator?.call() ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
                 ),
               ),
               style: IconButton.styleFrom(
@@ -133,8 +144,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                 enableFeedback: true,
                 shadowColor: colorTheme.surfaceContainerHigh,
                 iconSize: 24,
-                backgroundColor: colorTheme.primary,
-                foregroundColor: colorTheme.surface,
+                backgroundColor: chatTheme.sendButtonColor,
+                foregroundColor: chatTheme.inputBackgroundColor,
                 minimumSize: const Size(42, 42),
               ),
               tooltip: 'Send',

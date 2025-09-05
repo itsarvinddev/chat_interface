@@ -13,23 +13,16 @@ class ChatMessage with ChatMessageMappable {
   ChatAttachment? attachment;
   ChatMessageType type = ChatMessageType.chat;
   ChatMessageStatus chatStatus = ChatMessageStatus.pending;
-  @MappableField(key: 'image_type')
   ChatImageType imageType = ChatImageType.network;
   List<ChatReaction> reactions = [];
-  @MappableField(key: 'reply_message')
   ChatReplyMessage? replyMessage;
-  @MappableField(key: 'sender_id')
   String senderId = "";
-  @MappableField(key: 'room_id')
   String roomId = "";
   @MappableField(hook: DurationMillisHook())
   Duration duration = Duration.zero; // for audio and video messages
   Map<String, dynamic> metadata = {};
-  @MappableField(key: 'created_at')
   DateTime? createdAt;
-  @MappableField(key: 'updated_at')
   DateTime? updatedAt;
-  @MappableField(key: 'edited_at')
   DateTime? editedAt;
   String status = "";
 
@@ -38,6 +31,30 @@ class ChatMessage with ChatMessageMappable {
 
   /// Provides sender of the message.
   ChatUser? sender;
+
+  Object? _room;
+
+  void setRoom(Object? room) {
+    _room = room;
+  }
+
+  Object? getRoom() {
+    return _room;
+  }
+
+  T? getRoomAs<T>() => _room is T ? _room as T : null;
+
+  Object? _metadata;
+
+  void setMetadata(Object? metadata) {
+    _metadata = metadata;
+  }
+
+  Object? getMetadata() {
+    return _metadata;
+  }
+
+  T? getMetadataAs<T>() => _metadata is T ? _metadata as T : null;
 
   ChatMessage({
     this.id = "",

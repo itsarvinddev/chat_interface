@@ -231,6 +231,10 @@ class ChatController {
   UnmodifiableListView<ChatUser> get otherUsers =>
       UnmodifiableListView(_otherUsers.values);
 
+  /// Returns the all users.
+  UnmodifiableListView<ChatUser> get allUsers =>
+      UnmodifiableListView([currentUser, ..._otherUsers.values]);
+
   /// Returns the current list of messages.
   List<ChatMessage> get messages {
     if (pagingController.items != null) {
@@ -242,28 +246,50 @@ class ChatController {
     return [];
   }
 
+  String Function()? uuidGenerator;
+
   /// Adds a new message to the top of the first page.
-  Future<void> addMessage(ChatMessage message) async {
+  Future<void> addMessage(ChatMessage message, {bool callApi = true}) async {
     try {
-      messageController.clear();
       final pages = List<List<ChatMessage>>.from(pagingController.pages!);
       pages.first = [message, ...pages.first];
       pagingController.value = pagingController.value.copyWith(pages: pages);
-      await onMessageAdded?.call(message);
+      if (callApi) {
+        messageController.clear();
+        await onMessageAdded?.call(message);
+      }
     } catch (e, stack) {
       debugPrint('Error adding message: $e\n$stack');
     }
   }
 
   /// Updates an existing message by ID.
-  Future<void> updateMessage(ChatMessage message) async {
+  Future<void> updateMessage(ChatMessage message, {bool callApi = true}) async {
     try {
       pagingController.mapItems(
         (item) => item.id == message.id
-            ? item.copyWith(chatStatus: message.chatStatus)
+            ? item.copyWith(
+                message: message.message,
+                status: message.status,
+                attachment: message.attachment,
+                chatStatus: message.chatStatus,
+                imageType: message.imageType,
+                reactions: message.reactions,
+                replyMessage: message.replyMessage,
+                senderId: message.senderId,
+                roomId: message.roomId,
+                duration: message.duration,
+                metadata: message.metadata,
+                createdAt: message.createdAt,
+                updatedAt: message.updatedAt,
+                editedAt: message.editedAt,
+                type: message.type,
+              )
             : item,
       );
-      await onMessageUpdated?.call(message);
+      if (callApi) {
+        await onMessageUpdated?.call(message);
+      }
     } catch (e, stack) {
       debugPrint('Error updating message: $e\n$stack');
     }
@@ -294,8 +320,26 @@ class ChatController {
 
     final msg = items[index];
     final next = index + 1 < items.length ? items[index + 1] : null;
-    return next == null || next.senderId != msg.senderId;
+    return next == null ||
+        next.senderId != msg.senderId ||
+        next.type == ChatMessageType.action;
   }
+
+  /// Room object for the chat.
+  late Object? _room;
+
+  /// Sets the room object for the chat.
+  void setRoom(Object? room) {
+    _room = room;
+  }
+
+  /// Gets the room object for the chat.
+  Object? getRoom() {
+    return _room;
+  }
+
+  /// Typed room getter for convenience.
+  T? getRoomAs<T>() => _room is T ? _room as T : null;
 
   /// Disposes resources safely.
   void dispose() {

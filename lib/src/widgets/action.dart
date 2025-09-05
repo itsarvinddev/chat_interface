@@ -23,7 +23,7 @@ class ChatAction extends StatelessWidget {
           vertical: 4,
           horizontal: context.mediaQuery.size.width * 0.2,
         ),
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
         decoration: BoxDecoration(
           color: context.theme.colorScheme.primaryContainer.withValues(
             alpha: 0.5,
@@ -39,6 +39,7 @@ class ChatAction extends StatelessWidget {
           softWrap: true,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
+          textWidthBasis: TextWidthBasis.longestLine,
         ),
       ),
     );

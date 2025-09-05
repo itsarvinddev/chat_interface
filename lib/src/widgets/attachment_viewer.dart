@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:open_file_plus/open_file_plus.dart';
-import 'package:screwdriver/screwdriver.dart';
+import 'package:share_plus/share_plus.dart';
 
-import '../utils/painters.dart';
 import '../utils/storage_paths.dart';
 import '../utils/uploader.dart';
 import 'attachment_renderers.dart';
@@ -50,18 +45,18 @@ class _AttachmentPreviewState extends State<AttachmentPreview> {
   @override
   Widget build(BuildContext context) {
     return switch (widget.message.attachment!.type) {
-      ChatAttachmentType.audio => AttachedAudioViewer(
-        message: widget.message,
-        doesAttachmentExist: _doesAttachmentExist(),
-        onDownloadComplete: () => setState(() {}),
-        controller: widget.controller,
-      ),
-      ChatAttachmentType.voice => AttachedVoiceViewer(
-        message: widget.message,
-        doesAttachmentExist: _doesAttachmentExist(),
-        onDownloadComplete: () => setState(() {}),
-        controller: widget.controller,
-      ),
+      // ChatAttachmentType.audio => AttachedAudioViewer(
+      //   message: widget.message,
+      //   doesAttachmentExist: _doesAttachmentExist(),
+      //   onDownloadComplete: () => setState(() {}),
+      //   controller: widget.controller,
+      // ),
+      // ChatAttachmentType.voice => AttachedVoiceViewer(
+      //   message: widget.message,
+      //   doesAttachmentExist: _doesAttachmentExist(),
+      //   onDownloadComplete: () => setState(() {}),
+      //   controller: widget.controller,
+      // ),
       ChatAttachmentType.document => AttachedDocumentViewer(
         message: widget.message,
         doesAttachmentExist: _doesAttachmentExist(),
@@ -209,761 +204,761 @@ class _AttachedImageVideoViewerState extends State<AttachedImageVideoViewer> {
   }
 }
 
-class AttachedVoiceViewer extends StatefulWidget {
-  final ChatMessage message;
-  final bool doesAttachmentExist;
-  final VoidCallback onDownloadComplete;
-  final ChatController controller;
+// class AttachedVoiceViewer extends StatefulWidget {
+//   final ChatMessage message;
+//   final bool doesAttachmentExist;
+//   final VoidCallback onDownloadComplete;
+//   final ChatController controller;
 
-  const AttachedVoiceViewer({
-    super.key,
-    required this.message,
-    required this.doesAttachmentExist,
-    required this.onDownloadComplete,
-    required this.controller,
-  });
+//   const AttachedVoiceViewer({
+//     super.key,
+//     required this.message,
+//     required this.doesAttachmentExist,
+//     required this.onDownloadComplete,
+//     required this.controller,
+//   });
 
-  @override
-  State<AttachedVoiceViewer> createState() => _AttachedVoiceViewerState();
-}
+//   @override
+//   State<AttachedVoiceViewer> createState() => _AttachedVoiceViewerState();
+// }
 
-class _AttachedVoiceViewerState extends State<AttachedVoiceViewer> {
-  late final ChatUser self;
-  late final bool clientIsSender;
-  late String avatarUrl;
-  final dotWidth = 12.0;
+// class _AttachedVoiceViewerState extends State<AttachedVoiceViewer> {
+//   late final ChatUser self;
+//   late final bool clientIsSender;
+//   late String avatarUrl;
+//   final dotWidth = 12.0;
 
-  final player = AudioPlayer();
-  final progressNotifier = ValueNotifier<double>(0);
-  late final durationFuture = getDuration();
-  late final StreamSubscription<Duration> progressListener;
-  late final StreamSubscription<void> playerStateListener;
-  int remainingDuration = 0;
-  int totalDuration = 0;
+//   final player = AudioPlayer();
+//   final progressNotifier = ValueNotifier<double>(0);
+//   late final durationFuture = getDuration();
+//   late final StreamSubscription<Duration> progressListener;
+//   late final StreamSubscription<void> playerStateListener;
+//   int remainingDuration = 0;
+//   int totalDuration = 0;
 
-  @override
-  void initState() {
-    self = widget.controller.currentUser;
-    clientIsSender = widget.message.senderId == self.id;
+//   @override
+//   void initState() {
+//     self = widget.controller.currentUser;
+//     clientIsSender = widget.message.senderId == self.id;
 
-    progressListener = player.onPositionChanged.listen((event) async {
-      final totalDuration = await durationFuture;
-      progressNotifier.value =
-          event.inMilliseconds / totalDuration.inMilliseconds;
-    });
+//     progressListener = player.onPositionChanged.listen((event) async {
+//       final totalDuration = await durationFuture;
+//       progressNotifier.value =
+//           event.inMilliseconds / totalDuration.inMilliseconds;
+//     });
 
-    playerStateListener = player.onPlayerStateChanged.listen((event) async {
-      if (Platform.isAndroid && event == PlayerState.completed) {
-        progressNotifier.value = 0;
-      } else if (event == PlayerState.playing) {
-        remainingDuration =
-            ((1 - progressNotifier.value) *
-                    ((await durationFuture).inMilliseconds))
-                .toInt();
-      }
+//     playerStateListener = player.onPlayerStateChanged.listen((event) async {
+//       if (Platform.isAndroid && event == PlayerState.completed) {
+//         progressNotifier.value = 0;
+//       } else if (event == PlayerState.playing) {
+//         remainingDuration =
+//             ((1 - progressNotifier.value) *
+//                     ((await durationFuture).inMilliseconds))
+//                 .toInt();
+//       }
 
-      setState(() {});
-    });
+//       setState(() {});
+//     });
 
-    if (clientIsSender) {
-      avatarUrl = self.avatar ?? "";
-    } else {
-      final other = widget.message.sender;
-      avatarUrl = other?.avatar ?? "";
-    }
+//     if (clientIsSender) {
+//       avatarUrl = self.avatar ?? "";
+//     } else {
+//       final other = widget.message.sender;
+//       avatarUrl = other?.avatar ?? "";
+//     }
 
-    super.initState();
-  }
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    playerStateListener.cancel();
-    progressListener.cancel();
-    progressNotifier.dispose();
-    player.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     playerStateListener.cancel();
+//     progressListener.cancel();
+//     progressNotifier.dispose();
+//     player.dispose();
+//     super.dispose();
+//   }
 
-  Future<Duration> getDuration() async {
-    final file = widget.message.attachment!.file;
-    await player.setSourceDeviceFile(file!.path);
-    return await player.getDuration() ?? const Duration();
-  }
+//   Future<Duration> getDuration() async {
+//     final file = widget.message.attachment!.file;
+//     await player.setSourceDeviceFile(file!.path);
+//     return await player.getDuration() ?? const Duration();
+//   }
 
-  void _updateProgress(
-    BuildContext context,
-    double tapPosition, [
-    bool resume = true,
-  ]) async {
-    RenderBox box = context.findRenderObject() as RenderBox;
-    double width = box.size.width;
-    final relativePos = tapPosition / width;
-    progressNotifier.value = relativePos < 0 ? 0 : relativePos;
-    player.seek(
-      Duration(
-        milliseconds:
-            (tapPosition / width * (await durationFuture).inMilliseconds)
-                .toInt(),
-      ),
-    );
+//   void _updateProgress(
+//     BuildContext context,
+//     double tapPosition, [
+//     bool resume = true,
+//   ]) async {
+//     RenderBox box = context.findRenderObject() as RenderBox;
+//     double width = box.size.width;
+//     final relativePos = tapPosition / width;
+//     progressNotifier.value = relativePos < 0 ? 0 : relativePos;
+//     player.seek(
+//       Duration(
+//         milliseconds:
+//             (tapPosition / width * (await durationFuture).inMilliseconds)
+//                 .toInt(),
+//       ),
+//     );
 
-    bool isPlaying = false;
-    if (player.state == PlayerState.playing) {
-      isPlaying = true;
-    }
+//     bool isPlaying = false;
+//     if (player.state == PlayerState.playing) {
+//       isPlaying = true;
+//     }
 
-    player.pause();
-    Future.delayed(const Duration(milliseconds: 100), () async {
-      if (isPlaying && resume) {
-        await player.resume();
-      }
-    });
-  }
+//     player.pause();
+//     Future.delayed(const Duration(milliseconds: 100), () async {
+//       if (isPlaying && resume) {
+//         await player.resume();
+//       }
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final bool isAttachmentUploaded =
-        widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
-    bool showDuration = true;
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool isAttachmentUploaded =
+//         widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
+//     bool showDuration = true;
 
-    final iconColor = Theme.of(context).brightness == Brightness.dark
-        ? const Color.fromARGB(255, 235, 234, 234)
-        : context.colorScheme.primary;
+//     final iconColor = Theme.of(context).brightness == Brightness.dark
+//         ? const Color.fromARGB(255, 235, 234, 234)
+//         : context.colorScheme.primary;
 
-    final micColor = widget.message.chatStatus == ChatMessageStatus.seen
-        ? context.colorScheme.primary
-        : iconColor;
+//     final micColor = widget.message.chatStatus == ChatMessageStatus.seen
+//         ? context.colorScheme.primary
+//         : iconColor;
 
-    Widget? trailing;
-    if (!widget.doesAttachmentExist) {
-      showDuration = false;
-      trailing = DownloadingAttachment(
-        message: widget.message,
-        onDone: widget.onDownloadComplete,
-      );
-    } else if (!isAttachmentUploaded) {
-      showDuration = false;
-      trailing = UploadingAttachment(message: widget.message);
-    } else {
-      if (player.state == PlayerState.playing) {
-        trailing = SizedBox(
-          width: 38,
-          height: 40,
-          child: IconButton(
-            color: iconColor,
-            onPressed: () async {
-              await player.pause();
-            },
-            iconSize: 30,
-            padding: const EdgeInsets.all(0),
-            icon: const Icon(Icons.pause_rounded),
-          ),
-        );
-      } else {
-        trailing = SizedBox(
-          width: 38,
-          height: 40,
-          child: IconButton(
-            color: iconColor,
-            onPressed: () async {
-              await player.play(
-                DeviceFileSource(widget.message.attachment!.file!.path),
-                position: Duration(
-                  milliseconds:
-                      (progressNotifier.value *
-                              (await durationFuture).inMilliseconds)
-                          .toInt(),
-                ),
-              );
-            },
-            iconSize: 30,
-            padding: const EdgeInsets.all(0),
-            icon: const Icon(Icons.play_arrow_rounded),
-          ),
-        );
-      }
-    }
+//     Widget? trailing;
+//     if (!widget.doesAttachmentExist) {
+//       showDuration = false;
+//       trailing = DownloadingAttachment(
+//         message: widget.message,
+//         onDone: widget.onDownloadComplete,
+//       );
+//     } else if (!isAttachmentUploaded) {
+//       showDuration = false;
+//       trailing = UploadingAttachment(message: widget.message);
+//     } else {
+//       if (player.state == PlayerState.playing) {
+//         trailing = SizedBox(
+//           width: 38,
+//           height: 40,
+//           child: IconButton(
+//             color: iconColor,
+//             onPressed: () async {
+//               await player.pause();
+//             },
+//             iconSize: 30,
+//             padding: const EdgeInsets.all(0),
+//             icon: const Icon(Icons.pause_rounded),
+//           ),
+//         );
+//       } else {
+//         trailing = SizedBox(
+//           width: 38,
+//           height: 40,
+//           child: IconButton(
+//             color: iconColor,
+//             onPressed: () async {
+//               await player.play(
+//                 DeviceFileSource(widget.message.attachment!.file!.path),
+//                 position: Duration(
+//                   milliseconds:
+//                       (progressNotifier.value *
+//                               (await durationFuture).inMilliseconds)
+//                           .toInt(),
+//                 ),
+//               );
+//             },
+//             iconSize: 30,
+//             padding: const EdgeInsets.all(0),
+//             icon: const Icon(Icons.play_arrow_rounded),
+//           ),
+//         );
+//       }
+//     }
 
-    final backgroundColor = widget.message.message.isNullOrEmpty
-        ? clientIsSender
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.primaryContainer
-        : clientIsSender
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.primaryContainer;
+//     final backgroundColor = widget.message.message.isNullOrEmpty
+//         ? clientIsSender
+//               ? Theme.of(context).colorScheme.primary
+//               : Theme.of(context).colorScheme.primaryContainer
+//         : clientIsSender
+//         ? Theme.of(context).colorScheme.primary
+//         : Theme.of(context).colorScheme.primaryContainer;
 
-    final fixedWaveColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white38
-        : Colors.black26;
+//     final fixedWaveColor = Theme.of(context).brightness == Brightness.dark
+//         ? Colors.white38
+//         : Colors.black26;
 
-    final liveWaveColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white70
-        : Colors.black54;
+//     final liveWaveColor = Theme.of(context).brightness == Brightness.dark
+//         ? Colors.white70
+//         : Colors.black54;
 
-    const maxHeight = 20.0;
-    final samples = [...(widget.message.attachment!.samples ?? <double>[])];
+//     const maxHeight = 20.0;
+//     final samples = [...(widget.message.attachment!.samples ?? <double>[])];
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 50,
-            child: Stack(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.black,
-                  backgroundImage: CachedNetworkImageProvider(avatarUrl),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Icon(Icons.mic_rounded, color: micColor, size: 20),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                trailing,
-                const SizedBox(width: 4.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final maxSampleCount = constraints.maxWidth ~/ 5;
-                          List<double> fixedSamples = samples;
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+//       decoration: BoxDecoration(
+//         color: backgroundColor,
+//         borderRadius: BorderRadius.circular(12.0),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         children: [
+//           SizedBox(
+//             width: 50,
+//             child: Stack(
+//               children: [
+//                 CircleAvatar(
+//                   radius: 20,
+//                   backgroundColor: Colors.black,
+//                   backgroundImage: CachedNetworkImageProvider(avatarUrl),
+//                 ),
+//                 Positioned(
+//                   bottom: 0,
+//                   right: 0,
+//                   child: Icon(Icons.mic_rounded, color: micColor, size: 20),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Expanded(
+//             child: Row(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 trailing,
+//                 const SizedBox(width: 4.0),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       LayoutBuilder(
+//                         builder: (context, constraints) {
+//                           final maxSampleCount = constraints.maxWidth ~/ 5;
+//                           List<double> fixedSamples = samples;
 
-                          if (samples.length < maxSampleCount) {
-                            fixedSamples = fixLowSampleCount(
-                              maxSampleCount,
-                              samples,
-                            );
-                          } else if (samples.length > maxSampleCount) {
-                            fixedSamples = fixHighSampleCount(
-                              samples,
-                              maxSampleCount,
-                            );
-                          }
+//                           if (samples.length < maxSampleCount) {
+//                             fixedSamples = fixLowSampleCount(
+//                               maxSampleCount,
+//                               samples,
+//                             );
+//                           } else if (samples.length > maxSampleCount) {
+//                             fixedSamples = fixHighSampleCount(
+//                               samples,
+//                               maxSampleCount,
+//                             );
+//                           }
 
-                          return GestureDetector(
-                            onHorizontalDragUpdate: (details) {
-                              _updateProgress(
-                                context,
-                                details.localPosition.dx,
-                                false,
-                              );
-                            },
-                            onTapUp: (details) {
-                              _updateProgress(
-                                context,
-                                details.localPosition.dx,
-                              );
-                            },
-                            child: ValueListenableBuilder(
-                              valueListenable: progressNotifier,
-                              child: CustomPaint(
-                                painter: WaveformPainter(
-                                  maxHeight: maxHeight,
-                                  samples: fixedSamples,
-                                  waveColor: liveWaveColor,
-                                ),
-                                size: Size(constraints.maxWidth, maxHeight),
-                              ),
-                              builder: (context, val, waveform) => SizedBox(
-                                height: maxHeight,
-                                child: Stack(
-                                  alignment: Alignment.centerLeft,
-                                  children: [
-                                    AnimatedContainer(
-                                      width: player.state == PlayerState.playing
-                                          ? constraints.maxWidth
-                                          : val * constraints.maxWidth,
-                                      duration: Duration(
-                                        milliseconds:
-                                            player.state == PlayerState.playing
-                                            ? remainingDuration
-                                            : 0,
-                                      ),
-                                      child: ClipRect(child: waveform),
-                                    ),
-                                    CustomPaint(
-                                      painter: WaveformPainter(
-                                        maxHeight: maxHeight,
-                                        samples: fixedSamples,
-                                        waveColor: fixedWaveColor,
-                                      ),
-                                      size: Size(
-                                        constraints.maxWidth,
-                                        maxHeight,
-                                      ),
-                                    ),
-                                    AnimatedPositioned(
-                                      duration: Duration(
-                                        milliseconds:
-                                            player.state == PlayerState.playing
-                                            ? remainingDuration
-                                            : 0,
-                                      ),
-                                      left: fixedDotPosition(
-                                        constraints,
-                                        player.state == PlayerState.playing
-                                            ? 1
-                                            : val,
-                                      ),
-                                      child: Container(
-                                        width: dotWidth,
-                                        height: dotWidth,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: iconColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          showDuration
-                              ? ValueListenableBuilder(
-                                  valueListenable: progressNotifier,
-                                  builder: (context, val, _) => FutureBuilder(
-                                    future: durationFuture,
-                                    builder: (context, snap) {
-                                      String text = "00:00";
-                                      if (snap.hasData) {
-                                        totalDuration =
-                                            snap.data!.inMilliseconds;
-                                        text = timeFromSeconds(
-                                          player.state == PlayerState.playing ||
-                                                  val > 0 && val < 1
-                                              ? (snap.data!.inSeconds * val)
-                                                    .toInt()
-                                              : snap.data!.inSeconds,
-                                          true,
-                                        );
-                                      }
-                                      return Text(
-                                        text,
-                                        style: const TextStyle(fontSize: 12),
-                                      );
-                                    },
-                                  ),
-                                )
-                              : Text(
-                                  strFormattedSize(
-                                    widget.message.attachment!.fileSize,
-                                  ),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: clientIsSender ? 20.0 : 0,
-                            ),
-                            child: Text(
-                              formattedDateTime(
-                                widget.message.createdAt ?? DateTime.now(),
-                                true,
-                                Platform.isIOS,
-                              ),
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 4.0),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//                           return GestureDetector(
+//                             onHorizontalDragUpdate: (details) {
+//                               _updateProgress(
+//                                 context,
+//                                 details.localPosition.dx,
+//                                 false,
+//                               );
+//                             },
+//                             onTapUp: (details) {
+//                               _updateProgress(
+//                                 context,
+//                                 details.localPosition.dx,
+//                               );
+//                             },
+//                             child: ValueListenableBuilder(
+//                               valueListenable: progressNotifier,
+//                               child: CustomPaint(
+//                                 painter: WaveformPainter(
+//                                   maxHeight: maxHeight,
+//                                   samples: fixedSamples,
+//                                   waveColor: liveWaveColor,
+//                                 ),
+//                                 size: Size(constraints.maxWidth, maxHeight),
+//                               ),
+//                               builder: (context, val, waveform) => SizedBox(
+//                                 height: maxHeight,
+//                                 child: Stack(
+//                                   alignment: Alignment.centerLeft,
+//                                   children: [
+//                                     AnimatedContainer(
+//                                       width: player.state == PlayerState.playing
+//                                           ? constraints.maxWidth
+//                                           : val * constraints.maxWidth,
+//                                       duration: Duration(
+//                                         milliseconds:
+//                                             player.state == PlayerState.playing
+//                                             ? remainingDuration
+//                                             : 0,
+//                                       ),
+//                                       child: ClipRect(child: waveform),
+//                                     ),
+//                                     CustomPaint(
+//                                       painter: WaveformPainter(
+//                                         maxHeight: maxHeight,
+//                                         samples: fixedSamples,
+//                                         waveColor: fixedWaveColor,
+//                                       ),
+//                                       size: Size(
+//                                         constraints.maxWidth,
+//                                         maxHeight,
+//                                       ),
+//                                     ),
+//                                     AnimatedPositioned(
+//                                       duration: Duration(
+//                                         milliseconds:
+//                                             player.state == PlayerState.playing
+//                                             ? remainingDuration
+//                                             : 0,
+//                                       ),
+//                                       left: fixedDotPosition(
+//                                         constraints,
+//                                         player.state == PlayerState.playing
+//                                             ? 1
+//                                             : val,
+//                                       ),
+//                                       child: Container(
+//                                         width: dotWidth,
+//                                         height: dotWidth,
+//                                         decoration: BoxDecoration(
+//                                           shape: BoxShape.circle,
+//                                           color: iconColor,
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             ),
+//                           );
+//                         },
+//                       ),
+//                       const SizedBox(height: 4),
+//                       Row(
+//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                         children: [
+//                           showDuration
+//                               ? ValueListenableBuilder(
+//                                   valueListenable: progressNotifier,
+//                                   builder: (context, val, _) => FutureBuilder(
+//                                     future: durationFuture,
+//                                     builder: (context, snap) {
+//                                       String text = "00:00";
+//                                       if (snap.hasData) {
+//                                         totalDuration =
+//                                             snap.data!.inMilliseconds;
+//                                         text = timeFromSeconds(
+//                                           player.state == PlayerState.playing ||
+//                                                   val > 0 && val < 1
+//                                               ? (snap.data!.inSeconds * val)
+//                                                     .toInt()
+//                                               : snap.data!.inSeconds,
+//                                           true,
+//                                         );
+//                                       }
+//                                       return Text(
+//                                         text,
+//                                         style: const TextStyle(fontSize: 12),
+//                                       );
+//                                     },
+//                                   ),
+//                                 )
+//                               : Text(
+//                                   strFormattedSize(
+//                                     widget.message.attachment!.fileSize,
+//                                   ),
+//                                   style: const TextStyle(fontSize: 12),
+//                                 ),
+//                           Padding(
+//                             padding: EdgeInsets.only(
+//                               right: clientIsSender ? 20.0 : 0,
+//                             ),
+//                             child: Text(
+//                               formattedDateTime(
+//                                 widget.message.createdAt ?? DateTime.now(),
+//                                 true,
+//                                 Platform.isIOS,
+//                               ),
+//                               style: const TextStyle(fontSize: 12),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const SizedBox(width: 4.0),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  List<double> fixHighSampleCount(List<double> samples, int maxSampleCount) {
-    final fixedSamples = <double>[];
-    final sampleCount = samples.length;
-    final step = sampleCount ~/ maxSampleCount;
+//   List<double> fixHighSampleCount(List<double> samples, int maxSampleCount) {
+//     final fixedSamples = <double>[];
+//     final sampleCount = samples.length;
+//     final step = sampleCount ~/ maxSampleCount;
 
-    int rem = sampleCount % maxSampleCount;
-    int counter = 0;
-    double current = 0;
-    int i = 0;
+//     int rem = sampleCount % maxSampleCount;
+//     int counter = 0;
+//     double current = 0;
+//     int i = 0;
 
-    while (i < sampleCount) {
-      if (counter == step) {
-        int divider = step;
+//     while (i < sampleCount) {
+//       if (counter == step) {
+//         int divider = step;
 
-        if (rem > 0) {
-          current += samples[i];
-          divider++;
-          rem--;
-          i++;
-        }
+//         if (rem > 0) {
+//           current += samples[i];
+//           divider++;
+//           rem--;
+//           i++;
+//         }
 
-        fixedSamples.add(current / divider);
-        counter = 0;
-        current = 0;
-      }
-      current += samples[i];
-      counter++;
-      i++;
-    }
+//         fixedSamples.add(current / divider);
+//         counter = 0;
+//         current = 0;
+//       }
+//       current += samples[i];
+//       counter++;
+//       i++;
+//     }
 
-    fixedSamples.add(samples.last);
-    return fixedSamples;
-  }
+//     fixedSamples.add(samples.last);
+//     return fixedSamples;
+//   }
 
-  List<double> fixLowSampleCount(int maxSampleCount, List<double> samples) {
-    final fixedSamples = <double>[];
-    int diff = maxSampleCount - samples.length;
+//   List<double> fixLowSampleCount(int maxSampleCount, List<double> samples) {
+//     final fixedSamples = <double>[];
+//     int diff = maxSampleCount - samples.length;
 
-    fixedSamples.addAll(List.filled(diff ~/ 3, 0));
-    fixedSamples.addAll(samples);
-    fixedSamples.addAll(List.filled(diff - diff ~/ 3, 0));
+//     fixedSamples.addAll(List.filled(diff ~/ 3, 0));
+//     fixedSamples.addAll(samples);
+//     fixedSamples.addAll(List.filled(diff - diff ~/ 3, 0));
 
-    smoothen(fixedSamples);
-    return fixedSamples;
-  }
+//     smoothen(fixedSamples);
+//     return fixedSamples;
+//   }
 
-  List<double> smoothen(
-    List<double> samples, {
-    double smoothingFactor = 0.1,
-    double scaleFactor = 1,
-  }) {
-    double ema = samples[0] * scaleFactor;
+//   List<double> smoothen(
+//     List<double> samples, {
+//     double smoothingFactor = 0.1,
+//     double scaleFactor = 1,
+//   }) {
+//     double ema = samples[0] * scaleFactor;
 
-    for (int i = 1; i < samples.length; i++) {
-      ema =
-          (smoothingFactor * samples[i] * scaleFactor) +
-          (1 - smoothingFactor) * ema;
-      samples[i] = ema;
-    }
+//     for (int i = 1; i < samples.length; i++) {
+//       ema =
+//           (smoothingFactor * samples[i] * scaleFactor) +
+//           (1 - smoothingFactor) * ema;
+//       samples[i] = ema;
+//     }
 
-    return samples;
-  }
+//     return samples;
+//   }
 
-  double fixedDotPosition(BoxConstraints constraints, double val) {
-    final pos = constraints.maxWidth * val;
+//   double fixedDotPosition(BoxConstraints constraints, double val) {
+//     final pos = constraints.maxWidth * val;
 
-    if (pos <= 6) {
-      return 0;
-    } else if (pos > constraints.maxWidth - dotWidth) {
-      return constraints.maxWidth - dotWidth;
-    } else {
-      return (constraints.maxWidth * val) - dotWidth / 2;
-    }
-  }
-}
+//     if (pos <= 6) {
+//       return 0;
+//     } else if (pos > constraints.maxWidth - dotWidth) {
+//       return constraints.maxWidth - dotWidth;
+//     } else {
+//       return (constraints.maxWidth * val) - dotWidth / 2;
+//     }
+//   }
+// }
 
-class AttachedAudioViewer extends StatefulWidget {
-  final ChatMessage message;
-  final bool doesAttachmentExist;
-  final VoidCallback onDownloadComplete;
-  final ChatController controller;
+// class AttachedAudioViewer extends StatefulWidget {
+//   final ChatMessage message;
+//   final bool doesAttachmentExist;
+//   final VoidCallback onDownloadComplete;
+//   final ChatController controller;
 
-  const AttachedAudioViewer({
-    super.key,
-    required this.message,
-    required this.doesAttachmentExist,
-    required this.onDownloadComplete,
-    required this.controller,
-  });
+//   const AttachedAudioViewer({
+//     super.key,
+//     required this.message,
+//     required this.doesAttachmentExist,
+//     required this.onDownloadComplete,
+//     required this.controller,
+//   });
 
-  @override
-  State<AttachedAudioViewer> createState() => _AttachedAudioViewerState();
-}
+//   @override
+//   State<AttachedAudioViewer> createState() => _AttachedAudioViewerState();
+// }
 
-class _AttachedAudioViewerState extends State<AttachedAudioViewer> {
-  late final ChatUser self;
-  late final bool clientIsSender;
-  final dotWidth = 12.0;
+// class _AttachedAudioViewerState extends State<AttachedAudioViewer> {
+//   late final ChatUser self;
+//   late final bool clientIsSender;
+//   final dotWidth = 12.0;
 
-  final AudioPlayer player = AudioPlayer();
-  late final Future<Duration> totalDuration = getDuration();
-  late StreamSubscription<void> playerStatusListener;
-  late StreamSubscription<Duration> progressListener;
-  final progressNotifier = ValueNotifier<double>(0);
+//   final AudioPlayer player = AudioPlayer();
+//   late final Future<Duration> totalDuration = getDuration();
+//   late StreamSubscription<void> playerStatusListener;
+//   late StreamSubscription<Duration> progressListener;
+//   final progressNotifier = ValueNotifier<double>(0);
 
-  @override
-  void initState() {
-    self = widget.controller.currentUser;
-    clientIsSender = widget.message.senderId == self.id;
+//   @override
+//   void initState() {
+//     self = widget.controller.currentUser;
+//     clientIsSender = widget.message.senderId == self.id;
 
-    playerStatusListener = player.onPlayerStateChanged.listen((event) {
-      if (Platform.isAndroid && event == PlayerState.completed) {
-        progressNotifier.value = 0;
-      }
+//     playerStatusListener = player.onPlayerStateChanged.listen((event) {
+//       if (Platform.isAndroid && event == PlayerState.completed) {
+//         progressNotifier.value = 0;
+//       }
 
-      setState(() {});
-    });
+//       setState(() {});
+//     });
 
-    progressListener = player.onPositionChanged.listen((duration) async {
-      final total = await totalDuration;
-      progressNotifier.value = duration.inSeconds / total.inSeconds;
-    });
+//     progressListener = player.onPositionChanged.listen((duration) async {
+//       final total = await totalDuration;
+//       progressNotifier.value = duration.inSeconds / total.inSeconds;
+//     });
 
-    super.initState();
-  }
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    playerStatusListener.cancel();
-    progressListener.cancel();
-    player.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     playerStatusListener.cancel();
+//     progressListener.cancel();
+//     player.dispose();
+//     super.dispose();
+//   }
 
-  void _updateProgress(BuildContext context, double tapPosition) async {
-    RenderBox box = context.findRenderObject() as RenderBox;
-    double width = box.size.width;
-    final relativePos = tapPosition / width;
-    progressNotifier.value = relativePos < 0 ? 0 : relativePos;
-    player.seek(
-      Duration(
-        milliseconds:
-            (tapPosition / width * (await totalDuration).inMilliseconds)
-                .toInt(),
-      ),
-    );
-  }
+//   void _updateProgress(BuildContext context, double tapPosition) async {
+//     RenderBox box = context.findRenderObject() as RenderBox;
+//     double width = box.size.width;
+//     final relativePos = tapPosition / width;
+//     progressNotifier.value = relativePos < 0 ? 0 : relativePos;
+//     player.seek(
+//       Duration(
+//         milliseconds:
+//             (tapPosition / width * (await totalDuration).inMilliseconds)
+//                 .toInt(),
+//       ),
+//     );
+//   }
 
-  Future<Duration> getDuration() async {
-    final file = widget.message.attachment!.file;
-    await player.setSourceDeviceFile(file!.path);
-    return await player.getDuration() ?? const Duration();
-  }
+//   Future<Duration> getDuration() async {
+//     final file = widget.message.attachment!.file;
+//     await player.setSourceDeviceFile(file!.path);
+//     return await player.getDuration() ?? const Duration();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final bool isAttachmentUploaded =
-        widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
-    final attachment = widget.message.attachment!;
-    bool showDuration = true;
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool isAttachmentUploaded =
+//         widget.message.attachment!.uploadStatus == UploadStatus.uploaded;
+//     final attachment = widget.message.attachment!;
+//     bool showDuration = true;
 
-    final iconColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : context.colorScheme.primary;
+//     final iconColor = Theme.of(context).brightness == Brightness.dark
+//         ? Colors.white
+//         : context.colorScheme.primary;
 
-    Widget? trailing;
-    if (!widget.doesAttachmentExist) {
-      showDuration = false;
-      trailing = DownloadingAttachment(
-        message: widget.message,
-        onDone: widget.onDownloadComplete,
-      );
-    } else if (!isAttachmentUploaded) {
-      showDuration = false;
-      trailing = UploadingAttachment(message: widget.message);
-    } else {
-      if (player.state == PlayerState.playing) {
-        trailing = SizedBox(
-          width: 38,
-          height: 40,
-          child: IconButton(
-            color: iconColor,
-            onPressed: () async {
-              await player.pause();
-            },
-            iconSize: 30,
-            padding: const EdgeInsets.all(0),
-            icon: const Icon(Icons.pause_rounded),
-          ),
-        );
-      } else {
-        trailing = SizedBox(
-          width: 38,
-          height: 40,
-          child: IconButton(
-            color: iconColor,
-            onPressed: () async {
-              await player.play(
-                DeviceFileSource(widget.message.attachment!.file!.path),
-                position: Duration(
-                  milliseconds:
-                      (progressNotifier.value *
-                              (await totalDuration).inMilliseconds)
-                          .toInt(),
-                ),
-              );
-            },
-            iconSize: 30,
-            padding: const EdgeInsets.all(0),
-            icon: const Icon(Icons.play_arrow_rounded),
-          ),
-        );
-      }
-    }
+//     Widget? trailing;
+//     if (!widget.doesAttachmentExist) {
+//       showDuration = false;
+//       trailing = DownloadingAttachment(
+//         message: widget.message,
+//         onDone: widget.onDownloadComplete,
+//       );
+//     } else if (!isAttachmentUploaded) {
+//       showDuration = false;
+//       trailing = UploadingAttachment(message: widget.message);
+//     } else {
+//       if (player.state == PlayerState.playing) {
+//         trailing = SizedBox(
+//           width: 38,
+//           height: 40,
+//           child: IconButton(
+//             color: iconColor,
+//             onPressed: () async {
+//               await player.pause();
+//             },
+//             iconSize: 30,
+//             padding: const EdgeInsets.all(0),
+//             icon: const Icon(Icons.pause_rounded),
+//           ),
+//         );
+//       } else {
+//         trailing = SizedBox(
+//           width: 38,
+//           height: 40,
+//           child: IconButton(
+//             color: iconColor,
+//             onPressed: () async {
+//               await player.play(
+//                 DeviceFileSource(widget.message.attachment!.file!.path),
+//                 position: Duration(
+//                   milliseconds:
+//                       (progressNotifier.value *
+//                               (await totalDuration).inMilliseconds)
+//                           .toInt(),
+//                 ),
+//               );
+//             },
+//             iconSize: 30,
+//             padding: const EdgeInsets.all(0),
+//             icon: const Icon(Icons.play_arrow_rounded),
+//           ),
+//         );
+//       }
+//     }
 
-    final backgroundColor = widget.message.message.isNullOrEmpty
-        ? clientIsSender
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.primaryContainer
-        : clientIsSender
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.primaryContainer;
+//     final backgroundColor = widget.message.message.isNullOrEmpty
+//         ? clientIsSender
+//               ? Theme.of(context).colorScheme.primary
+//               : Theme.of(context).colorScheme.primaryContainer
+//         : clientIsSender
+//         ? Theme.of(context).colorScheme.primary
+//         : Theme.of(context).colorScheme.primaryContainer;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 248, 131, 144),
-              shape: BoxShape.circle,
-            ),
-            padding: const EdgeInsets.all(4.0),
-            child: const Center(
-              child: Icon(
-                Icons.music_note_rounded,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) => GestureDetector(
-                onHorizontalDragUpdate: (details) {
-                  player.pause();
-                  _updateProgress(context, details.localPosition.dx);
-                },
-                onTapUp: (details) {
-                  _updateProgress(context, details.localPosition.dx);
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 16.0),
-                    SizedBox(
-                      height: dotWidth,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(2.0),
-                            child: ValueListenableBuilder(
-                              valueListenable: progressNotifier,
-                              builder: (context, val, _) =>
-                                  LinearProgressIndicator(
-                                    backgroundColor: clientIsSender
-                                        ? const Color.fromARGB(
-                                            202,
-                                            96,
-                                            125,
-                                            139,
-                                          )
-                                        : const Color.fromARGB(
-                                            117,
-                                            96,
-                                            125,
-                                            139,
-                                          ),
-                                    value: val,
-                                  ),
-                            ),
-                          ),
-                          ValueListenableBuilder(
-                            valueListenable: progressNotifier,
-                            builder: (context, val, _) => Positioned(
-                              left: fixedDotPosition(constraints, val),
-                              child: Container(
-                                width: dotWidth,
-                                height: dotWidth,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        showDuration
-                            ? FutureBuilder(
-                                future: totalDuration,
-                                builder: (context, snap) {
-                                  if (!snap.hasData) {
-                                    return Container();
-                                  }
-                                  return Text(
-                                    timeFromSeconds(snap.data!.inSeconds, true),
-                                    style: const TextStyle(fontSize: 12),
-                                  );
-                                },
-                              )
-                            : Text(
-                                strFormattedSize(attachment.fileSize),
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                        Text(
-                          formattedDateTime(
-                            widget.message.createdAt ?? DateTime.now(),
-                            true,
-                            Platform.isIOS,
-                          ),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4.0),
-          Row(mainAxisSize: MainAxisSize.min, children: [trailing]),
-          const SizedBox(width: 4.0),
-        ],
-      ),
-    );
-  }
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+//       decoration: BoxDecoration(
+//         color: backgroundColor,
+//         borderRadius: BorderRadius.circular(12.0),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         children: [
+//           Container(
+//             width: 44,
+//             height: 44,
+//             decoration: const BoxDecoration(
+//               color: Color.fromARGB(255, 248, 131, 144),
+//               shape: BoxShape.circle,
+//             ),
+//             padding: const EdgeInsets.all(4.0),
+//             child: const Center(
+//               child: Icon(
+//                 Icons.music_note_rounded,
+//                 color: Colors.white,
+//                 size: 30,
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 8.0),
+//           Expanded(
+//             child: LayoutBuilder(
+//               builder: (context, constraints) => GestureDetector(
+//                 onHorizontalDragUpdate: (details) {
+//                   player.pause();
+//                   _updateProgress(context, details.localPosition.dx);
+//                 },
+//                 onTapUp: (details) {
+//                   _updateProgress(context, details.localPosition.dx);
+//                 },
+//                 child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     const SizedBox(height: 16.0),
+//                     SizedBox(
+//                       height: dotWidth,
+//                       child: Stack(
+//                         alignment: Alignment.center,
+//                         children: [
+//                           ClipRRect(
+//                             borderRadius: BorderRadius.circular(2.0),
+//                             child: ValueListenableBuilder(
+//                               valueListenable: progressNotifier,
+//                               builder: (context, val, _) =>
+//                                   LinearProgressIndicator(
+//                                     backgroundColor: clientIsSender
+//                                         ? const Color.fromARGB(
+//                                             202,
+//                                             96,
+//                                             125,
+//                                             139,
+//                                           )
+//                                         : const Color.fromARGB(
+//                                             117,
+//                                             96,
+//                                             125,
+//                                             139,
+//                                           ),
+//                                     value: val,
+//                                   ),
+//                             ),
+//                           ),
+//                           ValueListenableBuilder(
+//                             valueListenable: progressNotifier,
+//                             builder: (context, val, _) => Positioned(
+//                               left: fixedDotPosition(constraints, val),
+//                               child: Container(
+//                                 width: dotWidth,
+//                                 height: dotWidth,
+//                                 decoration: BoxDecoration(
+//                                   shape: BoxShape.circle,
+//                                   color: Theme.of(context).colorScheme.primary,
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     const SizedBox(height: 4.0),
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         showDuration
+//                             ? FutureBuilder(
+//                                 future: totalDuration,
+//                                 builder: (context, snap) {
+//                                   if (!snap.hasData) {
+//                                     return Container();
+//                                   }
+//                                   return Text(
+//                                     timeFromSeconds(snap.data!.inSeconds, true),
+//                                     style: const TextStyle(fontSize: 12),
+//                                   );
+//                                 },
+//                               )
+//                             : Text(
+//                                 strFormattedSize(attachment.fileSize),
+//                                 style: const TextStyle(fontSize: 12),
+//                               ),
+//                         Text(
+//                           formattedDateTime(
+//                             widget.message.createdAt ?? DateTime.now(),
+//                             true,
+//                             Platform.isIOS,
+//                           ),
+//                           style: const TextStyle(fontSize: 12),
+//                         ),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 4.0),
+//           Row(mainAxisSize: MainAxisSize.min, children: [trailing]),
+//           const SizedBox(width: 4.0),
+//         ],
+//       ),
+//     );
+//   }
 
-  double fixedDotPosition(BoxConstraints constraints, double val) {
-    final pos = constraints.maxWidth * val;
+//   double fixedDotPosition(BoxConstraints constraints, double val) {
+//     final pos = constraints.maxWidth * val;
 
-    if (pos < 0) {
-      return 0;
-    } else if (pos > constraints.maxWidth - dotWidth) {
-      return constraints.maxWidth - dotWidth;
-    } else {
-      return constraints.maxWidth * val;
-    }
-  }
-}
+//     if (pos < 0) {
+//       return 0;
+//     } else if (pos > constraints.maxWidth - dotWidth) {
+//       return constraints.maxWidth - dotWidth;
+//     } else {
+//       return constraints.maxWidth * val;
+//     }
+//   }
+// }
 
 class AttachedDocumentViewer extends StatefulWidget {
   final ChatMessage message;
@@ -1026,7 +1021,9 @@ class _AttachedDocumentViewerState extends State<AttachedDocumentViewer> {
     return GestureDetector(
       onTap: () async {
         if (!widget.doesAttachmentExist) return;
-        await OpenFile.open(file!.path);
+
+        final params = ShareParams(files: [XFile(file!.path)]);
+        SharePlus.instance.share(params);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
