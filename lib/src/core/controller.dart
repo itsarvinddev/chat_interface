@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screwdriver/screwdriver.dart';
 
-import '../utils/file_picker_utils.dart';
-
 /// Controller for managing chat state, messages, and scrolling.
 class ChatController {
   ChatController({
@@ -60,7 +58,9 @@ class ChatController {
     try {
       final XFile? image = await FilePickerUtils.pickImageFromCamera();
       if (image != null) {
-        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(
+          image,
+        );
         await _sendAttachmentMessage(attachment);
       }
     } catch (e) {
@@ -132,21 +132,27 @@ class ChatController {
         case 'gallery':
           final XFile? image = await FilePickerUtils.pickImageFromGallery();
           if (image != null) {
-            final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+            final attachment = await FilePickerUtils.createAttachmentFromXFile(
+              image,
+            );
             await _sendAttachmentMessage(attachment);
           }
           break;
         case 'camera':
           final XFile? image = await FilePickerUtils.pickImageFromCamera();
           if (image != null) {
-            final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+            final attachment = await FilePickerUtils.createAttachmentFromXFile(
+              image,
+            );
             await _sendAttachmentMessage(attachment);
           }
           break;
         case 'document':
           final FilePickerResult? result = await FilePickerUtils.pickFile();
           if (result != null && result.files.isNotEmpty) {
-            final attachment = FilePickerUtils.createAttachmentFromPlatformFile(result.files.first);
+            final attachment = FilePickerUtils.createAttachmentFromPlatformFile(
+              result.files.first,
+            );
             await _sendAttachmentMessage(attachment);
           }
           break;
@@ -161,12 +167,16 @@ class ChatController {
     try {
       // Validate file size (default 100MB limit)
       if (!FilePickerUtils.isFileSizeValid(attachment.fileSize)) {
-        debugPrint('File size too large: ${FilePickerUtils.getReadableFileSize(attachment.fileSize)}');
+        debugPrint(
+          'File size too large: ${FilePickerUtils.getReadableFileSize(attachment.fileSize)}',
+        );
         return;
       }
 
       final message = ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            uuidGenerator?.call() ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         message: '', // Empty message for attachment-only messages
         attachment: attachment,
         type: ChatMessageType.chat,
@@ -193,7 +203,9 @@ class ChatController {
     try {
       final XFile? image = await FilePickerUtils.pickImageFromGallery();
       if (image != null) {
-        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(
+          image,
+        );
         await _sendAttachmentMessage(attachment);
       }
     } catch (e) {
@@ -206,7 +218,9 @@ class ChatController {
     try {
       final XFile? image = await FilePickerUtils.pickImageFromCamera();
       if (image != null) {
-        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(
+          image,
+        );
         await _sendAttachmentMessage(attachment);
       }
     } catch (e) {
@@ -219,7 +233,9 @@ class ChatController {
     try {
       final FilePickerResult? result = await FilePickerUtils.pickFile();
       if (result != null && result.files.isNotEmpty) {
-        final attachment = FilePickerUtils.createAttachmentFromPlatformFile(result.files.first);
+        final attachment = FilePickerUtils.createAttachmentFromPlatformFile(
+          result.files.first,
+        );
         await _sendAttachmentMessage(attachment);
       }
     } catch (e) {

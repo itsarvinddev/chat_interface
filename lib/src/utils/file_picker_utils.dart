@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -66,8 +64,6 @@ class FilePickerUtils {
     }
   }
 
-
-
   /// Picks a file using file picker
   static Future<FilePickerResult?> pickFile({
     List<String>? allowedExtensions,
@@ -113,12 +109,22 @@ class FilePickerUtils {
   }
 
   /// Determines the ChatAttachmentType based on file extension or MIME type
-  static ChatAttachmentType getAttachmentType(String fileName, [String? mimeType]) {
+  static ChatAttachmentType getAttachmentType(
+    String fileName, [
+    String? mimeType,
+  ]) {
     final extension = path.extension(fileName).toLowerCase();
     final detectedMimeType = mimeType ?? lookupMimeType(fileName);
 
     // Image types
-    if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].contains(extension) ||
+    if ([
+          '.jpg',
+          '.jpeg',
+          '.png',
+          '.gif',
+          '.bmp',
+          '.webp',
+        ].contains(extension) ||
         (detectedMimeType?.startsWith('image/') ?? false)) {
       return ChatAttachmentType.image;
     }
@@ -145,9 +151,14 @@ class FilePickerUtils {
   }
 
   /// Creates a ChatAttachment from a PlatformFile (from file_picker)
-  static ChatAttachment createAttachmentFromPlatformFile(PlatformFile platformFile) {
-    final attachmentType = getAttachmentType(platformFile.name, platformFile.extension);
-    
+  static ChatAttachment createAttachmentFromPlatformFile(
+    PlatformFile platformFile,
+  ) {
+    final attachmentType = getAttachmentType(
+      platformFile.name,
+      platformFile.extension,
+    );
+
     // Create XFile from PlatformFile
     XFile? xFile;
     if (platformFile.path != null) {
@@ -164,7 +175,8 @@ class FilePickerUtils {
     return ChatAttachment(
       fileName: platformFile.name,
       type: attachmentType,
-      fileExtension: platformFile.extension ?? path.extension(platformFile.name),
+      fileExtension:
+          platformFile.extension ?? path.extension(platformFile.name),
       fileSize: platformFile.size,
       file: xFile,
       url: '', // Will be set after upload

@@ -139,7 +139,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeMode,
       builder: (context, value, child) => MaterialApp(

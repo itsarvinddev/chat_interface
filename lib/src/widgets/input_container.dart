@@ -86,10 +86,10 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       [
                         IconButton(
                           onPressed: () {
-                            if (widget.controller.onTapAttachFile != null) {
-                              widget.controller.onTapAttachFile?.call();
+                            if (controller.onTapAttachFile != null) {
+                              controller.onTapAttachFile?.call();
                             } else {
-                              widget.controller.defaultAttachFileAction();
+                              controller.defaultAttachFileAction();
                             }
                           },
                           icon: Icon(
@@ -104,10 +104,10 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                               ? const SizedBox.shrink()
                               : IconButton(
                                   onPressed: () {
-                                    if (widget.controller.onTapCamera != null) {
-                                      widget.controller.onTapCamera?.call();
+                                    if (controller.onTapCamera != null) {
+                                      controller.onTapCamera?.call();
                                     } else {
-                                      widget.controller.defaultCameraAction();
+                                      controller.defaultCameraAction();
                                     }
                                   },
                                   icon: Icon(
