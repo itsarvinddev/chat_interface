@@ -261,31 +261,26 @@ class ChatTheme {
       attachmentButtonColor: colorScheme.outline,
       dateLabelBackgroundColor: colorScheme.tertiaryContainer,
       dateLabelTextColor: colorScheme.onTertiaryContainer,
-      sentMessageTextStyle:
-          materialTheme.textTheme.bodyMedium?.copyWith(
+      sentMessageTextStyle: materialTheme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface,
           ) ??
           TextStyle(fontSize: 16, color: colorScheme.onSurface),
-      receivedMessageTextStyle:
-          materialTheme.textTheme.bodyMedium?.copyWith(
+      receivedMessageTextStyle: materialTheme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface,
           ) ??
           TextStyle(fontSize: 16, color: colorScheme.onSurface),
-      timestampTextStyle:
-          materialTheme.textTheme.bodySmall?.copyWith(
+      timestampTextStyle: materialTheme.textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ) ??
           TextStyle(
             fontSize: 12,
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-      inputTextStyle:
-          materialTheme.textTheme.bodyMedium?.copyWith(
+      inputTextStyle: materialTheme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface,
           ) ??
           TextStyle(fontSize: 16, color: colorScheme.onSurface),
-      senderNameTextStyle:
-          materialTheme.textTheme.labelMedium?.copyWith(
+      senderNameTextStyle: materialTheme.textTheme.labelMedium?.copyWith(
             color: colorScheme.outline,
             fontWeight: FontWeight.w600,
           ) ??
@@ -294,8 +289,7 @@ class ChatTheme {
             fontWeight: FontWeight.w600,
             color: colorScheme.outline,
           ),
-      dateLabelTextStyle:
-          materialTheme.textTheme.labelMedium?.copyWith(
+      dateLabelTextStyle: materialTheme.textTheme.labelMedium?.copyWith(
             color: colorScheme.onTertiaryContainer,
             fontWeight: FontWeight.w600,
           ) ??

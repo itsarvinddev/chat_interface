@@ -116,7 +116,7 @@ String timeFromSeconds(int seconds, [bool minWidth4 = false]) {
   return resultParts.join(':');
 }
 
- final RegExp urlRegex = RegExp(
-    r'((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})(:[0-9]{1,5})?(\/[^\s]*)?)',
-    caseSensitive: false,
-  );
+final RegExp urlRegex = RegExp(
+  r'((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})(:[0-9]{1,5})?(\/[^\s]*)?)',
+  caseSensitive: false,
+);

@@ -11,8 +11,7 @@ class UploadProgress {
   final int? total;
   final UploadState state;
 
-  double? get fraction =>
-      (total != null && total! > 0) ? sent / total! : null;
+  double? get fraction => (total != null && total! > 0) ? sent / total! : null;
 
   const UploadProgress({
     required this.sent,

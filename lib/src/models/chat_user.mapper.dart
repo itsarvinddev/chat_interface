@@ -245,7 +245,7 @@ extension ChatUserValueCopy<$R, $Out> on ObjectCopyWith<$R, ChatUser, $Out> {
 abstract class ChatUserCopyWith<$R, $In extends ChatUser, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
   MapCopyWith<$R, String, dynamic, ObjectCopyWith<$R, dynamic, dynamic>>
-  get metadata;
+      get metadata;
   ChatMessageCopyWith<$R, ChatMessage, ChatMessage>? get lastReadMessage;
   $R call({
     String? id,
@@ -274,11 +274,11 @@ class _ChatUserCopyWithImpl<$R, $Out>
       ChatUserMapper.ensureInitialized();
   @override
   MapCopyWith<$R, String, dynamic, ObjectCopyWith<$R, dynamic, dynamic>>
-  get metadata => MapCopyWith(
-    $value.metadata,
-    (v, t) => ObjectCopyWith(v, $identity, t),
-    (v) => call(metadata: v),
-  );
+      get metadata => MapCopyWith(
+            $value.metadata,
+            (v, t) => ObjectCopyWith(v, $identity, t),
+            (v) => call(metadata: v),
+          );
   @override
   ChatMessageCopyWith<$R, ChatMessage, ChatMessage>? get lastReadMessage =>
       $value.lastReadMessage?.copyWith.$chain((v) => call(lastReadMessage: v));
@@ -296,41 +296,42 @@ class _ChatUserCopyWithImpl<$R, $Out>
     String? status,
     Object? createdAt = $none,
     Object? updatedAt = $none,
-  }) => $apply(
-    FieldCopyWithData({
-      if (id != null) #id: id,
-      if (name != null) #name: name,
-      if (avatar != $none) #avatar: avatar,
-      if (imageType != null) #imageType: imageType,
-      if (metadata != null) #metadata: metadata,
-      if (role != null) #role: role,
-      if (lastReadMessage != $none) #lastReadMessage: lastReadMessage,
-      if (lastReadAt != $none) #lastReadAt: lastReadAt,
-      if (roomId != null) #roomId: roomId,
-      if (status != null) #status: status,
-      if (createdAt != $none) #createdAt: createdAt,
-      if (updatedAt != $none) #updatedAt: updatedAt,
-    }),
-  );
+  }) =>
+      $apply(
+        FieldCopyWithData({
+          if (id != null) #id: id,
+          if (name != null) #name: name,
+          if (avatar != $none) #avatar: avatar,
+          if (imageType != null) #imageType: imageType,
+          if (metadata != null) #metadata: metadata,
+          if (role != null) #role: role,
+          if (lastReadMessage != $none) #lastReadMessage: lastReadMessage,
+          if (lastReadAt != $none) #lastReadAt: lastReadAt,
+          if (roomId != null) #roomId: roomId,
+          if (status != null) #status: status,
+          if (createdAt != $none) #createdAt: createdAt,
+          if (updatedAt != $none) #updatedAt: updatedAt,
+        }),
+      );
   @override
   ChatUser $make(CopyWithData data) => ChatUser(
-    id: data.get(#id, or: $value.id),
-    name: data.get(#name, or: $value.name),
-    avatar: data.get(#avatar, or: $value.avatar),
-    imageType: data.get(#imageType, or: $value.imageType),
-    metadata: data.get(#metadata, or: $value.metadata),
-    role: data.get(#role, or: $value.role),
-    lastReadMessage: data.get(#lastReadMessage, or: $value.lastReadMessage),
-    lastReadAt: data.get(#lastReadAt, or: $value.lastReadAt),
-    roomId: data.get(#roomId, or: $value.roomId),
-    status: data.get(#status, or: $value.status),
-    createdAt: data.get(#createdAt, or: $value.createdAt),
-    updatedAt: data.get(#updatedAt, or: $value.updatedAt),
-  );
+        id: data.get(#id, or: $value.id),
+        name: data.get(#name, or: $value.name),
+        avatar: data.get(#avatar, or: $value.avatar),
+        imageType: data.get(#imageType, or: $value.imageType),
+        metadata: data.get(#metadata, or: $value.metadata),
+        role: data.get(#role, or: $value.role),
+        lastReadMessage: data.get(#lastReadMessage, or: $value.lastReadMessage),
+        lastReadAt: data.get(#lastReadAt, or: $value.lastReadAt),
+        roomId: data.get(#roomId, or: $value.roomId),
+        status: data.get(#status, or: $value.status),
+        createdAt: data.get(#createdAt, or: $value.createdAt),
+        updatedAt: data.get(#updatedAt, or: $value.updatedAt),
+      );
 
   @override
   ChatUserCopyWith<$R2, ChatUser, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
-  ) => _ChatUserCopyWithImpl<$R2, $Out2>($value, $cast, t);
+  ) =>
+      _ChatUserCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
-

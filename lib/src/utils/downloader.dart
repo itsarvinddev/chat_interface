@@ -30,22 +30,22 @@ class ChatDownloadProgress {
       );
 
   factory ChatDownloadProgress.success(int total) => ChatDownloadProgress(
-    received: total,
-    total: total,
-    state: DownloadState.success,
-  );
+        received: total,
+        total: total,
+        state: DownloadState.success,
+      );
 
   factory ChatDownloadProgress.error() => const ChatDownloadProgress(
-    received: 0,
-    total: null,
-    state: DownloadState.error,
-  );
+        received: 0,
+        total: null,
+        state: DownloadState.error,
+      );
 
   factory ChatDownloadProgress.canceled() => const ChatDownloadProgress(
-    received: 0,
-    total: null,
-    state: DownloadState.canceled,
-  );
+        received: 0,
+        total: null,
+        state: DownloadState.canceled,
+      );
 }
 
 typedef DownloadingProgress = void Function(int received, int? total); // bytes
@@ -127,8 +127,7 @@ class GenericFileDownloader {
         maxRedirects: 5,
         validateStatus: (s) => true,
         headers: <String, String>{
-          'User-Agent':
-              'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
               '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
           'Accept': '*/*',
           ...options.headers,
@@ -259,12 +258,12 @@ class GenericFileDownloader {
     Future<Response> doHead() =>
         dio.head(url, options: Options(responseType: ResponseType.plain));
     Future<Response<ResponseBody>> doRangeGet() => dio.get<ResponseBody>(
-      url,
-      options: Options(
-        responseType: ResponseType.stream,
-        headers: {'Range': 'bytes=0-0'},
-      ),
-    );
+          url,
+          options: Options(
+            responseType: ResponseType.stream,
+            headers: {'Range': 'bytes=0-0'},
+          ),
+        );
 
     Response? res;
     try {

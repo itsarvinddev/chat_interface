@@ -13,10 +13,9 @@ class ChatController {
     required this.pagingController,
     MarkdownTextEditingController? textController,
     this.focusNode,
-  }) : _otherUsers = {for (final user in otherUsers) user.id: user},
-       messageController =
-           textController ??
-           MarkdownTextEditingController(styles: MarkdownTextStyles());
+  })  : _otherUsers = {for (final user in otherUsers) user.id: user},
+        messageController = textController ??
+            MarkdownTextEditingController(styles: MarkdownTextStyles());
 
   /// Focus node for the message input field
   final FocusNode? focusNode;
@@ -175,7 +174,6 @@ class ChatController {
     focusNode?.dispose();
   }
 }
-
 
 /* 
 /// Configuration for ChatController behavior and performance tuning

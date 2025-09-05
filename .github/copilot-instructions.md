@@ -21,7 +21,8 @@ Always reference these instructions first and fallback to search or bash command
   - `dart run build_runner build` -- generates code for dart_mappable models, takes 1-2 minutes. NEVER CANCEL. Set timeout to 3+ minutes.
 - Linting and code quality:
   - `flutter analyze` -- analyzes Dart code for issues, takes 30-60 seconds
-  - `dart format --set-exit-if-changed .` -- formats code and exits with error if changes needed
+  - `dart format .` -- formats all Dart code, takes ~1 second (measured: 0.9s for 38 files)
+  - `dart format --set-exit-if-changed --output=none .` -- check formatting without changes, exits with code 1 if formatting needed
 - Testing:
   - Package tests: `flutter test` -- runs package unit tests, takes 1-2 minutes. NEVER CANCEL. Set timeout to 5+ minutes.
   - Example app tests: `cd example && flutter test` -- runs example app tests
@@ -56,7 +57,7 @@ Always reference these instructions first and fallback to search or bash command
 ### Build Validation
 - Always run these commands before committing changes:
   - `flutter analyze` -- must pass with zero issues
-  - `dart format --set-exit-if-changed .` -- must not require formatting changes
+  - `dart format --set-exit-if-changed --output=none .` -- must exit with code 0 (no formatting needed)
   - `flutter test` -- all tests must pass
   - `cd example && flutter test` -- example tests must pass
 - CI will fail if any of these commands fail
@@ -110,9 +111,11 @@ Always reference these instructions first and fallback to search or bash command
 - Missing mapper imports: Ensure models have `part 'filename.mapper.dart';` declarations
 
 ### Example App Issues
-- Supabase connection errors are expected - example uses demo credentials
+- **CRITICAL**: Example app requires `initializeChatUI()` call in main() - see `example/lib/main.dart:18`
+- Supabase connection errors are expected - example uses demo credentials for https://hyycwsqoszrjcznvgyzp.supabase.co
 - If example won't start: Ensure you ran `flutter pub get` in both root and example directories
 - Web CORS issues: Use `flutter run -d web-server` instead of `flutter run -d chrome`
+- If getting "ChatUI not initialized" errors: Ensure `initializeChatUI()` is called before `runApp()`
 
 ## Development Best Practices
 
@@ -123,10 +126,12 @@ Always reference these instructions first and fallback to search or bash command
 - Check both package and example app functionality after model changes
 
 ### Code Style
-- Follow standard Dart formatting: `dart format .`
+- Follow standard Dart formatting: `dart format .` (takes ~1 second)
+- Linting configuration: Uses `flutter_lints: ^5.0.0` with standard Flutter package rules
 - Use descriptive variable names and add documentation for public APIs
 - Follow patterns established in existing code for consistency
 - Add tests for new functionality in appropriate test files
+- **NOTE**: Code in this repository currently needs formatting - always run `dart format .` before committing
 
 ### Performance Considerations
 - Large asset files should be optimized before adding to `assets/`
@@ -138,6 +143,37 @@ Always reference these instructions first and fallback to search or bash command
 - Homepage: https://github.com/yourusername/your-repo (update in pubspec.yaml)
 - This is a pure Flutter package, not a plugin
 - Supports all Flutter platforms (iOS, Android, Web, Desktop)
+
+## Common Command Outputs
+
+### Repository Root Structure
+```
+ls -la
+total 76
+drwxr-xr-x  6 runner docker  4096 .
+drwxr-xr-x  3 runner docker  4096 ..
+drwxr-xr-x  7 runner docker  4096 .git
+drwxr-xr-x  2 runner docker  4096 .github
+-rw-r--r--  1 runner docker   573 .gitignore
+-rw-r--r--  1 runner docker   313 .metadata
+-rw-r--r--  1 runner docker 13479 API_DOCUMENTATION.md
+-rw-r--r--  1 runner docker    44 CHANGELOG.md
+-rw-r--r--  1 runner docker    29 LICENSE
+-rw-r--r--  1 runner docker  1258 README.md
+-rw-r--r--  1 runner docker  3797 THEME_CUSTOMIZATION.md
+-rw-r--r--  1 runner docker   154 analysis_options.yaml
+drwxr-xr-x  3 runner docker  4096 assets
+-rw-r--r--  1 runner docker   184 devtools_options.yaml
+drwxr-xr-x 10 runner docker  4096 example
+drwxr-xr-x  3 runner docker  4096 lib
+-rw-r--r--  1 runner docker  1458 pubspec.yaml
+```
+
+### Expected dart format output
+```
+dart format .
+Formatted 38 files (20 changed) in 0.90 seconds.
+```
 
 ## Timeout Guidelines
 - **CRITICAL**: NEVER CANCEL build or test commands. Builds may take 10+ minutes on first run.

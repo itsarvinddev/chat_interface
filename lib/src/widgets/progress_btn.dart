@@ -33,8 +33,7 @@ class ProgressCancelBtn extends StatelessWidget {
                 ? CustomProgressIndicator(
                     value: progressValue!,
                     trackColor: const Color.fromARGB(18, 0, 0, 0),
-                    progressColor:
-                        context.colorScheme.primary,
+                    progressColor: context.colorScheme.primary,
                     strokeWidth: 3.0,
                   )
                 : CircularProgressIndicator(

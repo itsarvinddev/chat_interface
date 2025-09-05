@@ -44,8 +44,7 @@ class ChatLinkPreview extends StatelessWidget {
             )
           : AnyLinkPreview(
               key: ValueKey(message.message),
-              link:
-                  message.message.startsWith("http") ||
+              link: message.message.startsWith("http") ||
                       message.message.startsWith("https")
                   ? message.message
                   : "https://${message.message}",
