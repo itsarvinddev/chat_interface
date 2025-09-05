@@ -1,8 +1,12 @@
 import 'dart:async';
 
 import 'package:chatui/chatui.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:screwdriver/screwdriver.dart';
+
+import '../utils/file_picker_utils.dart';
 
 /// Controller for managing chat state, messages, and scrolling.
 class ChatController {
@@ -50,6 +54,178 @@ class ChatController {
 
   /// Callback when tap on attach file button.
   Future<void> Function()? onTapAttachFile;
+
+  /// Default camera action - picks image from camera and sends as message
+  Future<void> defaultCameraAction() async {
+    try {
+      final XFile? image = await FilePickerUtils.pickImageFromCamera();
+      if (image != null) {
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        await _sendAttachmentMessage(attachment);
+      }
+    } catch (e) {
+      debugPrint('Error in default camera action: $e');
+    }
+  }
+
+  /// Default file attach action - shows options to pick files or images
+  Future<void> defaultAttachFileAction() async {
+    try {
+      // Show bottom sheet with options
+      final context = focusNode?.context;
+      if (context == null) return;
+
+      final result = await showModalBottomSheet<String>(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Photo Library'),
+                  onTap: () => Navigator.pop(context, 'gallery'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Camera'),
+                  onTap: () => Navigator.pop(context, 'camera'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.attach_file),
+                  title: const Text('Document'),
+                  onTap: () => Navigator.pop(context, 'document'),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (result != null) {
+        await _handleAttachmentOption(result);
+      }
+    } catch (e) {
+      debugPrint('Error in default attach file action: $e');
+    }
+  }
+
+  /// Handles the selected attachment option
+  Future<void> _handleAttachmentOption(String option) async {
+    try {
+      switch (option) {
+        case 'gallery':
+          final XFile? image = await FilePickerUtils.pickImageFromGallery();
+          if (image != null) {
+            final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+            await _sendAttachmentMessage(attachment);
+          }
+          break;
+        case 'camera':
+          final XFile? image = await FilePickerUtils.pickImageFromCamera();
+          if (image != null) {
+            final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+            await _sendAttachmentMessage(attachment);
+          }
+          break;
+        case 'document':
+          final FilePickerResult? result = await FilePickerUtils.pickFile();
+          if (result != null && result.files.isNotEmpty) {
+            final attachment = FilePickerUtils.createAttachmentFromPlatformFile(result.files.first);
+            await _sendAttachmentMessage(attachment);
+          }
+          break;
+      }
+    } catch (e) {
+      debugPrint('Error handling attachment option: $e');
+    }
+  }
+
+  /// Sends a message with attachment
+  Future<void> _sendAttachmentMessage(ChatAttachment attachment) async {
+    try {
+      // Validate file size (default 100MB limit)
+      if (!FilePickerUtils.isFileSizeValid(attachment.fileSize)) {
+        debugPrint('File size too large: ${FilePickerUtils.getReadableFileSize(attachment.fileSize)}');
+        return;
+      }
+
+      final message = ChatMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        message: '', // Empty message for attachment-only messages
+        attachment: attachment,
+        type: ChatMessageType.chat,
+        senderId: currentUser.id,
+        roomId: currentUser.roomId,
+        chatStatus: ChatMessageStatus.pending,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await addMessage(message);
+    } catch (e) {
+      debugPrint('Error sending attachment message: $e');
+    }
+  }
+
+  /// Public method to send attachment message (for external use)
+  Future<void> sendAttachmentMessage(ChatAttachment attachment) async {
+    await _sendAttachmentMessage(attachment);
+  }
+
+  /// Public method to pick and send image from gallery
+  Future<void> pickAndSendImageFromGallery() async {
+    try {
+      final XFile? image = await FilePickerUtils.pickImageFromGallery();
+      if (image != null) {
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        await _sendAttachmentMessage(attachment);
+      }
+    } catch (e) {
+      debugPrint('Error picking and sending image from gallery: $e');
+    }
+  }
+
+  /// Public method to pick and send image from camera
+  Future<void> pickAndSendImageFromCamera() async {
+    try {
+      final XFile? image = await FilePickerUtils.pickImageFromCamera();
+      if (image != null) {
+        final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
+        await _sendAttachmentMessage(attachment);
+      }
+    } catch (e) {
+      debugPrint('Error picking and sending image from camera: $e');
+    }
+  }
+
+  /// Public method to pick and send file
+  Future<void> pickAndSendFile() async {
+    try {
+      final FilePickerResult? result = await FilePickerUtils.pickFile();
+      if (result != null && result.files.isNotEmpty) {
+        final attachment = FilePickerUtils.createAttachmentFromPlatformFile(result.files.first);
+        await _sendAttachmentMessage(attachment);
+      }
+    } catch (e) {
+      debugPrint('Error picking and sending file: $e');
+    }
+  }
 
   /// Exposes other users as an unmodifiable list.
   UnmodifiableListView<ChatUser> get otherUsers =>

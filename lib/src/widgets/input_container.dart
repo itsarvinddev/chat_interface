@@ -85,7 +85,13 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       config.actions ??
                       [
                         IconButton(
-                          onPressed: () => controller.onTapAttachFile?.call(),
+                          onPressed: () {
+                            if (widget.controller.onTapAttachFile != null) {
+                              widget.controller.onTapAttachFile?.call();
+                            } else {
+                              widget.controller.defaultAttachFileAction();
+                            }
+                          },
                           icon: Icon(
                             Icons.attach_file_rounded,
                             size: 24.0,
@@ -97,8 +103,13 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                           child: hideElements
                               ? const SizedBox.shrink()
                               : IconButton(
-                                  onPressed: () =>
-                                      controller.onTapCamera?.call(),
+                                  onPressed: () {
+                                    if (widget.controller.onTapCamera != null) {
+                                      widget.controller.onTapCamera?.call();
+                                    } else {
+                                      widget.controller.defaultCameraAction();
+                                    }
+                                  },
                                   icon: Icon(
                                     Icons.camera_alt_rounded,
                                     size: 24.0,
