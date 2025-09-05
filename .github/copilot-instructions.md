@@ -104,6 +104,7 @@ Always reference these instructions first and fallback to search or bash command
   - Or wait for newer stable Flutter release with Dart 3.9+
 - Missing build_runner errors: Run `dart run build_runner build` after pub get
 - Flutter command not found: Ensure Flutter SDK is in PATH and `flutter doctor` passes
+- **NOTE**: `dart analyze` without dependencies shows 2074+ issues (expected) - only run after `flutter pub get`
 
 ### Code Generation
 - If mapper errors occur: Delete `.dart_tool/build/` and run `dart run build_runner build --delete-conflicting-outputs`
@@ -174,6 +175,12 @@ drwxr-xr-x  3 runner docker  4096 lib
 dart format .
 Formatted 38 files (20 changed) in 0.90 seconds.
 ```
+
+## Current SDK Limitation Notes
+- **Current Status**: This repository requires Dart ^3.9.0 but stable Flutter only provides Dart 3.5.x
+- **What works with current SDK**: `dart format`, `dart analyze` (with errors), file structure analysis
+- **What requires proper SDK**: `flutter pub get`, `dart run build_runner build`, `flutter test`, `flutter run`
+- **Resolution**: Use Flutter dev channel or wait for stable release with Dart 3.9.0+ support
 
 ## Timeout Guidelines
 - **CRITICAL**: NEVER CANCEL build or test commands. Builds may take 10+ minutes on first run.
