@@ -67,7 +67,7 @@ class ChatBubble extends StatelessWidget {
                 index: index,
               ),
               ChatMessageType.custom =>
-                config.customMessageBuilder?.call(controller, message, index) ??
+                config.customMessage?.call(controller, message, index) ??
                     const SizedBox.shrink(),
             },
           ],
@@ -375,7 +375,6 @@ class _MessageCardState extends State<MessageCard>
                           'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
                           package: 'chatui',
                           color: switch (widget.message.chatStatus) {
-                            // ChatMessageStatus.seen => colorTheme.primary,
                             ChatMessageStatus.seen => Colors.green,
                             _ => colorTheme.outline.withValues(alpha: 0.7),
                           },

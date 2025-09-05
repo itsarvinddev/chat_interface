@@ -113,99 +113,131 @@ class _ChatUiState extends State<ChatUi> {
 
     // Use provided theme or fallback to auto-generated theme from Material theme
     final chatTheme =
-        widget.config.theme ?? ChatTheme.fromMaterialTheme(Theme.of(context));
-
+        widget.config.theme ?? ChatTheme.fromMaterialTheme(context.theme);
+    final sc = widget.config.scaffold ?? const ScaffoldConfig();
     return ChatControllerProvider(
       controller: widget.controller,
       child: ChatThemeProvider(
         theme: chatTheme,
         child: ChatUiConfigProvider(
           config: widget.config,
-          child: Scaffold(
-            body: Container(
-              decoration:
-                  widget.config.backgroundDecoration ??
-                  BoxDecoration(
-                    color: chatTheme.backgroundColor,
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        "https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png",
+          child: Stack(
+            children: [
+              Positioned.fill(child: sc.gradient ?? const SizedBox.shrink()),
+              Positioned.fill(
+                child:
+                    sc.background ??
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(
+                            'assets/images/image.png',
+                            package: 'chatui',
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: chatTheme.colorFilter,
+                        ),
                       ),
-                      fit: BoxFit.cover,
-                      colorFilter: chatTheme.colorFilter,
                     ),
-                  ),
-              child: PagingListener(
-                controller: widget.controller.pagingController,
-                builder: (context, state, fetchNextPage) {
-                  return PagedListView<int, ChatMessage>(
-                    state: state,
-                    fetchNextPage: fetchNextPage,
-                    reverse: true,
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    scrollController: widget.controller.scrollController,
-                    builderDelegate: PagedChildBuilderDelegate(
-                      itemBuilder: (context, item, index) {
-                        // Use the same list the widget is rendering.
-                        // Prefer the pagingController items; fall back to any local cache.
-                        final items = widget.controller.messages;
-
-                        // Viewport-aware header: with reverse: true, we must compare
-                        // against index  1 (the previous item in display order).
-                        final bool showDateHeader =
-                            ChatDateUtils.shouldShowHeaderForViewportOrder(
-                              items: items,
-                              index: index,
-                              // because your PagedListView has reverse: true
-                              reverse: true,
-                              createdAtOf: (m) => m.createdAt ?? DateTime.now(),
-                            );
-                        return ChatBubble(
-                          message: item,
-                          index: index,
-                          showHeader: showDateHeader,
-                        );
-                      },
-                    ),
-                  );
-                },
               ),
-            ),
-            bottomNavigationBar: ChatInputContainer(),
-            floatingActionButton: ValueListenableBuilder<bool>(
-              valueListenable: _showJumpToBottom,
-              builder: (context, show, _) {
-                return IgnorePointer(
-                  ignoring: !show,
-                  child: AnimatedOpacity(
-                    opacity: show ? 1 : 0,
-                    duration: const Duration(milliseconds: 180),
-                    child: AnimatedScale(
-                      scale: show ? 1 : 0.9,
-                      duration: const Duration(milliseconds: 180),
-                      child: IconButton.filledTonal(
-                        style: IconButton.styleFrom(
-                          shape: const CircleBorder(),
-                          elevation: 1.0,
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(30, 30),
-                          enableFeedback: true,
-                          shadowColor: context.theme.colorScheme.shadow,
-                        ),
-                        onPressed: widget.controller.scrollToLastMessage,
-                        tooltip: 'Jump to bottom',
-                        enableFeedback: true,
-                        icon: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 26,
+              Scaffold(
+                resizeToAvoidBottomInset: sc.resizeToAvoidBottomInset,
+                backgroundColor: Colors.transparent,
+                extendBody: sc.extendBody,
+                extendBodyBehindAppBar: sc.extendBodyBehindAppBar,
+                floatingActionButtonLocation: sc.floatingActionButtonLocation,
+                bottomSheet: sc.bottomSheet,
+                drawer: sc.drawer,
+                drawerBarrierDismissible: sc.drawerBarrierDismissible,
+                drawerDragStartBehavior: sc.drawerDragStartBehavior,
+                drawerEdgeDragWidth: sc.drawerEdgeDragWidth,
+                drawerEnableOpenDragGesture: sc.drawerEnableOpenDragGesture,
+                drawerScrimColor: sc.drawerScrimColor,
+                endDrawer: sc.endDrawer,
+                endDrawerEnableOpenDragGesture: sc.endDrawerDragGesture,
+                floatingActionButtonAnimator: sc.floatingActionButtonAnimator,
+                onDrawerChanged: sc.onDrawerChanged,
+                onEndDrawerChanged: sc.onEndDrawerChanged,
+                persistentFooterAlignment: sc.persistentFooterAlignment,
+                persistentFooterButtons: sc.persistentFooterButtons,
+                persistentFooterDecoration: sc.persistentFooterDecoration,
+                primary: sc.primary,
+                restorationId: sc.restorationId,
+                key: widget.key,
+                appBar: sc.appBar,
+                body: PagingListener(
+                  controller: widget.controller.pagingController,
+                  builder: (context, state, fetchNextPage) {
+                    return PagedListView<int, ChatMessage>(
+                      state: state,
+                      fetchNextPage: fetchNextPage,
+                      reverse: true,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      scrollController: widget.controller.scrollController,
+                      builderDelegate: PagedChildBuilderDelegate(
+                        itemBuilder: (context, item, index) {
+                          // Use the same list the widget is rendering.
+                          // Prefer the pagingController items; fall back to any local cache.
+                          final items = widget.controller.messages;
+
+                          // Viewport-aware header: with reverse: true, we must compare
+                          // against index  1 (the previous item in display order).
+                          final bool showDateHeader =
+                              ChatDateUtils.shouldShowHeaderForViewportOrder(
+                                items: items,
+                                index: index,
+                                // because your PagedListView has reverse: true
+                                reverse: true,
+                                createdAtOf: (m) =>
+                                    m.createdAt ?? DateTime.now(),
+                              );
+                          return ChatBubble(
+                            message: item,
+                            index: index,
+                            showHeader: showDateHeader,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                bottomNavigationBar: ChatInputContainer(),
+                floatingActionButton: ValueListenableBuilder<bool>(
+                  valueListenable: _showJumpToBottom,
+                  builder: (context, show, _) {
+                    return IgnorePointer(
+                      ignoring: !show,
+                      child: AnimatedOpacity(
+                        opacity: show ? 1 : 0,
+                        duration: const Duration(milliseconds: 180),
+                        child: AnimatedScale(
+                          scale: show ? 1 : 0.9,
+                          duration: const Duration(milliseconds: 180),
+                          child: IconButton.filledTonal(
+                            style: IconButton.styleFrom(
+                              shape: const CircleBorder(),
+                              elevation: 1.0,
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(30, 30),
+                              enableFeedback: true,
+                              shadowColor: context.theme.colorScheme.shadow,
+                            ),
+                            onPressed: widget.controller.scrollToLastMessage,
+                            tooltip: 'Jump to bottom',
+                            enableFeedback: true,
+                            icon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 26,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

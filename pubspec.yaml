@@ -57,7 +57,5 @@ flutter:
     - assets/images/SENT.png
     - assets/images/DELIVERED.png
     - assets/images/SEEN.png
-    - assets/images/dark/chat_bg.png
-    - assets/images/chat_bg.png
-    - assets/images/logo.png
+    - assets/images/image.png
     - assets/images/avatar.png
