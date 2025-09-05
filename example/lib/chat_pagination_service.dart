@@ -87,10 +87,8 @@ void stream(
               controller.value = controller.value.copyWith(pages: pages);
 
               /// update status to seen
-              await supabase
-                  .from('chat_messages')
-                  .update({'status': ChatMessageStatus.seen.name})
-                  .eq('id', message.id);
+              await supabase.from('chat_messages').update(
+                  {'status': ChatMessageStatus.seen.name}).eq('id', message.id);
               return;
             }
             if (payload.eventType == PostgresChangeEvent.update) {

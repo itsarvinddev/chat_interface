@@ -13,16 +13,16 @@ class ChatControllerProvider extends InheritedWidget {
 
   /// Get the nearest ChatController from the widget tree
   static ChatController of(BuildContext context) {
-    final provider = context
-        .dependOnInheritedWidgetOfExactType<ChatControllerProvider>();
+    final provider =
+        context.dependOnInheritedWidgetOfExactType<ChatControllerProvider>();
     assert(provider != null, 'No ChatControllerProvider found in context');
     return provider!.controller;
   }
 
   /// Get the nearest ChatController from the widget tree without creating a dependency
   static ChatController? maybeOf(BuildContext context) {
-    final ChatControllerProvider? provider = context
-        .getInheritedWidgetOfExactType<ChatControllerProvider>();
+    final ChatControllerProvider? provider =
+        context.getInheritedWidgetOfExactType<ChatControllerProvider>();
     return provider?.controller;
   }
 

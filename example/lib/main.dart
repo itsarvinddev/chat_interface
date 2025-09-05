@@ -40,15 +40,14 @@ class _MyAppState extends State<MyApp> {
     _loadUsers().then((value) {
       _controller.onMessageAdded = (message) async {
         try {
-          final result = await Supabase.instance.client
-              .from('chat_messages')
-              .insert({
-                "message": message.message,
-                "sender_id": message.senderId,
-                "type": message.type.name,
-                "status": ChatMessageStatus.sent.name,
-                "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
-              });
+          final result =
+              await Supabase.instance.client.from('chat_messages').insert({
+            "message": message.message,
+            "sender_id": message.senderId,
+            "type": message.type.name,
+            "status": ChatMessageStatus.sent.name,
+            "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
+          });
           log(result.toString());
           _controller.updateMessage(
             message.copyWith(chatStatus: ChatMessageStatus.sent),
@@ -71,9 +70,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadUsers() async {
     try {
       // Load all users from Supabase
-      final usersResponse = await Supabase.instance.client
-          .from('chat_users')
-          .select('*');
+      final usersResponse =
+          await Supabase.instance.client.from('chat_users').select('*');
 
       if (usersResponse.isEmpty) {
         setState(() {
@@ -89,8 +87,7 @@ class _MyAppState extends State<MyApp> {
               id: data['id'] ?? '',
               name: data['name'] ?? '',
               avatar: data['avatar'],
-              imageType:
-                  ChatImageType.tryParse(data['image_type']) ??
+              imageType: ChatImageType.tryParse(data['image_type']) ??
                   ChatImageType.network,
               metadata: Map<String, dynamic>.from(data['metadata'] ?? {}),
               role: ChatUserRole.values.firstWhere(
@@ -113,9 +110,8 @@ class _MyAppState extends State<MyApp> {
       _currentUser = allUsers.first;
 
       // Remove current user from other users list
-      final otherUsers = allUsers
-          .where((user) => user.id != _currentUser?.id)
-          .toList();
+      final otherUsers =
+          allUsers.where((user) => user.id != _currentUser?.id).toList();
 
       setState(() {
         _currentUser = _currentUser;
@@ -151,9 +147,8 @@ class _MyAppState extends State<MyApp> {
             child: const Icon(Icons.brightness_4),
             onPressed: () {
               setState(() {
-                _themeMode.value = value == ThemeMode.light
-                    ? ThemeMode.dark
-                    : ThemeMode.light;
+                _themeMode.value =
+                    value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
                 _currentUser = allUsers.last;
                 _otherUsers = allUsers
                     .where((user) => user.id != _currentUser?.id)
@@ -166,8 +161,8 @@ class _MyAppState extends State<MyApp> {
           body: _isLoadingUsers
               ? const Center(child: CircularProgressIndicator())
               : _currentUser == null
-              ? const Center(child: Text('No users found'))
-              : ChatUi(controller: _controller),
+                  ? const Center(child: Text('No users found'))
+                  : ChatUi(controller: _controller),
         ),
       ),
     );

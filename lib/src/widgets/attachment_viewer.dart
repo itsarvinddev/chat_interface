@@ -58,19 +58,19 @@ class _AttachmentPreviewState extends State<AttachmentPreview> {
       //   controller: widget.controller,
       // ),
       ChatAttachmentType.document => AttachedDocumentViewer(
-        message: widget.message,
-        doesAttachmentExist: _doesAttachmentExist(),
-        onDownloadComplete: () => setState(() {}),
-        controller: widget.controller,
-      ),
+          message: widget.message,
+          doesAttachmentExist: _doesAttachmentExist(),
+          onDownloadComplete: () => setState(() {}),
+          controller: widget.controller,
+        ),
       _ => AttachedImageVideoViewer(
-        width: widget.width,
-        height: widget.height,
-        message: widget.message,
-        doesAttachmentExist: _doesAttachmentExist(),
-        onDownloadComplete: () => setState(() {}),
-        controller: widget.controller,
-      ),
+          width: widget.width,
+          height: widget.height,
+          message: widget.message,
+          doesAttachmentExist: _doesAttachmentExist(),
+          onDownloadComplete: () => setState(() {}),
+          controller: widget.controller,
+        ),
     };
   }
 }

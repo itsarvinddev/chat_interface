@@ -27,9 +27,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
       // }
       controller.messageController.addListener(() {
         setState(() {
-          hideElements = controller.messageController.text
-              .trim()
-              .isNotNullOrEmpty;
+          hideElements =
+              controller.messageController.text.trim().isNotNullOrEmpty;
         });
       });
     });
@@ -76,13 +75,11 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
-                      id:
-                          controller.uuidGenerator?.call() ??
+                      id: controller.uuidGenerator?.call() ??
                           DateTime.now().millisecondsSinceEpoch.toString(),
                     ),
                   ),
-                  actions:
-                      config.actions ??
+                  actions: config.actions ??
                       [
                         IconButton(
                           onPressed: () {
@@ -132,8 +129,7 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
-                  id:
-                      controller.uuidGenerator?.call() ??
+                  id: controller.uuidGenerator?.call() ??
                       DateTime.now().millisecondsSinceEpoch.toString(),
                 ),
               ),
