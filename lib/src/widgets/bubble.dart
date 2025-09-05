@@ -170,7 +170,14 @@ class _MessageCardState extends State<MessageCard>
         child: Container(
           constraints: BoxConstraints(
             minHeight: 34,
-            minWidth: widget.special ? (isSentMessageCard ? 98 : 76) : 60,
+            // For images/videos, ensure minWidth doesn't exceed calculated width
+            // to prevent BoxConstraints assertion error with small images
+            minWidth: hasImageOrVideo
+                ? min(
+                    widget.special ? (isSentMessageCard ? 98 : 76) : 60,
+                    width,
+                  )
+                : widget.special ? (isSentMessageCard ? 98 : 76) : 60,
             maxWidth: hasImageOrVideo
                 ? width
                 : size.width * 0.80 + (widget.special ? 10 : 0),
