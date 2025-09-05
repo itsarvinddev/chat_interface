@@ -66,37 +66,7 @@ class FilePickerUtils {
     }
   }
 
-  /// Picks a video from the camera
-  static Future<XFile?> pickVideoFromCamera() async {
-    try {
-      final XFile? video = await _imagePicker.pickVideo(
-        source: ImageSource.camera,
-        maxDuration: const Duration(minutes: 5),
-      );
-      return video;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error picking video from camera: $e');
-      }
-      return null;
-    }
-  }
 
-  /// Picks a video from the gallery
-  static Future<XFile?> pickVideoFromGallery() async {
-    try {
-      final XFile? video = await _imagePicker.pickVideo(
-        source: ImageSource.gallery,
-        maxDuration: const Duration(minutes: 5),
-      );
-      return video;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error picking video from gallery: $e');
-      }
-      return null;
-    }
-  }
 
   /// Picks a file using file picker
   static Future<FilePickerResult?> pickFile({
@@ -153,23 +123,11 @@ class FilePickerUtils {
       return ChatAttachmentType.image;
     }
 
-    // Video types
-    if (['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'].contains(extension) ||
-        (detectedMimeType?.startsWith('video/') ?? false)) {
-      return ChatAttachmentType.video;
-    }
-
-    // Audio types
-    if (['.mp3', '.wav', '.aac', '.ogg', '.wma', '.flac', '.m4a'].contains(extension) ||
-        (detectedMimeType?.startsWith('audio/') ?? false)) {
-      return ChatAttachmentType.audio;
-    }
-
     // Document types (default to document for anything else)
     return ChatAttachmentType.document;
   }
 
-  /// Creates a ChatAttachment from an XFile (image/video from image_picker)
+  /// Creates a ChatAttachment from an XFile (image from image_picker)
   static Future<ChatAttachment> createAttachmentFromXFile(XFile file) async {
     final fileName = path.basename(file.path);
     final extension = path.extension(fileName);

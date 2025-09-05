@@ -97,18 +97,13 @@ class ChatController {
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const Icon(Icons.photo_library),
-                  title: const Text('Photo & Video Library'),
+                  title: const Text('Photo Library'),
                   onTap: () => Navigator.pop(context, 'gallery'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
                   title: const Text('Camera'),
                   onTap: () => Navigator.pop(context, 'camera'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.videocam),
-                  title: const Text('Video'),
-                  onTap: () => Navigator.pop(context, 'video'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.attach_file),
@@ -145,13 +140,6 @@ class ChatController {
           final XFile? image = await FilePickerUtils.pickImageFromCamera();
           if (image != null) {
             final attachment = await FilePickerUtils.createAttachmentFromXFile(image);
-            await _sendAttachmentMessage(attachment);
-          }
-          break;
-        case 'video':
-          final XFile? video = await FilePickerUtils.pickVideoFromGallery();
-          if (video != null) {
-            final attachment = await FilePickerUtils.createAttachmentFromXFile(video);
             await _sendAttachmentMessage(attachment);
           }
           break;
