@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;
@@ -140,6 +141,11 @@ class FilePickerUtils {
     final fileSize = await file.length();
     final attachmentType = getAttachmentType(fileName, file.mimeType);
 
+    double? width, height;
+    if (attachmentType == ChatAttachmentType.image) {
+      (width, height) = await getImageDimensions(file);
+    }
+
     return ChatAttachment(
       fileName: fileName,
       type: attachmentType,
@@ -147,13 +153,15 @@ class FilePickerUtils {
       fileSize: fileSize,
       file: file,
       url: '', // Will be set after upload
+      height: height,
+      width: width,
     );
   }
 
   /// Creates a ChatAttachment from a PlatformFile (from file_picker)
-  static ChatAttachment createAttachmentFromPlatformFile(
+  static Future<ChatAttachment> createAttachmentFromPlatformFile(
     PlatformFile platformFile,
-  ) {
+  ) async {
     final attachmentType = getAttachmentType(
       platformFile.name,
       platformFile.extension,
@@ -172,6 +180,11 @@ class FilePickerUtils {
       );
     }
 
+    double? width, height;
+    if (attachmentType == ChatAttachmentType.image) {
+      (width, height) = await getImageDimensions(xFile!);
+    }
+
     return ChatAttachment(
       fileName: platformFile.name,
       type: attachmentType,
@@ -180,6 +193,8 @@ class FilePickerUtils {
       fileSize: platformFile.size,
       file: xFile,
       url: '', // Will be set after upload
+      width: width,
+      height: height,
     );
   }
 
@@ -200,5 +215,13 @@ class FilePickerUtils {
   static bool isFileSizeValid(int sizeInBytes, {int maxSizeInMB = 100}) {
     final maxSizeInBytes = maxSizeInMB * 1024 * 1024;
     return sizeInBytes <= maxSizeInBytes;
+  }
+
+  static Future<(double, double)> getImageDimensions(XFile imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final image = await decodeImageFromList(bytes);
+    image.dispose();
+
+    return (image.width.toDouble(), image.height.toDouble());
   }
 }

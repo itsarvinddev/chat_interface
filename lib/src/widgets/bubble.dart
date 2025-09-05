@@ -12,7 +12,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
 import 'action.dart';
-import 'attachment_viewer.dart';
+import 'attachment_preview.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -41,11 +41,11 @@ class ChatBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: controller.isMessageBySelf(message)
               ? message.type == ChatMessageType.action
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.end
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.end
               : message.type == ChatMessageType.action
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.start,
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (showHeader)
@@ -59,13 +59,13 @@ class ChatBubble extends StatelessWidget {
             switch (message.type) {
               ChatMessageType.action => ChatAction(message: message),
               ChatMessageType.chat => MessageCard(
-                  message: message,
-                  controller: controller,
-                  currentUser: controller.currentUser,
-                  special: special,
-                  showSender: special && !controller.isMessageBySelf(message),
-                  index: index,
-                ),
+                message: message,
+                controller: controller,
+                currentUser: controller.currentUser,
+                special: special,
+                showSender: special && !controller.isMessageBySelf(message),
+                index: index,
+              ),
               ChatMessageType.custom =>
                 config.customMessage?.call(controller, message, index) ??
                     const SizedBox.shrink(),
@@ -119,7 +119,8 @@ class _MessageCardState extends State<MessageCard>
     final isSentMessageCard = widget.currentUser.id == widget.message.senderId;
     final messageHasText = widget.message.message.isNotEmpty;
 
-    final showTimeStamp = !hasAttachment ||
+    final showTimeStamp =
+        !hasAttachment ||
         (hasAttachment &&
             attachmentType == ChatAttachmentType.audio &&
             messageHasText) ||
@@ -142,7 +143,8 @@ class _MessageCardState extends State<MessageCard>
     }
 
     final textPadding = '\u00A0' * padding;
-    final hasImageOrVideo = attachmentType == ChatAttachmentType.image ||
+    final hasImageOrVideo =
+        attachmentType == ChatAttachmentType.image ||
         attachmentType == ChatAttachmentType.video;
     final maxWidth = MediaQuery.of(context).size.width * 0.80;
     final maxHeight = MediaQuery.of(context).size.height * 0.40;
@@ -161,8 +163,9 @@ class _MessageCardState extends State<MessageCard>
     }
 
     return Align(
-      alignment:
-          isSentMessageCard ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isSentMessageCard
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: ClipPath(
         clipper: widget.special
             ? TriangleClipper(isSender: isSentMessageCard)
@@ -177,7 +180,9 @@ class _MessageCardState extends State<MessageCard>
                     widget.special ? (isSentMessageCard ? 98 : 76) : 60,
                     width,
                   )
-                : widget.special ? (isSentMessageCard ? 98 : 76) : 60,
+                : widget.special
+                ? (isSentMessageCard ? 98 : 76)
+                : 60,
             maxWidth: hasImageOrVideo
                 ? width
                 : size.width * 0.80 + (widget.special ? 10 : 0),
@@ -207,16 +212,18 @@ class _MessageCardState extends State<MessageCard>
           ),
           padding: hasAttachment
               ? attachmentType == ChatAttachmentType.audio && !messageHasText
-                  ? EdgeInsets.only(
-                      left: isSentMessageCard ? 8 : (widget.special ? 18 : 8),
-                      right: isSentMessageCard ? (widget.special ? 10 : 0) : 0,
-                    )
-                  : EdgeInsets.only(
-                      top: 4.0,
-                      bottom: 4.0,
-                      left: widget.special && !isSentMessageCard ? 14.0 : 4.0,
-                      right: widget.special && isSentMessageCard ? 14.0 : 4.0,
-                    )
+                    ? EdgeInsets.only(
+                        left: isSentMessageCard ? 8 : (widget.special ? 18 : 8),
+                        right: isSentMessageCard
+                            ? (widget.special ? 10 : 0)
+                            : 0,
+                      )
+                    : EdgeInsets.only(
+                        top: 4.0,
+                        bottom: 4.0,
+                        left: widget.special && !isSentMessageCard ? 14.0 : 4.0,
+                        right: widget.special && isSentMessageCard ? 14.0 : 4.0,
+                      )
               : EdgeInsets.only(
                   left: 10,
                   right: widget.special && isSentMessageCard ? 16 : 10,
@@ -235,16 +242,16 @@ class _MessageCardState extends State<MessageCard>
                       padding: hasAttachment
                           ? const EdgeInsets.only(left: 4.0, top: 4.0)
                           : widget.special && !isSentMessageCard
-                              ? EdgeInsets.only(left: 10)
-                              : EdgeInsets.zero,
+                          ? EdgeInsets.only(left: 10)
+                          : EdgeInsets.zero,
                       child: Text(
                         widget.message.sender?.name ?? "Unknown",
                         style: chatTheme.senderNameTextStyle.copyWith(
                           color: context.theme.brightness == Brightness.dark
                               ? (widget.message.sender?.name ?? "Unknown")
-                                  .toColorHSL()
+                                    .toColorHSL()
                               : (widget.message.sender?.name ?? "Unknown")
-                                  .toDarkColor(),
+                                    .toDarkColor(),
                         ),
                       ),
                     ),
@@ -252,14 +259,14 @@ class _MessageCardState extends State<MessageCard>
                   if (hasAttachment) ...[
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight:
-                            height < width ? 0.65 * width : double.infinity,
+                        maxHeight: height < width
+                            ? 0.65 * width
+                            : double.infinity,
                       ),
                       child: AttachmentPreview(
                         message: widget.message,
                         width: width,
                         height: height,
-                        controller: widget.controller,
                       ),
                     ),
                   ],
@@ -269,7 +276,8 @@ class _MessageCardState extends State<MessageCard>
                         final matches = urlRegex.allMatches(
                           widget.message.message.toLowerCase(),
                         );
-                        final url = matches.firstOrNull?.group(0) ??
+                        final url =
+                            matches.firstOrNull?.group(0) ??
                             widget.message.message.toLowerCase();
                         final isUrl = Uri.tryParse(url) != null;
 
@@ -286,32 +294,33 @@ class _MessageCardState extends State<MessageCard>
                       padding: hasAttachment
                           ? const EdgeInsets.only(left: 4.0 /* top: 4.0 */)
                           : widget.special && !isSentMessageCard
-                              ? EdgeInsets.only(
-                                  left: 10,
-                                  // top: 4,
-                                  bottom: biggerFont
-                                      ? 12
-                                      : padding == 0
-                                          ? 14.0
-                                          : 0,
-                                )
-                              : EdgeInsets.only(
-                                  // top: 2.0,
-                                  bottom: biggerFont
-                                      ? (defaultTargetPlatform.isAndroid
-                                          ? 16.0
-                                          : 12.0)
-                                      : padding == 0
-                                          ? 14.0
-                                          : 0,
-                                ),
+                          ? EdgeInsets.only(
+                              left: 10,
+                              // top: 4,
+                              bottom: biggerFont
+                                  ? 12
+                                  : padding == 0
+                                  ? 14.0
+                                  : 0,
+                            )
+                          : EdgeInsets.only(
+                              // top: 2.0,
+                              bottom: biggerFont
+                                  ? (defaultTargetPlatform.isAndroid
+                                        ? 16.0
+                                        : 12.0)
+                                  : padding == 0
+                                  ? 14.0
+                                  : 0,
+                            ),
                       child: MarkdownText(
                         text: '${widget.message.message} $textPadding',
                         styles: MarkdownTextStyles(
-                          defaultStyle: (isSentMessageCard
-                                  ? chatTheme.sentMessageTextStyle
-                                  : chatTheme.receivedMessageTextStyle)
-                              .copyWith(fontSize: biggerFont ? 40 : null),
+                          defaultStyle:
+                              (isSentMessageCard
+                                      ? chatTheme.sentMessageTextStyle
+                                      : chatTheme.receivedMessageTextStyle)
+                                  .copyWith(fontSize: biggerFont ? 40 : null),
                         ),
                       ),
                     ),
@@ -338,12 +347,14 @@ class _MessageCardState extends State<MessageCard>
                       ],
                     ],
                   ),
-                  margin: !messageHasText &&
+                  margin:
+                      !messageHasText &&
                           hasAttachment &&
                           attachmentType != ChatAttachmentType.audio
                       ? const EdgeInsets.all(4.0)
                       : null,
-                  padding: !messageHasText &&
+                  padding:
+                      !messageHasText &&
                           hasAttachment &&
                           attachmentType != ChatAttachmentType.audio
                       ? const EdgeInsets.symmetric(

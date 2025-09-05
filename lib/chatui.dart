@@ -4,6 +4,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'chatui.dart';
+import 'src/utils/storage_paths.dart';
 
 export 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -34,6 +35,7 @@ void initializeChatUI({bool isDebug = true}) {
     MapperContainer.globals.use(DurationMapper());
     MapperContainer.globals.use(XFileMapper());
     InitializationChecker.markInitialized();
+    DeviceStorage.init();
 
     if (isDebug) {
       if (kDebugMode) {

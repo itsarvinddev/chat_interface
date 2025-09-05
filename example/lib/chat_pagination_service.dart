@@ -71,7 +71,7 @@ void stream(
             message.createdAt = DateTime.tryParse(
               payload.newRecord['created_at'].toString(),
             )?.toLocal();
-            message.sender = allUsers.firstWhere(
+            message.sender = allUsers.firstWhereOrNull(
               (user) => user.id == message.senderId,
             );
             final isSelfSender = message.senderId == currentUser.id;
@@ -87,8 +87,10 @@ void stream(
               controller.value = controller.value.copyWith(pages: pages);
 
               /// update status to seen
-              await supabase.from('chat_messages').update(
-                  {'status': ChatMessageStatus.seen.name}).eq('id', message.id);
+              await supabase
+                  .from('chat_messages')
+                  .update({'status': ChatMessageStatus.seen.name})
+                  .eq('id', message.id);
               return;
             }
             if (payload.eventType == PostgresChangeEvent.update) {
@@ -97,7 +99,7 @@ void stream(
               message.createdAt = DateTime.tryParse(
                 payload.newRecord['created_at'].toString(),
               )?.toLocal();
-              message.sender = allUsers.firstWhere(
+              message.sender = allUsers.firstWhereOrNull(
                 (user) => user.id == message.senderId,
               );
               message.chatStatus = ChatMessageStatus.seen;

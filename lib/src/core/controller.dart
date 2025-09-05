@@ -15,9 +15,10 @@ class ChatController {
     required this.pagingController,
     MarkdownTextEditingController? textController,
     this.focusNode,
-  })  : _otherUsers = {for (final user in otherUsers) user.id: user},
-        messageController = textController ??
-            MarkdownTextEditingController(styles: MarkdownTextStyles());
+  }) : _otherUsers = {for (final user in otherUsers) user.id: user},
+       messageController =
+           textController ??
+           MarkdownTextEditingController(styles: MarkdownTextStyles());
 
   /// Focus node for the message input field
   final FocusNode? focusNode;
@@ -149,9 +150,10 @@ class ChatController {
         case 'document':
           final FilePickerResult? result = await FilePickerUtils.pickFile();
           if (result != null && result.files.isNotEmpty) {
-            final attachment = FilePickerUtils.createAttachmentFromPlatformFile(
-              result.files.first,
-            );
+            final attachment =
+                await FilePickerUtils.createAttachmentFromPlatformFile(
+                  result.files.first,
+                );
             await _sendAttachmentMessage(attachment);
           }
           break;
@@ -232,9 +234,10 @@ class ChatController {
     try {
       final FilePickerResult? result = await FilePickerUtils.pickFile();
       if (result != null && result.files.isNotEmpty) {
-        final attachment = FilePickerUtils.createAttachmentFromPlatformFile(
-          result.files.first,
-        );
+        final attachment =
+            await FilePickerUtils.createAttachmentFromPlatformFile(
+              result.files.first,
+            );
         await _sendAttachmentMessage(attachment);
       }
     } catch (e) {
