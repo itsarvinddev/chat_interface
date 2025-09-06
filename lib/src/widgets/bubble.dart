@@ -413,7 +413,12 @@ class _MessageCardState extends State<MessageCard>
                               package: 'chatui',
                               color: switch (widget.message.chatStatus) {
                                 ChatMessageStatus.seen => Colors.green,
-                                _ => colorTheme.outline.withValues(alpha: 0.7),
+                                _ =>
+                                  !(attachmentType?.isImage ?? false)
+                                      ? chatTheme.timestampColor.withValues(
+                                          alpha: 0.8,
+                                        )
+                                      : Colors.white,
                               },
                               width: 14.0,
                             ),
