@@ -372,8 +372,12 @@ class ChatDocument extends StatelessWidget {
                     fileName,
                     style: TextStyle(
                       fontSize: 14,
-                      color: chatTheme.sentMessageTextColor,
-                      fontWeight: FontWeight.bold,
+                      color: clientIsSender
+                          ? chatTheme.sentMessageTextStyle.color ??
+                                chatTheme.sentMessageTextColor
+                          : chatTheme.receivedMessageTextStyle.color ??
+                                chatTheme.receivedMessageTextColor,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   Text(
