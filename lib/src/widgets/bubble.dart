@@ -397,7 +397,7 @@ class _MessageCardState extends State<MessageCard>
                             Text(
                               widget.message.createdAt?.format('h:mm a') ?? '',
                               style: chatTheme.timestampTextStyle.copyWith(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: !(attachmentType?.isImage ?? false)
                                     ? chatTheme.timestampColor
@@ -415,7 +415,7 @@ class _MessageCardState extends State<MessageCard>
                                 _ =>
                                   !(attachmentType?.isImage ?? false)
                                       ? chatTheme.timestampColor.withValues(
-                                          alpha: 0.7,
+                                          alpha: 0.8,
                                         )
                                       : Colors.white,
                               },

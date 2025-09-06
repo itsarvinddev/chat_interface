@@ -368,7 +368,14 @@ class ChatDocument extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(fileName, style: const TextStyle(fontSize: 14)),
+                  Text(
+                    fileName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: chatTheme.sentMessageTextColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Text(
                     "${strFormattedSize(attachment.fileSize)} · $ext $textPadding",
                     style: TextStyle(
