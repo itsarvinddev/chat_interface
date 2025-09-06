@@ -111,7 +111,6 @@ class _MessageCardState extends State<MessageCard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final colorTheme = context.theme.colorScheme;
     final chatTheme = ChatThemeProvider.of(context);
     final size = MediaQuery.of(context).size;
     final hasAttachment = widget.message.attachment != null;
@@ -398,8 +397,8 @@ class _MessageCardState extends State<MessageCard>
                             Text(
                               widget.message.createdAt?.format('h:mm a') ?? '',
                               style: chatTheme.timestampTextStyle.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                                 color: !(attachmentType?.isImage ?? false)
                                     ? chatTheme.timestampColor
                                     : Colors.white,
@@ -416,7 +415,7 @@ class _MessageCardState extends State<MessageCard>
                                 _ =>
                                   !(attachmentType?.isImage ?? false)
                                       ? chatTheme.timestampColor.withValues(
-                                          alpha: 0.8,
+                                          alpha: 0.7,
                                         )
                                       : Colors.white,
                               },

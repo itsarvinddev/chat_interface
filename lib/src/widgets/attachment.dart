@@ -293,19 +293,19 @@ class ChatDocument extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final controller = ChatControllerProvider.of(context);
-    // final config = ChatUiConfigProvider.of(context);
-    // final self = controller.currentUser;
-    // final clientIsSender = message.senderId == self.id;
+    final controller = ChatControllerProvider.of(context);
+    final chatTheme = ChatThemeProvider.of(context);
+    final self = controller.currentUser;
+    final clientIsSender = message.senderId == self.id;
     final file = message.attachment!.file;
     final attachment = message.attachment!;
     final ext = attachment.fileExtension;
 
     Widget? trailing;
 
-    // final backgroundColor = clientIsSender
-    //     ? config.theme?.sentMessageBackgroundColor
-    //     : config.theme?.receivedMessageBackgroundColor;
+    final backgroundColor = clientIsSender
+        ? chatTheme.sentMessageBackgroundColor
+        : chatTheme.receivedMessageBackgroundColor;
 
     String fileName = attachment.fileName;
     final len = fileName.length;
@@ -329,7 +329,11 @@ class ChatDocument extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: context.colorScheme.surface,
+          color: ElevationOverlay.applySurfaceTint(
+            backgroundColor.withValues(alpha: 0.5),
+            context.colorScheme.primary,
+            20,
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -367,9 +371,9 @@ class ChatDocument extends StatelessWidget {
                   Text(fileName, style: const TextStyle(fontSize: 14)),
                   Text(
                     "${strFormattedSize(attachment.fileSize)} · $ext $textPadding",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.blueGrey,
+                      color: chatTheme.timestampColor.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
