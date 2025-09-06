@@ -110,16 +110,16 @@ class _ChatImageState extends State<ChatImage> {
     final cacheHeight = (widget.height * dpr).round();
 
     if (_fileBytes != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: GestureDetector(
-          onTap: () {
-            final params = ShareParams(
-              files: [XFile.fromData(_fileBytes!)],
-              subject: widget.message.attachment?.fileName,
-            );
-            SharePlus.instance.share(params);
-          },
+      return GestureDetector(
+        onTap: () {
+          final params = ShareParams(
+            files: [XFile.fromData(_fileBytes!)],
+            subject: widget.message.attachment?.fileName,
+          );
+          SharePlus.instance.share(params);
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
           child: Image.memory(
             _fileBytes!,
             width: widget.width,
@@ -133,16 +133,16 @@ class _ChatImageState extends State<ChatImage> {
     }
 
     if (_currentUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: GestureDetector(
-          onTap: () {
-            final params = ShareParams(
-              uri: Uri.parse(_currentUrl!),
-              subject: widget.message.attachment?.fileName,
-            );
-            SharePlus.instance.share(params);
-          },
+      return GestureDetector(
+        onTap: () {
+          final params = ShareParams(
+            uri: Uri.parse(_currentUrl!),
+            subject: widget.message.attachment?.fileName,
+          );
+          SharePlus.instance.share(params);
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
             imageUrl: _currentUrl!,
             width: widget.width,
