@@ -216,58 +216,71 @@ class _ChatImageState extends State<ChatImage>
       height: widget.height,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Base layer: the currently displayed provider (local or last success).
-            if (_displayProvider != null)
-              Image(
-                image: _displayProvider!,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.medium,
-                width: cacheWidth.toDouble(),
-                height: cacheHeight.toDouble(),
-              ),
-
-            // Overlay: the preloaded network image, faded in smoothly.
-            if (_networkProvider != null && _networkReady)
-              FadeTransition(
-                opacity: _fade,
-                child: Image(
-                  image: _networkProvider!,
+        child: GestureDetector(
+          onTap: () {
+            if (_networkProvider != null && _networkReady && _lastUrl != null) {
+              final params = ShareParams(uri: Uri.parse(_lastUrl!));
+              SharePlus.instance.share(params);
+            } else {
+              final params = ShareParams(files: [XFile(_lastFilePath!)]);
+              SharePlus.instance.share(params);
+            }
+          },
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Base layer: the currently displayed provider (local or last success).
+              if (_displayProvider != null)
+                Image(
+                  image: _displayProvider!,
                   fit: BoxFit.cover,
                   filterQuality: FilterQuality.medium,
                   width: cacheWidth.toDouble(),
                   height: cacheHeight.toDouble(),
                 ),
-              ),
 
-            // If nothing to show yet (neither local nor ready network), show a centered loader.
-            if (!hasSomethingToShow)
-              const Center(child: CircularProgressIndicator()),
+              // Overlay: the preloaded network image, faded in smoothly.
+              if (_networkProvider != null && _networkReady)
+                FadeTransition(
+                  opacity: _fade,
+                  child: Image(
+                    image: _networkProvider!,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.medium,
+                    width: cacheWidth.toDouble(),
+                    height: cacheHeight.toDouble(),
+                  ),
+                ),
 
-            // Optional subtle progress indicator in corner while downloading, but keep image visible.
-            if (_networkLoading && _displayProvider != null)
-              Positioned.fill(
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.primary.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: context.colorScheme.onPrimary,
+              // If nothing to show yet (neither local nor ready network), show a centered loader.
+              if (!hasSomethingToShow)
+                const Center(child: CircularProgressIndicator()),
+
+              // Optional subtle progress indicator in corner while downloading, but keep image visible.
+              if (_networkLoading && _displayProvider != null)
+                Positioned.fill(
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.primary.withValues(
+                          alpha: 0.5,
+                        ),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: context.colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
