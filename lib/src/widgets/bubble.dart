@@ -170,232 +170,266 @@ class _MessageCardState extends State<MessageCard>
         clipper: widget.special
             ? TriangleClipper(isSender: isSentMessageCard)
             : null,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: 34,
-            // For images/videos, ensure minWidth doesn't exceed calculated width
-            // to prevent BoxConstraints assertion error with small images
-            minWidth: hasImageOrVideo
-                ? min(
-                    widget.special ? (isSentMessageCard ? 98 : 76) : 60,
-                    width,
-                  )
-                : widget.special
-                ? (isSentMessageCard ? 98 : 76)
-                : 60,
-            maxWidth: hasImageOrVideo
-                ? width
-                : size.width * 0.80 + (widget.special ? 10 : 0),
-          ),
-          decoration: BoxDecoration(
-            borderRadius: widget.special
-                ? BorderRadius.only(
-                    topLeft: !isSentMessageCard
-                        ? const Radius.circular(4)
-                        : chatTheme.messageBorderRadius.topLeft,
-                    topRight: isSentMessageCard
-                        ? const Radius.circular(4)
-                        : chatTheme.messageBorderRadius.topRight,
-                    bottomLeft: chatTheme.messageBorderRadius.bottomLeft,
-                    bottomRight: chatTheme.messageBorderRadius.bottomRight,
-                  )
-                : chatTheme.messageBorderRadius,
-            color: isSentMessageCard
-                ? chatTheme.sentMessageBackgroundColor
-                : chatTheme.receivedMessageBackgroundColor,
-          ),
-          margin: EdgeInsets.only(
-            bottom: 3.0,
-            top: widget.special ? 3.5 : 0,
-            left: widget.special ? 6 : 16.0,
-            right: widget.special ? 6 : 16.0,
-          ),
-          padding: hasAttachment
-              ? attachmentType == ChatAttachmentType.audio && !messageHasText
-                    ? EdgeInsets.only(
-                        left: isSentMessageCard ? 8 : (widget.special ? 18 : 8),
-                        right: isSentMessageCard
-                            ? (widget.special ? 10 : 0)
-                            : 0,
-                      )
-                    : EdgeInsets.only(
-                        top: 4.0,
-                        bottom: 4.0,
-                        left: widget.special && !isSentMessageCard ? 14.0 : 4.0,
-                        right: widget.special && isSentMessageCard ? 14.0 : 4.0,
-                      )
-              : EdgeInsets.only(
-                  left: 10,
-                  right: widget.special && isSentMessageCard ? 16 : 10,
-                  top: 4,
-                  bottom: 6,
-                ),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.message.sender != null && widget.showSender) ...[
-                    Padding(
-                      padding: hasAttachment
-                          ? const EdgeInsets.only(left: 4.0, top: 4.0)
-                          : widget.special && !isSentMessageCard
-                          ? EdgeInsets.only(left: 10)
-                          : EdgeInsets.zero,
-                      child: Text(
-                        widget.message.sender?.name ?? "Unknown",
-                        style: chatTheme.senderNameTextStyle.copyWith(
-                          color: context.theme.brightness == Brightness.dark
-                              ? (widget.message.sender?.name ?? "Unknown")
-                                    .toColorHSL()
-                              : (widget.message.sender?.name ?? "Unknown")
-                                    .toDarkColor(),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (hasAttachment) ...[
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: height < width
-                            ? 0.65 * width
-                            : double.infinity,
-                      ),
-                      child: AttachmentPreview(
-                        message: widget.message,
-                        width: width,
-                        height: height,
-                      ),
-                    ),
-                  ],
-                  if (messageHasText) ...[
-                    Builder(
-                      builder: (context) {
-                        final matches = urlRegex.allMatches(
-                          widget.message.message.toLowerCase(),
-                        );
-                        final url =
-                            matches.firstOrNull?.group(0) ??
-                            widget.message.message.toLowerCase();
-                        final isUrl = Uri.tryParse(url) != null;
-
-                        if (matches.isNotNullOrEmpty && isUrl) {
-                          return ChatLinkPreview(
-                            message: widget.message.copyWith(message: url),
-                            isMessageBySelf: isSentMessageCard,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    Padding(
-                      padding: hasAttachment
-                          ? const EdgeInsets.only(left: 4.0 /* top: 4.0 */)
-                          : widget.special && !isSentMessageCard
-                          ? EdgeInsets.only(
-                              left: 10,
-                              // top: 4,
-                              bottom: biggerFont
-                                  ? 12
-                                  : padding == 0
-                                  ? 14.0
-                                  : 0,
-                            )
-                          : EdgeInsets.only(
-                              // top: 2.0,
-                              bottom: biggerFont
-                                  ? (defaultTargetPlatform.isAndroid
-                                        ? 16.0
-                                        : 12.0)
-                                  : padding == 0
-                                  ? 14.0
-                                  : 0,
-                            ),
-                      child: MarkdownText(
-                        text: '${widget.message.message} $textPadding',
-                        styles: MarkdownTextStyles(
-                          defaultStyle:
-                              (isSentMessageCard
-                                      ? chatTheme.sentMessageTextStyle
-                                      : chatTheme.receivedMessageTextStyle)
-                                  .copyWith(fontSize: biggerFont ? 40 : null),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              Positioned(
-                right: widget.special && isSentMessageCard && messageHasText
-                    ? -6
-                    : 0,
-                bottom: -1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      if (!messageHasText &&
-                          (attachmentType != ChatAttachmentType.document &&
-                              attachmentType != ChatAttachmentType.audio &&
-                              attachmentType != ChatAttachmentType.voice)) ...[
-                        const BoxShadow(color: Colors.black, blurRadius: 30),
-                      ],
-                    ],
-                  ),
-                  margin:
-                      !messageHasText &&
-                          hasAttachment &&
-                          attachmentType != ChatAttachmentType.audio
-                      ? const EdgeInsets.all(4.0)
-                      : null,
-                  padding:
-                      !messageHasText &&
-                          hasAttachment &&
-                          attachmentType != ChatAttachmentType.audio
-                      ? const EdgeInsets.symmetric(
-                          horizontal: 4.0,
-                          vertical: 2.0,
+        child: ClipRRect(
+          // borderRadius: widget.special
+          //     ? BorderRadius.only(bottomRight: Radius.circular(8))
+          //     : BorderRadius.circular(8),
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: 34,
+              // For images/videos, ensure minWidth doesn't exceed calculated width
+              // to prevent BoxConstraints assertion error with small images
+              minWidth: hasImageOrVideo
+                  ? min(
+                      widget.special ? (isSentMessageCard ? 98 : 76) : 60,
+                      width,
+                    )
+                  : widget.special
+                  ? (isSentMessageCard ? 98 : 76)
+                  : 60,
+              maxWidth: hasImageOrVideo
+                  ? width
+                  : size.width * 0.80 + (widget.special ? 10 : 0),
+            ),
+            decoration: BoxDecoration(
+              borderRadius: widget.special
+                  ? BorderRadius.only(
+                      topLeft: !isSentMessageCard
+                          ? const Radius.circular(4)
+                          : chatTheme.messageBorderRadius.topLeft,
+                      topRight: isSentMessageCard
+                          ? const Radius.circular(4)
+                          : chatTheme.messageBorderRadius.topRight,
+                      bottomLeft: chatTheme.messageBorderRadius.bottomLeft,
+                      bottomRight: chatTheme.messageBorderRadius.bottomRight,
+                    )
+                  : chatTheme.messageBorderRadius,
+              color: isSentMessageCard
+                  ? chatTheme.sentMessageBackgroundColor
+                  : chatTheme.receivedMessageBackgroundColor,
+            ),
+            margin: EdgeInsets.only(
+              bottom: 3.0,
+              top: widget.special ? 3.5 : 0,
+              left: widget.special ? 6 : 16.0,
+              right: widget.special ? 6 : 16.0,
+            ),
+            padding: hasAttachment
+                ? attachmentType == ChatAttachmentType.audio && !messageHasText
+                      ? EdgeInsets.only(
+                          left: isSentMessageCard
+                              ? 8
+                              : (widget.special ? 18 : 8),
+                          right: isSentMessageCard
+                              ? (widget.special ? 10 : 0)
+                              : 0,
                         )
-                      : null,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                      : EdgeInsets.only(
+                          top: 4.0,
+                          bottom: 4.0,
+                          left: widget.special && !isSentMessageCard
+                              ? 14.0
+                              : 4.0,
+                          right: widget.special && isSentMessageCard
+                              ? 14.0
+                              : 4.0,
+                        )
+                : EdgeInsets.only(
+                    left: 10,
+                    right: widget.special && isSentMessageCard ? 16 : 10,
+                    top: 4,
+                    bottom: 6,
+                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (showTimeStamp) ...[
-                        Text(
-                          widget.message.createdAt?.format('h:mm a') ?? '',
-                          style: chatTheme.timestampTextStyle.copyWith(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: messageHasText
-                                ? chatTheme.timestampColor
-                                : Colors.white,
+                      if (widget.message.sender != null &&
+                          widget.showSender) ...[
+                        Padding(
+                          padding: hasAttachment
+                              ? const EdgeInsets.only(left: 4.0, top: 4.0)
+                              : widget.special && !isSentMessageCard
+                              ? EdgeInsets.only(left: 10)
+                              : EdgeInsets.zero,
+                          child: Text(
+                            widget.message.sender?.name ?? "Unknown",
+                            style: chatTheme.senderNameTextStyle.copyWith(
+                              color: context.theme.brightness == Brightness.dark
+                                  ? (widget.message.sender?.name ?? "Unknown")
+                                        .toColorHSL()
+                                  : (widget.message.sender?.name ?? "Unknown")
+                                        .toDarkColor(),
+                            ),
                           ),
                         ),
                       ],
-                      if (isSentMessageCard) ...[
-                        const SizedBox(width: 4.0),
-                        Image.asset(
-                          'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
-                          package: 'chatui',
-                          color: switch (widget.message.chatStatus) {
-                            ChatMessageStatus.seen => Colors.green,
-                            _ => colorTheme.outline.withValues(alpha: 0.7),
-                          },
-                          width: 14.0,
+                      if (hasAttachment) ...[
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: height < width
+                                ? 0.65 * width
+                                : double.infinity,
+                          ),
+                          child: AttachmentPreview(
+                            message: widget.message,
+                            width: width,
+                            height: height,
+                          ),
                         ),
                       ],
-                      if (widget.special &&
-                          isSentMessageCard &&
-                          messageHasText) ...[
-                        const SizedBox(width: 6),
+                      if (messageHasText) ...[
+                        Builder(
+                          builder: (context) {
+                            final matches = urlRegex.allMatches(
+                              widget.message.message.toLowerCase(),
+                            );
+                            final url =
+                                matches.firstOrNull?.group(0) ??
+                                widget.message.message.toLowerCase();
+                            final isUrl = Uri.tryParse(url) != null;
+
+                            if (matches.isNotNullOrEmpty && isUrl) {
+                              return ChatLinkPreview(
+                                message: widget.message.copyWith(message: url),
+                                isMessageBySelf: isSentMessageCard,
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        Padding(
+                          padding: hasAttachment
+                              ? const EdgeInsets.only(left: 4.0 /* top: 4.0 */)
+                              : widget.special && !isSentMessageCard
+                              ? EdgeInsets.only(
+                                  left: 10,
+                                  // top: 4,
+                                  bottom: biggerFont
+                                      ? 12
+                                      : padding == 0
+                                      ? 14.0
+                                      : 0,
+                                )
+                              : EdgeInsets.only(
+                                  // top: 2.0,
+                                  bottom: biggerFont
+                                      ? (defaultTargetPlatform.isAndroid
+                                            ? 16.0
+                                            : 12.0)
+                                      : padding == 0
+                                      ? 14.0
+                                      : 0,
+                                ),
+                          child: MarkdownText(
+                            text: '${widget.message.message} $textPadding',
+                            styles: MarkdownTextStyles(
+                              defaultStyle:
+                                  (isSentMessageCard
+                                          ? chatTheme.sentMessageTextStyle
+                                          : chatTheme.receivedMessageTextStyle)
+                                      .copyWith(
+                                        fontSize: biggerFont ? 40 : null,
+                                      ),
+                            ),
+                          ),
+                        ),
                       ],
                     ],
                   ),
-                ),
+
+                  if (attachmentType?.isImage ?? false)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, Colors.black26],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: const [0.8, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  Positioned(
+                    right: widget.special && isSentMessageCard && messageHasText
+                        ? -6
+                        : 0,
+                    bottom: -1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        // boxShadow: [
+                        //   if (!messageHasText &&
+                        //       (attachmentType != ChatAttachmentType.document &&
+                        //           attachmentType != ChatAttachmentType.audio &&
+                        //           attachmentType !=
+                        //               ChatAttachmentType.voice)) ...[
+                        //     const BoxShadow(
+                        //       color: Colors.black54,
+                        //       blurRadius: 30,
+                        //       offset: Offset(-4, 5),
+                        //     ),
+                        //   ],
+                        // ],
+                      ),
+                      margin:
+                          !messageHasText &&
+                              hasAttachment &&
+                              attachmentType != ChatAttachmentType.audio
+                          ? const EdgeInsets.all(4.0)
+                          : null,
+                      padding:
+                          !messageHasText &&
+                              hasAttachment &&
+                              attachmentType != ChatAttachmentType.audio
+                          ? const EdgeInsets.fromLTRB(8.0, 2.0, 4.0, 2.0)
+                          : null,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (showTimeStamp) ...[
+                            Text(
+                              widget.message.createdAt?.format('h:mm a') ?? '',
+                              style: chatTheme.timestampTextStyle.copyWith(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: !(attachmentType?.isImage ?? false)
+                                    ? chatTheme.timestampColor
+                                    : Colors.white,
+                              ),
+                            ),
+                          ],
+                          if (isSentMessageCard) ...[
+                            const SizedBox(width: 4.0),
+                            Image.asset(
+                              'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
+                              package: 'chatui',
+                              color: switch (widget.message.chatStatus) {
+                                ChatMessageStatus.seen => Colors.green,
+                                _ => colorTheme.outline.withValues(alpha: 0.7),
+                              },
+                              width: 14.0,
+                            ),
+                          ],
+                          if (widget.special &&
+                              isSentMessageCard &&
+                              messageHasText) ...[
+                            const SizedBox(width: 6),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
