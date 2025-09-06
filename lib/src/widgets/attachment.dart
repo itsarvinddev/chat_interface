@@ -67,19 +67,19 @@ class ChatDocument extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ChatControllerProvider.of(context);
-    final config = ChatUiConfigProvider.of(context);
-    final self = controller.currentUser;
-    final clientIsSender = message.senderId == self.id;
+    // final controller = ChatControllerProvider.of(context);
+    // final config = ChatUiConfigProvider.of(context);
+    // final self = controller.currentUser;
+    // final clientIsSender = message.senderId == self.id;
     final file = message.attachment!.file;
     final attachment = message.attachment!;
     final ext = attachment.fileExtension;
 
     Widget? trailing;
 
-    final backgroundColor = clientIsSender
-        ? config.theme?.sentMessageBackgroundColor
-        : config.theme?.receivedMessageBackgroundColor;
+    // final backgroundColor = clientIsSender
+    //     ? config.theme?.sentMessageBackgroundColor
+    //     : config.theme?.receivedMessageBackgroundColor;
 
     String fileName = attachment.fileName;
     final len = fileName.length;
@@ -88,6 +88,7 @@ class ChatDocument extends StatelessWidget {
           "${fileName.substring(0, 15)}....${fileName.substring(len - 6, len)}";
     }
 
+    final textPadding = '\u00A0' * 16;
     return GestureDetector(
       onTap: () async {
         if (file == null) {
@@ -102,11 +103,7 @@ class ChatDocument extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: ElevationOverlay.applySurfaceTint(
-            (context.colorScheme.scrim),
-            (backgroundColor ?? Colors.white),
-            12,
-          ),
+          color: context.colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -143,7 +140,7 @@ class ChatDocument extends StatelessWidget {
                 children: [
                   Text(fileName, style: const TextStyle(fontSize: 14)),
                   Text(
-                    "${strFormattedSize(attachment.fileSize)} · $ext",
+                    "${strFormattedSize(attachment.fileSize)} · $ext $textPadding",
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.blueGrey,
