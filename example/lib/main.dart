@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import 'chat_pagination_service.dart';
 
@@ -43,16 +44,28 @@ class _MyAppState extends State<MyApp> {
     _scrollController = ScrollController();
     _loadUsers().then((value) {
       _controller.onMessageAdded = (message) async {
+        final supabase = Supabase.instance.client;
         try {
-          final result = await Supabase.instance.client
-              .from('chat_messages')
-              .insert({
-                "message": message.message,
-                "sender_id": message.senderId,
-                "type": message.type.name,
-                "status": ChatMessageStatus.sent.name,
-                "room_id": "63e2364b-e0b5-4b30-b392-595944f2955b",
-              });
+          final hasAttachment = message.attachment != null;
+          if (hasAttachment) {
+            final attachment = message.attachment;
+            final path = attachment?.file?.path;
+            final data = await attachment?.file?.readAsBytes();
+            log(attachment?.toJson() ?? "null");
+            if (path == null) return;
+            if (data == null) return;
+            if (attachment?.fileName == null) return;
+            message.roomId = "63e2364b-e0b5-4b30-b392-595944f2955b";
+            await supabase.storage
+                .from("chat")
+                .uploadBinary(attachment!.fileName, data);
+            attachment.url = supabase.storage
+                .from("chat")
+                .getPublicUrl(attachment.fileName);
+          }
+          final result = await supabase
+              .from('messages')
+              .insert(message.toMap().toSnakeCase());
           log(result.toString());
           _controller.updateMessage(
             message.copyWith(chatStatus: ChatMessageStatus.sent),
@@ -63,6 +76,7 @@ class _MyAppState extends State<MyApp> {
           return;
         }
       };
+      _controller.uuidGenerator = () => Uuid().v4();
     });
   }
 
@@ -174,6 +188,22 @@ class _MyAppState extends State<MyApp> {
               ? const Center(child: Text('No users found'))
               : ChatUi(controller: _controller),
         ),
+      ),
+    );
+  }
+}
+
+extension CamelCaseToSnakeCase on Map<String, dynamic> {
+  Map<String, dynamic> toSnakeCase() {
+    return map(
+      (key, value) => MapEntry(
+        key
+            .replaceAllMapped(
+              RegExp(r'[A-Z]'),
+              (Match match) => '_${match.group(0)}',
+            )
+            .toLowerCase(),
+        value,
       ),
     );
   }

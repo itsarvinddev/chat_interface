@@ -26,8 +26,8 @@ PagingController<int, ChatMessage> controller() =>
         final start = pageKey * pageSize;
         final end = start + pageSize - 1;
         final result = await supabase
-            .from('chat_messages')
-            .select('*, sender:chat_messages_sender_id_fkey(*)')
+            .from('messages')
+            .select('*, sender:messages_sender_id_fkey(*)')
             .eq('room_id', "63e2364b-e0b5-4b30-b392-595944f2955b")
             .order('created_at', ascending: false)
             .limit(pageSize)
@@ -54,13 +54,13 @@ void stream(
     final supabase = Supabase.instance.client;
     final channel = supabase.channel(
       //  'public:chat_messages:room_id=eq.63e2364b-e0b5-4b30-b392-595944f2955b',
-      'chat_messages',
+      'messages',
     );
     channel
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
-          table: 'chat_messages',
+          table: 'messages',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'room_id',
@@ -88,7 +88,7 @@ void stream(
 
               /// update status to seen
               await supabase
-                  .from('chat_messages')
+                  .from('messages')
                   .update({'status': ChatMessageStatus.seen.name})
                   .eq('id', message.id);
               return;

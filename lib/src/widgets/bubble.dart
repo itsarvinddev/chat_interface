@@ -12,7 +12,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../utils/chat_by_date.dart';
 import '../utils/emoji_parser.dart';
 import 'action.dart';
-import 'attachment_preview.dart';
+import 'attachment.dart';
 import 'chat_date.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -340,10 +340,7 @@ class _MessageCardState extends State<MessageCard>
                           (attachmentType != ChatAttachmentType.document &&
                               attachmentType != ChatAttachmentType.audio &&
                               attachmentType != ChatAttachmentType.voice)) ...[
-                        const BoxShadow(
-                          color: Color.fromARGB(174, 1, 4, 21),
-                          blurRadius: 20,
-                        ),
+                        const BoxShadow(color: Colors.black, blurRadius: 30),
                       ],
                     ],
                   ),
