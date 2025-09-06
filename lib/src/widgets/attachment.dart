@@ -53,237 +53,114 @@ class ChatImage extends StatefulWidget {
   State<ChatImage> createState() => _ChatImageState();
 }
 
-class _ChatImageState extends State<ChatImage>
-    with SingleTickerProviderStateMixin {
-  // What is currently visible on screen (local bytes or last successful image).
-  ImageProvider? _displayProvider;
-
-  // Upcoming network image provider (preloaded before fade).
-  ImageProvider? _networkProvider;
-  bool _networkReady = false;
-  bool _networkLoading = false;
-
-  // Local bytes (optional).
-  Uint8List? _localBytes;
-
-  late final AnimationController _fadeController;
-  late final Animation<double> _fade;
-
-  // Track changes to avoid stale updates.
-  String? _lastUrl;
-  String? _lastFilePath;
-  int _loadToken = 0;
+class _ChatImageState extends State<ChatImage> {
+  Uint8List? _fileBytes;
+  String? _currentUrl;
+  int _token = 0;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 220),
-    );
-    _fade = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
-
-    _initFromMessage(initial: true);
+    _load();
   }
 
   @override
   void didUpdateWidget(covariant ChatImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final url = widget.message.attachment?.url;
-    final filePath = widget.message.attachment?.file?.path;
-
-    // Only react if either url or file path changed.
-    if (url != _lastUrl || filePath != _lastFilePath) {
-      _initFromMessage(initial: false);
+    if (widget.message.attachment?.url != oldWidget.message.attachment?.url ||
+        widget.message.attachment?.file?.path !=
+            oldWidget.message.attachment?.file?.path) {
+      _load();
     }
   }
 
-  Future<void> _initFromMessage({required bool initial}) async {
-    final token = ++_loadToken;
-
+  Future<void> _load() async {
+    final token = ++_token;
     final file = widget.message.attachment?.file;
     final url = widget.message.attachment?.url.trim();
-    final filePath = file?.path;
 
-    _lastUrl = url;
-    _lastFilePath = filePath;
+    // Reset state before loading.
+    _fileBytes = null;
+    _currentUrl = null;
 
-    // 1) Load local bytes if available.
-    if (filePath != null && filePath.isNotEmpty) {
+    if (file != null && file.path.isNotEmpty) {
       try {
-        final bytes = await file!.readAsBytes();
-        if (!mounted || token != _loadToken) return;
-
-        _localBytes = bytes;
-        // If nothing visible yet, show local immediately.
-        if (_displayProvider == null) {
-          setState(() {
-            _displayProvider = MemoryImage(_localBytes!);
-          });
-        } else {
-          // If something is already displayed (e.g., previous local),
-          // update only if the provider changed meaningfully.
-          final newLocal = MemoryImage(_localBytes!);
-          if (_displayProvider is! MemoryImage) {
-            setState(() {
-              _displayProvider = newLocal;
-            });
-          }
-        }
+        final bytes = await file.readAsBytes();
+        if (!mounted || token != _token) return;
+        setState(() {
+          _fileBytes = bytes;
+        });
       } catch (_) {
-        // Ignore local loading errors; we can still try the URL.
+        // If file loading failed, we won't set fileBytes. Fallback below.
       }
     }
 
-    // 2) Prepare and precache network image if URL present.
-    if (url != null && url.isNotEmpty) {
-      await _prepareNetwork(url, token);
-    } else {
-      // No URL; ensure we stop any pending fade-in.
-      if (mounted) {
-        setState(() {
-          _networkProvider = null;
-          _networkReady = false;
-          _networkLoading = false;
-          _fadeController.value = 0.0;
-        });
-      }
-    }
-  }
-
-  Future<void> _prepareNetwork(String url, int token) async {
-    // Build a cached network provider. Using the provider gives us full control.
-    final provider = CachedNetworkImageProvider(url);
-
-    if (!mounted || token != _loadToken) return;
-
-    setState(() {
-      _networkLoading = true;
-      _networkReady = false;
-      _networkProvider = provider;
-      _fadeController.value = 0.0;
-    });
-
-    try {
-      // Precache to ensure the image is decoded before we fade it in.
-      await precacheImage(provider, context);
-      if (!mounted || token != _loadToken) return;
-
+    if ((file == null || file.path.isEmpty) && url != null && url.isNotEmpty) {
+      if (!mounted || token != _token) return;
       setState(() {
-        _networkReady = true;
-        _networkLoading = false;
-      });
-
-      // Start fade only after decode completes.
-      _fadeController.forward(from: 0.0).whenComplete(() {
-        if (!mounted || token != _loadToken) return;
-        // Once fade completes, promote network to display and clear overlay.
-        setState(() {
-          _displayProvider = _networkProvider;
-          _networkProvider = null;
-          _networkReady = false;
-          _fadeController.value = 0.0;
-        });
-      });
-    } catch (_) {
-      if (!mounted || token != _loadToken) return;
-      // On error, keep showing whatever is already on screen (usually local).
-      setState(() {
-        _networkLoading = false;
-        _networkReady = false;
-        // Optionally, you could keep _networkProvider for retry logic.
+        _currentUrl = url;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasSomethingToShow = _displayProvider != null || _networkReady;
-
-    // Compute cache target size to avoid decoding huge images unnecessarily.
     final dpr = MediaQuery.of(context).devicePixelRatio;
     final cacheWidth = (widget.width * dpr).round();
     final cacheHeight = (widget.height * dpr).round();
 
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: ClipRRect(
+    if (_fileBytes != null) {
+      return ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: GestureDetector(
           onTap: () {
-            if (_networkProvider != null && _networkReady && _lastUrl != null) {
-              final params = ShareParams(uri: Uri.parse(_lastUrl!));
-              SharePlus.instance.share(params);
-            } else {
-              final params = ShareParams(files: [XFile(_lastFilePath!)]);
-              SharePlus.instance.share(params);
-            }
+            final params = ShareParams(
+              files: [XFile.fromData(_fileBytes!)],
+              subject: widget.message.attachment?.fileName,
+            );
+            SharePlus.instance.share(params);
           },
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Base layer: the currently displayed provider (local or last success).
-              if (_displayProvider != null)
-                Image(
-                  image: _displayProvider!,
-                  fit: BoxFit.cover,
-                  filterQuality: FilterQuality.medium,
-                  width: cacheWidth.toDouble(),
-                  height: cacheHeight.toDouble(),
-                ),
-
-              // Overlay: the preloaded network image, faded in smoothly.
-              if (_networkProvider != null && _networkReady)
-                FadeTransition(
-                  opacity: _fade,
-                  child: Image(
-                    image: _networkProvider!,
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.medium,
-                    width: cacheWidth.toDouble(),
-                    height: cacheHeight.toDouble(),
-                  ),
-                ),
-
-              // If nothing to show yet (neither local nor ready network), show a centered loader.
-              if (!hasSomethingToShow)
-                const Center(child: CircularProgressIndicator()),
-
-              // Optional subtle progress indicator in corner while downloading, but keep image visible.
-              if (_networkLoading && _displayProvider != null)
-                Positioned.fill(
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: context.colorScheme.primary.withValues(
-                          alpha: 0.5,
-                        ),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: context.colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+          child: Image.memory(
+            _fileBytes!,
+            width: widget.width,
+            height: widget.height,
+            fit: BoxFit.cover,
+            cacheWidth: cacheWidth,
+            cacheHeight: cacheHeight,
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (_currentUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () {
+            final params = ShareParams(
+              uri: Uri.parse(_currentUrl!),
+              subject: widget.message.attachment?.fileName,
+            );
+            SharePlus.instance.share(params);
+          },
+          child: CachedNetworkImage(
+            imageUrl: _currentUrl!,
+            width: widget.width,
+            height: widget.height,
+            fit: BoxFit.cover,
+            memCacheWidth: cacheWidth,
+            memCacheHeight: cacheHeight,
+            placeholder: (ctx, url) =>
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            errorWidget: (ctx, url, error) =>
+                const Center(child: Icon(Icons.broken_image)),
+          ),
+        ),
+      );
+    }
+
+    // Nothing available
+    return const Text("No attachment");
   }
 }
 
@@ -318,11 +195,18 @@ class ChatDocument extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         if (file == null) {
-          final params = ShareParams(uri: Uri.parse(attachment.url));
+          final params = ShareParams(
+            uri: Uri.parse(attachment.url),
+            subject: attachment.fileName,
+          );
           SharePlus.instance.share(params);
           return;
         } else {
-          final params = ShareParams(files: [XFile(file.path)]);
+          final params = ShareParams(
+            files: [XFile(file.path)],
+            subject: attachment.fileName,
+            uri: Uri.tryParse(attachment.url),
+          );
           SharePlus.instance.share(params);
         }
       },

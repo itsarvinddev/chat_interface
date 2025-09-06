@@ -46,8 +46,10 @@ class _MyAppState extends State<MyApp> {
       _controller.onMessageAdded = (message) async {
         final supabase = Supabase.instance.client;
         try {
+          await Future.delayed(const Duration(seconds: 3));
           final hasAttachment = message.attachment != null;
           if (hasAttachment) {
+            message.attachment?.uploadStatus = UploadStatus.uploading;
             final attachment = message.attachment;
             final path = attachment?.file?.path;
             final data = await attachment?.file?.readAsBytes();
@@ -62,6 +64,8 @@ class _MyAppState extends State<MyApp> {
             attachment.url = supabase.storage
                 .from("chat")
                 .getPublicUrl(attachment.fileName);
+            attachment.uploadStatus = UploadStatus.uploaded;
+            attachment.file = null;
           }
           final result = await supabase
               .from('messages')
