@@ -275,6 +275,12 @@ class ChatController {
   /// Adds a new message to the top of the first page.
   Future<void> addMessage(ChatMessage message, {bool callApi = true}) async {
     try {
+      final text = message.message.trim();
+      final attachment = message.attachment;
+      if (text.isNullOrEmpty &&
+          (attachment == null || attachment.file == null)) {
+        return;
+      }
       final pages = List<List<ChatMessage>>.from(pagingController.pages!);
       pages.first = [message, ...pages.first];
       pagingController.value = pagingController.value.copyWith(pages: pages);
