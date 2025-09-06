@@ -50,6 +50,12 @@ class ChatController {
   /// Callback when tap on camera button.
   Future<void> Function()? onTapCamera;
 
+  /// Camera icon.
+  IconData? cameraIcon;
+
+  /// Attach file icon.
+  IconData? attachFileIcon;
+
   /// Callback when tap on attach file button.
   Future<void> Function()? onTapAttachFile;
 

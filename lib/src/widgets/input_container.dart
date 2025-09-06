@@ -27,8 +27,9 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
       // }
       controller.messageController.addListener(() {
         setState(() {
-          hideElements =
-              controller.messageController.text.trim().isNotNullOrEmpty;
+          hideElements = controller.messageController.text
+              .trim()
+              .isNotNullOrEmpty;
         });
       });
     });
@@ -75,11 +76,13 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                       type: ChatMessageType.chat,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
-                      id: controller.uuidGenerator?.call() ??
+                      id:
+                          controller.uuidGenerator?.call() ??
                           DateTime.now().millisecondsSinceEpoch.toString(),
                     ),
                   ),
-                  actions: config.actions ??
+                  actions:
+                      config.actions ??
                       [
                         IconButton(
                           onPressed: () {
@@ -90,7 +93,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                             }
                           },
                           icon: Icon(
-                            Icons.attach_file_rounded,
+                            controller.attachFileIcon ??
+                                Icons.attach_file_rounded,
                             size: 24.0,
                             color: chatTheme.attachmentButtonColor,
                           ),
@@ -108,7 +112,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                                     }
                                   },
                                   icon: Icon(
-                                    Icons.camera_alt_rounded,
+                                    controller.cameraIcon ??
+                                        Icons.camera_alt_rounded,
                                     size: 24.0,
                                     color: chatTheme.attachmentButtonColor,
                                   ),
@@ -129,7 +134,8 @@ class _ChatInputContainerState extends State<ChatInputContainer> {
                   type: ChatMessageType.chat,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
-                  id: controller.uuidGenerator?.call() ??
+                  id:
+                      controller.uuidGenerator?.call() ??
                       DateTime.now().millisecondsSinceEpoch.toString(),
                 ),
               ),
