@@ -125,7 +125,8 @@ class _ChatUiState extends State<ChatUi> {
             children: [
               Positioned.fill(child: sc.gradient ?? const SizedBox.shrink()),
               Positioned.fill(
-                child: sc.background ??
+                child:
+                    sc.background ??
                     Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
@@ -184,12 +185,13 @@ class _ChatUiState extends State<ChatUi> {
                           // against index  1 (the previous item in display order).
                           final bool showDateHeader =
                               ChatDateUtils.shouldShowHeaderForViewportOrder(
-                            items: items,
-                            index: index,
-                            // because your PagedListView has reverse: true
-                            reverse: true,
-                            createdAtOf: (m) => m.createdAt ?? DateTime.now(),
-                          );
+                                items: items,
+                                index: index,
+                                // because your PagedListView has reverse: true
+                                reverse: true,
+                                createdAtOf: (m) =>
+                                    m.createdAt ?? DateTime.now(),
+                              );
                           return ChatBubble(
                             message: item,
                             index: index,
@@ -200,7 +202,14 @@ class _ChatUiState extends State<ChatUi> {
                     );
                   },
                 ),
-                bottomNavigationBar: ChatInputContainer(),
+                bottomNavigationBar: ValueListenableBuilder<bool>(
+                  valueListenable: widget.controller.showInputField,
+                  builder: (context, show, _) {
+                    return show
+                        ? ChatInputContainer()
+                        : const SizedBox.shrink();
+                  },
+                ),
                 floatingActionButton: ValueListenableBuilder<bool>(
                   valueListenable: _showJumpToBottom,
                   builder: (context, show, _) {

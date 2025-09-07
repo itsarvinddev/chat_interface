@@ -35,6 +35,17 @@ class ChatController {
   /// Internal map of other users for quick lookup.
   final Map<String, ChatUser> _otherUsers;
 
+  /// ValueNotifier for the input text field show/hide.
+  final ValueNotifier<bool> _showInputField = ValueNotifier<bool>(true);
+
+  /// Get the valueNotifier for the input text field show/hide.
+  ValueNotifier<bool> get showInputField => _showInputField;
+
+  /// Toggle the input text field show/hide.
+  void toggleInputField() {
+    _showInputField.value = !_showInputField.value;
+  }
+
   /// Text controller for composing messages.
   late final MarkdownTextEditingController messageController;
 
@@ -379,6 +390,9 @@ class ChatController {
     pagingController.dispose();
     messageController.dispose();
     focusNode?.dispose();
+    _showInputField.dispose();
+    _otherUsers.clear();
+    _room = null;
   }
 }
 
