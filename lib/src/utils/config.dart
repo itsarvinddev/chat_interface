@@ -1,9 +1,9 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-typedef CustomMessageBuilder = Widget Function(
-    ChatController controller, ChatMessage message, int index);
+typedef CustomMessageBuilder =
+    Widget Function(ChatController controller, ChatMessage message, int index);
 
 class ChatUiConfig {
   final CustomMessageBuilder? customMessage;
@@ -31,15 +31,15 @@ class ChatUiConfigProvider extends InheritedWidget {
   final ChatUiConfig config;
 
   static ChatUiConfig of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<ChatUiConfigProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<ChatUiConfigProvider>();
     assert(provider != null, 'No ChatUiConfigProvider found in context');
     return provider!.config;
   }
 
   static ChatUiConfig? maybeOf(BuildContext context) {
-    final provider =
-        context.getInheritedWidgetOfExactType<ChatUiConfigProvider>();
+    final provider = context
+        .getInheritedWidgetOfExactType<ChatUiConfigProvider>();
     return provider?.config;
   }
 

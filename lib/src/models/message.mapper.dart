@@ -17,7 +17,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
       ChatAttachmentMapper.ensureInitialized();
       ChatMessageTypeMapper.ensureInitialized();
       ChatMessageStatusMapper.ensureInitialized();
-      ChatImageTypeMapper.ensureInitialized();
       ChatReactionMapper.ensureInitialized();
       ChatReplyMessageMapper.ensureInitialized();
     }
@@ -60,13 +59,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$chatStatus,
     opt: true,
     def: ChatMessageStatus.pending,
-  );
-  static ChatImageType _$imageType(ChatMessage v) => v.imageType;
-  static const Field<ChatMessage, ChatImageType> _f$imageType = Field(
-    'imageType',
-    _$imageType,
-    opt: true,
-    def: ChatImageType.network,
   );
   static List<ChatReaction> _$reactions(ChatMessage v) => v.reactions;
   static const Field<ChatMessage, List<ChatReaction>> _f$reactions = Field(
@@ -176,7 +168,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     #attachment: _f$attachment,
     #type: _f$type,
     #chatStatus: _f$chatStatus,
-    #imageType: _f$imageType,
     #reactions: _f$reactions,
     #replyMessage: _f$replyMessage,
     #senderId: _f$senderId,
@@ -202,7 +193,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
       attachment: data.dec(_f$attachment),
       type: data.dec(_f$type),
       chatStatus: data.dec(_f$chatStatus),
-      imageType: data.dec(_f$imageType),
       reactions: data.dec(_f$reactions),
       replyMessage: data.dec(_f$replyMessage),
       senderId: data.dec(_f$senderId),
@@ -277,19 +267,22 @@ extension ChatMessageValueCopy<$R, $Out>
 abstract class ChatMessageCopyWith<$R, $In extends ChatMessage, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
   ChatAttachmentCopyWith<$R, ChatAttachment, ChatAttachment>? get attachment;
-  ListCopyWith<$R, ChatReaction,
-      ChatReactionCopyWith<$R, ChatReaction, ChatReaction>> get reactions;
+  ListCopyWith<
+    $R,
+    ChatReaction,
+    ChatReactionCopyWith<$R, ChatReaction, ChatReaction>
+  >
+  get reactions;
   ChatReplyMessageCopyWith<$R, ChatReplyMessage, ChatReplyMessage>?
-      get replyMessage;
+  get replyMessage;
   MapCopyWith<$R, String, dynamic, ObjectCopyWith<$R, dynamic, dynamic>>
-      get metadata;
+  get metadata;
   $R call({
     String? id,
     String? message,
     ChatAttachment? attachment,
     ChatMessageType? type,
     ChatMessageStatus? chatStatus,
-    ChatImageType? imageType,
     List<ChatReaction>? reactions,
     ChatReplyMessage? replyMessage,
     String? senderId,
@@ -316,24 +309,27 @@ class _ChatMessageCopyWithImpl<$R, $Out>
   ChatAttachmentCopyWith<$R, ChatAttachment, ChatAttachment>? get attachment =>
       $value.attachment?.copyWith.$chain((v) => call(attachment: v));
   @override
-  ListCopyWith<$R, ChatReaction,
-          ChatReactionCopyWith<$R, ChatReaction, ChatReaction>>
-      get reactions => ListCopyWith(
-            $value.reactions,
-            (v, t) => v.copyWith.$chain(t),
-            (v) => call(reactions: v),
-          );
+  ListCopyWith<
+    $R,
+    ChatReaction,
+    ChatReactionCopyWith<$R, ChatReaction, ChatReaction>
+  >
+  get reactions => ListCopyWith(
+    $value.reactions,
+    (v, t) => v.copyWith.$chain(t),
+    (v) => call(reactions: v),
+  );
   @override
   ChatReplyMessageCopyWith<$R, ChatReplyMessage, ChatReplyMessage>?
-      get replyMessage =>
-          $value.replyMessage?.copyWith.$chain((v) => call(replyMessage: v));
+  get replyMessage =>
+      $value.replyMessage?.copyWith.$chain((v) => call(replyMessage: v));
   @override
   MapCopyWith<$R, String, dynamic, ObjectCopyWith<$R, dynamic, dynamic>>
-      get metadata => MapCopyWith(
-            $value.metadata,
-            (v, t) => ObjectCopyWith(v, $identity, t),
-            (v) => call(metadata: v),
-          );
+  get metadata => MapCopyWith(
+    $value.metadata,
+    (v, t) => ObjectCopyWith(v, $identity, t),
+    (v) => call(metadata: v),
+  );
   @override
   $R call({
     String? id,
@@ -341,7 +337,6 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     Object? attachment = $none,
     ChatMessageType? type,
     ChatMessageStatus? chatStatus,
-    ChatImageType? imageType,
     List<ChatReaction>? reactions,
     Object? replyMessage = $none,
     String? senderId,
@@ -352,52 +347,48 @@ class _ChatMessageCopyWithImpl<$R, $Out>
     Object? updatedAt = $none,
     Object? editedAt = $none,
     String? status,
-  }) =>
-      $apply(
-        FieldCopyWithData({
-          if (id != null) #id: id,
-          if (message != null) #message: message,
-          if (attachment != $none) #attachment: attachment,
-          if (type != null) #type: type,
-          if (chatStatus != null) #chatStatus: chatStatus,
-          if (imageType != null) #imageType: imageType,
-          if (reactions != null) #reactions: reactions,
-          if (replyMessage != $none) #replyMessage: replyMessage,
-          if (senderId != null) #senderId: senderId,
-          if (roomId != null) #roomId: roomId,
-          if (duration != null) #duration: duration,
-          if (metadata != null) #metadata: metadata,
-          if (createdAt != $none) #createdAt: createdAt,
-          if (updatedAt != $none) #updatedAt: updatedAt,
-          if (editedAt != $none) #editedAt: editedAt,
-          if (status != null) #status: status,
-        }),
-      );
+  }) => $apply(
+    FieldCopyWithData({
+      if (id != null) #id: id,
+      if (message != null) #message: message,
+      if (attachment != $none) #attachment: attachment,
+      if (type != null) #type: type,
+      if (chatStatus != null) #chatStatus: chatStatus,
+      if (reactions != null) #reactions: reactions,
+      if (replyMessage != $none) #replyMessage: replyMessage,
+      if (senderId != null) #senderId: senderId,
+      if (roomId != null) #roomId: roomId,
+      if (duration != null) #duration: duration,
+      if (metadata != null) #metadata: metadata,
+      if (createdAt != $none) #createdAt: createdAt,
+      if (updatedAt != $none) #updatedAt: updatedAt,
+      if (editedAt != $none) #editedAt: editedAt,
+      if (status != null) #status: status,
+    }),
+  );
   @override
   ChatMessage $make(CopyWithData data) => ChatMessage(
-        id: data.get(#id, or: $value.id),
-        message: data.get(#message, or: $value.message),
-        attachment: data.get(#attachment, or: $value.attachment),
-        type: data.get(#type, or: $value.type),
-        chatStatus: data.get(#chatStatus, or: $value.chatStatus),
-        imageType: data.get(#imageType, or: $value.imageType),
-        reactions: data.get(#reactions, or: $value.reactions),
-        replyMessage: data.get(#replyMessage, or: $value.replyMessage),
-        senderId: data.get(#senderId, or: $value.senderId),
-        roomId: data.get(#roomId, or: $value.roomId),
-        duration: data.get(#duration, or: $value.duration),
-        metadata: data.get(#metadata, or: $value.metadata),
-        createdAt: data.get(#createdAt, or: $value.createdAt),
-        updatedAt: data.get(#updatedAt, or: $value.updatedAt),
-        editedAt: data.get(#editedAt, or: $value.editedAt),
-        status: data.get(#status, or: $value.status),
-      );
+    id: data.get(#id, or: $value.id),
+    message: data.get(#message, or: $value.message),
+    attachment: data.get(#attachment, or: $value.attachment),
+    type: data.get(#type, or: $value.type),
+    chatStatus: data.get(#chatStatus, or: $value.chatStatus),
+    reactions: data.get(#reactions, or: $value.reactions),
+    replyMessage: data.get(#replyMessage, or: $value.replyMessage),
+    senderId: data.get(#senderId, or: $value.senderId),
+    roomId: data.get(#roomId, or: $value.roomId),
+    duration: data.get(#duration, or: $value.duration),
+    metadata: data.get(#metadata, or: $value.metadata),
+    createdAt: data.get(#createdAt, or: $value.createdAt),
+    updatedAt: data.get(#updatedAt, or: $value.updatedAt),
+    editedAt: data.get(#editedAt, or: $value.editedAt),
+    status: data.get(#status, or: $value.status),
+  );
 
   @override
   ChatMessageCopyWith<$R2, ChatMessage, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
-  ) =>
-      _ChatMessageCopyWithImpl<$R2, $Out2>($value, $cast, t);
+  ) => _ChatMessageCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
 
 class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
@@ -544,12 +535,11 @@ mixin ChatAttachmentMappable {
   }
 
   ChatAttachmentCopyWith<ChatAttachment, ChatAttachment, ChatAttachment>
-      get copyWith =>
-          _ChatAttachmentCopyWithImpl<ChatAttachment, ChatAttachment>(
-            this as ChatAttachment,
-            $identity,
-            $identity,
-          );
+  get copyWith => _ChatAttachmentCopyWithImpl<ChatAttachment, ChatAttachment>(
+    this as ChatAttachment,
+    $identity,
+    $identity,
+  );
   @override
   String toString() {
     return ChatAttachmentMapper.ensureInitialized().stringifyValue(
@@ -611,12 +601,12 @@ class _ChatAttachmentCopyWithImpl<$R, $Out>
   @override
   ListCopyWith<$R, double, ObjectCopyWith<$R, double, double>>? get samples =>
       $value.samples != null
-          ? ListCopyWith(
-              $value.samples!,
-              (v, t) => ObjectCopyWith(v, $identity, t),
-              (v) => call(samples: v),
-            )
-          : null;
+      ? ListCopyWith(
+          $value.samples!,
+          (v, t) => ObjectCopyWith(v, $identity, t),
+          (v) => call(samples: v),
+        )
+      : null;
   @override
   $R call({
     String? fileName,
@@ -630,42 +620,40 @@ class _ChatAttachmentCopyWithImpl<$R, $Out>
     String? url,
     Object? file = $none,
     Object? samples = $none,
-  }) =>
-      $apply(
-        FieldCopyWithData({
-          if (fileName != null) #fileName: fileName,
-          if (type != null) #type: type,
-          if (width != $none) #width: width,
-          if (height != $none) #height: height,
-          if (uploadStatus != null) #uploadStatus: uploadStatus,
-          if (autoDownload != null) #autoDownload: autoDownload,
-          if (fileExtension != null) #fileExtension: fileExtension,
-          if (fileSize != null) #fileSize: fileSize,
-          if (url != null) #url: url,
-          if (file != $none) #file: file,
-          if (samples != $none) #samples: samples,
-        }),
-      );
+  }) => $apply(
+    FieldCopyWithData({
+      if (fileName != null) #fileName: fileName,
+      if (type != null) #type: type,
+      if (width != $none) #width: width,
+      if (height != $none) #height: height,
+      if (uploadStatus != null) #uploadStatus: uploadStatus,
+      if (autoDownload != null) #autoDownload: autoDownload,
+      if (fileExtension != null) #fileExtension: fileExtension,
+      if (fileSize != null) #fileSize: fileSize,
+      if (url != null) #url: url,
+      if (file != $none) #file: file,
+      if (samples != $none) #samples: samples,
+    }),
+  );
   @override
   ChatAttachment $make(CopyWithData data) => ChatAttachment(
-        fileName: data.get(#fileName, or: $value.fileName),
-        type: data.get(#type, or: $value.type),
-        width: data.get(#width, or: $value.width),
-        height: data.get(#height, or: $value.height),
-        uploadStatus: data.get(#uploadStatus, or: $value.uploadStatus),
-        autoDownload: data.get(#autoDownload, or: $value.autoDownload),
-        fileExtension: data.get(#fileExtension, or: $value.fileExtension),
-        fileSize: data.get(#fileSize, or: $value.fileSize),
-        url: data.get(#url, or: $value.url),
-        file: data.get(#file, or: $value.file),
-        samples: data.get(#samples, or: $value.samples),
-      );
+    fileName: data.get(#fileName, or: $value.fileName),
+    type: data.get(#type, or: $value.type),
+    width: data.get(#width, or: $value.width),
+    height: data.get(#height, or: $value.height),
+    uploadStatus: data.get(#uploadStatus, or: $value.uploadStatus),
+    autoDownload: data.get(#autoDownload, or: $value.autoDownload),
+    fileExtension: data.get(#fileExtension, or: $value.fileExtension),
+    fileSize: data.get(#fileSize, or: $value.fileSize),
+    url: data.get(#url, or: $value.url),
+    file: data.get(#file, or: $value.file),
+    samples: data.get(#samples, or: $value.samples),
+  );
 
   @override
   ChatAttachmentCopyWith<$R2, ChatAttachment, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
-  ) =>
-      _ChatAttachmentCopyWithImpl<$R2, $Out2>($value, $cast, t);
+  ) => _ChatAttachmentCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
 
 class ChatReactionMapper extends ClassMapperBase<ChatReaction> {
@@ -814,17 +802,16 @@ class _ChatReactionCopyWithImpl<$R, $Out>
       );
   @override
   ChatReaction $make(CopyWithData data) => ChatReaction(
-        id: data.get(#id, or: $value.id),
-        messageId: data.get(#messageId, or: $value.messageId),
-        userId: data.get(#userId, or: $value.userId),
-        reaction: data.get(#reaction, or: $value.reaction),
-      );
+    id: data.get(#id, or: $value.id),
+    messageId: data.get(#messageId, or: $value.messageId),
+    userId: data.get(#userId, or: $value.userId),
+    reaction: data.get(#reaction, or: $value.reaction),
+  );
 
   @override
   ChatReactionCopyWith<$R2, ChatReaction, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
-  ) =>
-      _ChatReactionCopyWithImpl<$R2, $Out2>($value, $cast, t);
+  ) => _ChatReactionCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
 
 class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
@@ -947,12 +934,12 @@ mixin ChatReplyMessageMappable {
   }
 
   ChatReplyMessageCopyWith<ChatReplyMessage, ChatReplyMessage, ChatReplyMessage>
-      get copyWith =>
-          _ChatReplyMessageCopyWithImpl<ChatReplyMessage, ChatReplyMessage>(
-            this as ChatReplyMessage,
-            $identity,
-            $identity,
-          );
+  get copyWith =>
+      _ChatReplyMessageCopyWithImpl<ChatReplyMessage, ChatReplyMessage>(
+        this as ChatReplyMessage,
+        $identity,
+        $identity,
+      );
   @override
   String toString() {
     return ChatReplyMessageMapper.ensureInitialized().stringifyValue(
@@ -979,8 +966,8 @@ mixin ChatReplyMessageMappable {
 extension ChatReplyMessageValueCopy<$R, $Out>
     on ObjectCopyWith<$R, ChatReplyMessage, $Out> {
   ChatReplyMessageCopyWith<$R, ChatReplyMessage, $Out>
-      get $asChatReplyMessage => $base
-          .as((v, t, t2) => _ChatReplyMessageCopyWithImpl<$R, $Out>(v, t, t2));
+  get $asChatReplyMessage =>
+      $base.as((v, t, t2) => _ChatReplyMessageCopyWithImpl<$R, $Out>(v, t, t2));
 }
 
 abstract class ChatReplyMessageCopyWith<$R, $In extends ChatReplyMessage, $Out>
@@ -1016,32 +1003,31 @@ class _ChatReplyMessageCopyWithImpl<$R, $Out>
     String? message,
     ChatMessageType? type,
     Duration? duration,
-  }) =>
-      $apply(
-        FieldCopyWithData({
-          if (id != null) #id: id,
-          if (messageId != null) #messageId: messageId,
-          if (replyTo != null) #replyTo: replyTo,
-          if (replyBy != null) #replyBy: replyBy,
-          if (message != null) #message: message,
-          if (type != null) #type: type,
-          if (duration != null) #duration: duration,
-        }),
-      );
+  }) => $apply(
+    FieldCopyWithData({
+      if (id != null) #id: id,
+      if (messageId != null) #messageId: messageId,
+      if (replyTo != null) #replyTo: replyTo,
+      if (replyBy != null) #replyBy: replyBy,
+      if (message != null) #message: message,
+      if (type != null) #type: type,
+      if (duration != null) #duration: duration,
+    }),
+  );
   @override
   ChatReplyMessage $make(CopyWithData data) => ChatReplyMessage(
-        id: data.get(#id, or: $value.id),
-        messageId: data.get(#messageId, or: $value.messageId),
-        replyTo: data.get(#replyTo, or: $value.replyTo),
-        replyBy: data.get(#replyBy, or: $value.replyBy),
-        message: data.get(#message, or: $value.message),
-        type: data.get(#type, or: $value.type),
-        duration: data.get(#duration, or: $value.duration),
-      );
+    id: data.get(#id, or: $value.id),
+    messageId: data.get(#messageId, or: $value.messageId),
+    replyTo: data.get(#replyTo, or: $value.replyTo),
+    replyBy: data.get(#replyBy, or: $value.replyBy),
+    message: data.get(#message, or: $value.message),
+    type: data.get(#type, or: $value.type),
+    duration: data.get(#duration, or: $value.duration),
+  );
 
   @override
   ChatReplyMessageCopyWith<$R2, ChatReplyMessage, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
-  ) =>
-      _ChatReplyMessageCopyWithImpl<$R2, $Out2>($value, $cast, t);
+  ) => _ChatReplyMessageCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
+

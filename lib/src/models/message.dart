@@ -1,4 +1,4 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +13,6 @@ class ChatMessage with ChatMessageMappable {
   ChatAttachment? attachment;
   ChatMessageType type = ChatMessageType.chat;
   ChatMessageStatus chatStatus = ChatMessageStatus.pending;
-  ChatImageType imageType = ChatImageType.network;
   List<ChatReaction> reactions = [];
   ChatReplyMessage? replyMessage;
   String senderId = "";
@@ -62,7 +61,6 @@ class ChatMessage with ChatMessageMappable {
     this.attachment,
     this.type = ChatMessageType.chat,
     this.chatStatus = ChatMessageStatus.pending,
-    this.imageType = ChatImageType.network,
     this.reactions = const [],
     this.replyMessage,
     this.senderId = "",

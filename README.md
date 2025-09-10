@@ -2,7 +2,7 @@
 
 A flexible, Chat UI package for Flutter. Build modern chat experiences with infinite scrolling, message grouping, reactions, attachments, link previews, and a fully themable interface.
 
-- **Widgets**: `ChatUi`, `ChatBubble`, input composer
+- **Widgets**: `ChatInterface`, `ChatBubble`, input composer
 - **State**: `ChatController` to add/update messages, scroll control, input visibility
 - **Models**: `ChatMessage`, `ChatUser`, `ChatAttachment`, `ChatReaction`, `ChatMessageStatus`, `ChatMessageType`
 - **Paging**: Built on `infinite_scroll_pagination` for smooth, reverse list loading
@@ -11,7 +11,7 @@ A flexible, Chat UI package for Flutter. Build modern chat experiences with infi
 
 ## Features
 
-- **Plug-and-play** `ChatUi` widget
+- **Plug-and-play** `ChatInterface` widget
 - **Infinite scroll** with reverse list and date headers
 - **Message composer** with markdown, emoji-ready, and send/attach hooks
 - **Attachments**: images, documents, and custom via `ChatController`
@@ -30,7 +30,7 @@ A flexible, Chat UI package for Flutter. Build modern chat experiences with infi
 
 ```yaml
 dependencies:
-  chatui: ^0.0.1
+  chat_interface: ^0.0.1
 ```
 
 2. Ensure required assets are available (already bundled when using the package):
@@ -41,12 +41,12 @@ dependencies:
 3. Initialize the package once in `main()`:
 
 ```dart
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  initializeChatUI();
+  initializeChatInterface();
   runApp(const MyApp());
 }
 ```
@@ -58,7 +58,7 @@ If you forget to initialize, the UI will show a helpful error with instructions.
 ### Minimal example
 
 ```dart
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 
 class MyChatPage extends StatefulWidget {
@@ -105,7 +105,7 @@ class _MyChatPageState extends State<MyChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Chat')),
-      body: ChatUi(controller: controller),
+      body: ChatInterface(controller: controller),
     );
   }
 }
@@ -173,7 +173,7 @@ await controller.sendAttachmentMessage(
 Quick presets or full control via `ChatTheme` and `ChatUiConfig`.
 
 ```dart
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     theme: ChatTheme.fromMaterialTheme(Theme.of(context)),
@@ -185,8 +185,8 @@ See advanced options and examples in [`THEME_CUSTOMIZATION.md`](THEME_CUSTOMIZAT
 
 ## API surface
 
-- **Initialize**: `initializeChatUI({bool isDebug = true})`
-- **Widget**: `ChatUi(controller: ..., config: ChatUiConfig(...))`
+- **Initialize**: `initializeChatInterface({bool isDebug = true})`
+- **Widget**: `ChatInterface(controller: ..., config: ChatUiConfig(...))`
 - **Controller**: `ChatController`
   - `addMessage`, `updateMessage`, `scrollToLastMessage`
   - `pickAndSendImageFromGallery`, `pickAndSendImageFromCamera`, `pickAndSendFile`
@@ -198,7 +198,7 @@ See advanced options and examples in [`THEME_CUSTOMIZATION.md`](THEME_CUSTOMIZAT
 
 ## Example app
 
-A runnable sample is available under [`example/`](example/). It demonstrates Supabase initialization, Riverpod-driven controller creation, paging setup, theming, and the core `ChatUi` widget.
+A runnable sample is available under [`example/`](example/). It demonstrates Supabase initialization, Riverpod-driven controller creation, paging setup, theming, and the core `ChatInterface` widget.
 
 ### Example (Supabase + Riverpod)
 
@@ -207,7 +207,7 @@ Key excerpts from the example app to mirror the setup.
 Main entry (`example/lib/main.dart`):
 
 ```dart
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -217,22 +217,22 @@ void main() async {
     url: 'YOUR_SUPABASE_URL',
     anonKey: 'YOUR_SUPABASE_ANON_KEY',
   );
-  initializeChatUI();
+  initializeChatInterface();
   runApp(MaterialApp(home: ChatPage(roomId: 'room-1')));
 }
 
 class ChatPage extends HookConsumerWidget {
   final String roomId;
   const ChatPage({super.key, required this.roomId});
-  // ... uses chatControllerXProvider to get a ChatController and renders ChatUi
+  // ... uses chatControllerXProvider to get a ChatController and renders ChatInterface
 }
 ```
 
-Using the `ChatController` from a Riverpod provider and passing it to `ChatUi`:
+Using the `ChatController` from a Riverpod provider and passing it to `ChatInterface`:
 
 ```dart
 // inside ChatPage build → snapshot.when(...)
-return ChatUi(
+return ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     scaffold: ChatExtra.scaffoldConfig(context),
@@ -370,7 +370,7 @@ Note: The Supabase schema and authentication flow are out of scope for this pack
 ## FAQ
 
 - **I see an initialization error in the UI.**
-  Call `initializeChatUI()` in `main()` before running the app.
+  Call `initializeChatInterface()` in `main()` before running the app.
 
 - **Do I have to use the built-in pickers?**
   No. Use your own flow and call `sendAttachmentMessage` with a `ChatAttachment`.

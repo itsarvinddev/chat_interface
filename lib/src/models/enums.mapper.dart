@@ -389,3 +389,4 @@ extension UploadStatusMapperExtension on UploadStatus {
     return MapperContainer.globals.toValue<UploadStatus>(this) as String;
   }
 }
+

@@ -1,4 +1,4 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 
@@ -6,21 +6,21 @@ import 'utils/chat_by_date.dart';
 import 'widgets/bubble.dart';
 import 'widgets/input_container.dart';
 
-class ChatUi extends StatefulWidget {
+class ChatInterface extends StatefulWidget {
   final ChatController controller;
   final ChatUiConfig config;
 
-  const ChatUi({
+  const ChatInterface({
     super.key,
     required this.controller,
     this.config = const ChatUiConfig(),
   });
 
   @override
-  State<ChatUi> createState() => _ChatUiState();
+  State<ChatInterface> createState() => _ChatInterfaceState();
 }
 
-class _ChatUiState extends State<ChatUi> {
+class _ChatInterfaceState extends State<ChatInterface> {
   // Show/hide the "scroll to bottom" button.
   final ValueNotifier<bool> _showJumpToBottom = ValueNotifier<bool>(false);
 
@@ -37,7 +37,7 @@ class _ChatUiState extends State<ChatUi> {
   }
 
   @override
-  void didUpdateWidget(covariant ChatUi oldWidget) {
+  void didUpdateWidget(covariant ChatInterface oldWidget) {
     super.didUpdateWidget(oldWidget);
     // If the upstream ChatController/ScrollController instance changed,
     // rebind our listener.
@@ -101,8 +101,8 @@ class _ChatUiState extends State<ChatUi> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              ChatUINotInitializedException(
-                'ChatUI not initialized when trying to build ChatUi, please call initializeChatUI() in your main.dart',
+              ChatInterfaceNotInitializedException(
+                'ChatInterface not initialized when trying to build ChatInterface, please call initializeChatInterface() in your main.dart',
               ).toString(),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -132,7 +132,7 @@ class _ChatUiState extends State<ChatUi> {
                         image: DecorationImage(
                           image: AssetImage(
                             'assets/images/image.png',
-                            package: 'chatui',
+                            package: 'chat_interface',
                           ),
                           fit: BoxFit.cover,
                           colorFilter: chatTheme.colorFilter,

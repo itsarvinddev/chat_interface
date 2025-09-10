@@ -1,9 +1,9 @@
-import 'package:chatui/src/extensions/extensions.dart';
+import 'package:chat_interface/src/extensions/extensions.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 
 part 'enums.mapper.dart';
 
-/// {@template chatui.enumeration.MessageType}
+/// {@template chat_interface.enumeration.MessageType}
 /// Defines the various message types in ChatView.
 /// - [chat]: A default message type.
 /// - [action]: An action message type.
@@ -27,7 +27,7 @@ enum ChatMessageType {
   }
 }
 
-/// {@template chatui.enumeration.TypeWriterStatus}
+/// {@template chat_interface.enumeration.TypeWriterStatus}
 /// Indicates whether the user is currently typing or has finished typing.
 /// - [typing]: User is still typing.
 /// - [typed]: User has completed typing.
@@ -42,7 +42,7 @@ enum ChatTypeWriterStatus {
   bool get isTyped => this == typed;
 }
 
-/// {@template chatui.enumeration.MessageStatus}
+/// {@template chat_interface.enumeration.MessageStatus}
 /// Represents the current state of a message from sending to delivery.
 /// - [pending]: Message is being sent.
 /// - [sent]: Message is sent.
@@ -71,7 +71,7 @@ enum ChatMessageStatus {
   }
 }
 
-/// {@template chatui.enumeration.ImageType}
+/// {@template chat_interface.enumeration.ImageType}
 /// Defines the different types of image sources.
 /// - [asset]: Image from local assets.
 /// - [network]: Image from a network URL.
@@ -96,7 +96,7 @@ enum ChatImageType {
   }
 }
 
-/// {@template chatui.enumeration.ChatViewState}
+/// {@template chat_interface.enumeration.ChatViewState}
 /// Represents the different states of the chat view.
 /// - [hasMessages]: Chat has messages to display.
 /// - [noData]: No messages available.
@@ -125,7 +125,7 @@ enum ChatViewState {
   }
 }
 
-/// {@template chatui.enumeration.AttachmentType}
+/// {@template chat_interface.enumeration.AttachmentType}
 /// Defines the different types of attachments.
 /// - [image]: An image attachment.
 /// - [video]: A video attachment.
@@ -170,7 +170,7 @@ enum ChatAttachmentType {
   }
 }
 
-/// {@template chatui.enumeration.UploadStatus}
+/// {@template chat_interface.enumeration.UploadStatus}
 /// Defines the different statuses of the upload.
 /// - [notUploading]: The upload is not uploading.
 /// - [preparing]: The upload is preparing.

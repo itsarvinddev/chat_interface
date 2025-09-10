@@ -7,10 +7,10 @@ The ChatUI package now supports comprehensive theme customization, allowing deve
 ### Using Default Themes
 
 ```dart
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 
 // Light theme
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     theme: ChatTheme.light(),
@@ -18,7 +18,7 @@ ChatUi(
 )
 
 // Dark theme
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     theme: ChatTheme.dark(),
@@ -26,7 +26,7 @@ ChatUi(
 )
 
 // Auto-generated theme from Material theme
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     theme: ChatTheme.fromMaterialTheme(Theme.of(context)),
@@ -37,7 +37,7 @@ ChatUi(
 ### Custom Theme
 
 ```dart
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(
     theme: ChatTheme.light().copyWith(
@@ -55,6 +55,7 @@ ChatUi(
 ## Available Customizations
 
 ### Colors
+
 - `primaryColor` - Primary color for the chat interface
 - `secondaryColor` - Secondary color for the chat interface
 - `backgroundColor` - Background color for the chat area
@@ -70,12 +71,14 @@ ChatUi(
 - `attachmentButtonColor` - Color for attachment buttons
 
 ### Text Styles
+
 - `sentMessageTextStyle` - Text style for sent messages
 - `receivedMessageTextStyle` - Text style for received messages
 - `timestampTextStyle` - Text style for timestamps
 - `inputTextStyle` - Text style for input field
 
 ### Layout
+
 - `messageBorderRadius` - Border radius for message bubbles
 - `inputBorderRadius` - Border radius for input field
 - `messagePadding` - Padding for message bubbles
@@ -86,6 +89,7 @@ ChatUi(
 ## Examples
 
 ### WhatsApp-like Theme
+
 ```dart
 final whatsappTheme = ChatTheme.light().copyWith(
   backgroundColor: Color(0xFFECE5DD),
@@ -97,6 +101,7 @@ final whatsappTheme = ChatTheme.light().copyWith(
 ```
 
 ### Telegram-like Theme
+
 ```dart
 final telegramTheme = ChatTheme.light().copyWith(
   primaryColor: Color(0xFF0088CC),
@@ -108,6 +113,7 @@ final telegramTheme = ChatTheme.light().copyWith(
 ```
 
 ### Discord-like Dark Theme
+
 ```dart
 final discordTheme = ChatTheme.dark().copyWith(
   backgroundColor: Color(0xFF36393F),
@@ -124,10 +130,10 @@ The theme system is fully backwards compatible. If no theme is provided, the cha
 
 ```dart
 // This still works and will use auto-generated theme
-ChatUi(controller: controller)
+ChatInterface(controller: controller)
 
 // Same as above
-ChatUi(
+ChatInterface(
   controller: controller,
   config: ChatUiConfig(), // No theme specified
 )

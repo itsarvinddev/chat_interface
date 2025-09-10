@@ -1,4 +1,4 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 
 part 'chat_user.mapper.dart';
@@ -20,7 +20,7 @@ class ChatUser with ChatUserMappable {
 
   /// Field to define image type.
   ///
-  /// {@macro chatui.enumeration.ImageType}
+  /// {@macro chat_interface.enumeration.ImageType}
   ChatImageType imageType;
 
   /// Field to define metadata of user.
@@ -64,4 +64,20 @@ class ChatUser with ChatUserMappable {
 }
 
 @MappableEnum()
-enum ChatUserRole { admin, member, guest }
+enum ChatUserRole {
+  admin,
+  member,
+  guest;
+
+  bool get isAdmin => this == admin;
+
+  bool get isMember => this == member;
+
+  bool get isGuest => this == guest;
+
+  static ChatUserRole? tryParse(String? value) {
+    return ChatUserRole.values.firstWhereOrNull(
+      (e) => e.name.toLowerCase() == value?.trim().toLowerCase(),
+    );
+  }
+}

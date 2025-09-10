@@ -1,4 +1,4 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:screwdriver/screwdriver.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

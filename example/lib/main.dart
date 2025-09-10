@@ -1,4 +1,4 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,7 +8,7 @@ void main() async {
     url: 'YOUR_SUPABASE_URL',
     anonKey: 'YOUR_SUPABASE_ANON_KEY',
   );
-  initializeChatUI();
+  initializeChatInterface();
   runApp(MaterialApp(home: ChatPage(roomId: 'room-1')));
 }
 
@@ -62,13 +62,11 @@ class ChatPage extends HookConsumerWidget {
       ),
       child: Builder(
         builder: (context) {
-          return ScaffoldX(
-            padding: EdgeInsets.zero,
-            appBarX: CupertinoNavigationBar(middle: Text(roomName)),
-            child: snapshot.when(
+          return Scaffold(
+            body: snapshot.when(
               data: (controller) => controller == null
-                  ? ErrorView.error()
-                  : ChatUi(
+                  ? ErrorWidget.withDetails(message: "Controller is null")
+                  : ChatInterface(
                       controller: controller,
                       config: ChatUiConfig(
                         scaffold: ChatExtra.scaffoldConfig(context),
@@ -81,8 +79,9 @@ class ChatPage extends HookConsumerWidget {
                             ),
                       ),
                     ),
-              error: (error, stackTrace) => ErrorView.error(),
-              loading: () => const LoadingView(),
+              error: (error, stackTrace) =>
+                  ErrorWidget.withDetails(message: "Error: $error"),
+              loading: () => const Center(child: CircularProgressIndicator()),
             ),
           );
         },

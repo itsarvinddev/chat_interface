@@ -3,7 +3,7 @@ library;
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/foundation.dart';
 
-import 'chatui.dart';
+import 'chat_interface.dart';
 import 'src/utils/storage_paths.dart';
 
 export 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -24,10 +24,10 @@ export 'src/utils/duration_mapper.dart';
 export 'src/utils/file_picker_utils.dart';
 export 'src/utils/markdown_parser.dart';
 
-/// Initialize the ChatUI package
+/// Initialize the ChatInterface package
 /// Call this once in your app's main() function
-// lib/chatui.dart
-void initializeChatUI({bool isDebug = true}) {
+// lib/chat_interface.dart
+void initializeChatInterface({bool isDebug = true}) {
   try {
     ChatMessageMapper.ensureInitialized();
     ChatReactionMapper.ensureInitialized();
@@ -39,11 +39,13 @@ void initializeChatUI({bool isDebug = true}) {
 
     if (isDebug) {
       if (kDebugMode) {
-        print('✅ ChatUI initialized successfully');
+        print('✅ ChatInterface initialized successfully');
       }
     }
   } catch (e) {
-    throw ChatUINotInitializedException('Failed to initialize ChatUI: $e');
+    throw ChatInterfaceNotInitializedException(
+      'Failed to initialize ChatInterface: $e',
+    );
   }
 }
 
@@ -57,10 +59,10 @@ class InitializationChecker {
   static void ensureInitialized([String? context]) {
     if (!_isInitialized) {
       final contextMessage = context != null
-          ? 'ChatUI not initialized when trying to $context'
-          : 'ChatUI package not initialized';
+          ? 'ChatInterface not initialized when trying to $context'
+          : 'ChatInterface package not initialized';
 
-      throw ChatUINotInitializedException(
+      throw ChatInterfaceNotInitializedException(
         contextMessage,
         kDebugMode ? StackTrace.current : null,
       );
@@ -68,26 +70,26 @@ class InitializationChecker {
   }
 }
 
-class ChatUINotInitializedException implements Exception {
+class ChatInterfaceNotInitializedException implements Exception {
   final String message;
   final StackTrace? stackTrace;
 
-  ChatUINotInitializedException(this.message, [this.stackTrace]);
+  ChatInterfaceNotInitializedException(this.message, [this.stackTrace]);
 
   @override
   String toString() {
     final buffer = StringBuffer();
-    buffer.writeln('❌ ChatUI Initialization Error');
+    buffer.writeln('❌ ChatInterface Initialization Error');
     buffer.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     buffer.writeln('Problem: $message');
     buffer.writeln();
     buffer.writeln('Solution:');
     buffer.writeln('Add this to your main.dart:');
     buffer.writeln();
-    buffer.writeln('import \'package:your_package/chatui.dart\';');
+    buffer.writeln('import \'package:your_package/chat_interface.dart\';');
     buffer.writeln();
     buffer.writeln('void main() {');
-    buffer.writeln('  initializeChatUI(); // 👈 Add this line');
+    buffer.writeln('  initializeChatInterface(); // 👈 Add this line');
     buffer.writeln('  runApp(MyApp());');
     buffer.writeln('}');
     buffer.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

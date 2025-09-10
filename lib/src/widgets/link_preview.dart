@@ -1,6 +1,6 @@
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
 import 'package:mime/mime.dart';
@@ -44,7 +44,8 @@ class ChatLinkPreview extends StatelessWidget {
             )
           : AnyLinkPreview(
               key: ValueKey(message.message),
-              link: message.message.startsWith("http") ||
+              link:
+                  message.message.startsWith("http") ||
                       message.message.startsWith("https")
                   ? message.message
                   : "https://${message.message}",

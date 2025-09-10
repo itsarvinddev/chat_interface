@@ -48,7 +48,7 @@ This is a comprehensive demonstration of the ChatUI package features, showcasing
 1. Clone the repository
 2. Navigate to the example directory:
    ```bash
-   cd chatui/example
+   cd chat_interface/example
    ```
 3. Get dependencies:
    ```bash

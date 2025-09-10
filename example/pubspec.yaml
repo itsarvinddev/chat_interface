@@ -38,7 +38,7 @@ dependencies:
   supabase_flutter: ^2.10.0
 
   # ChatUI package dependency
-  chatui:
+  chat_interface:
     path: ../
 
 dev_dependencies:
@@ -52,6 +52,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   uuid: ^4.5.1
+  hooks_riverpod: ^2.6.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

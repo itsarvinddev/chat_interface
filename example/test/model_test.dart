@@ -1,10 +1,10 @@
-import 'package:chatui/chatui.dart';
+import 'package:chat_interface/chat_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() {
-  initializeChatUI();
+  initializeChatInterface();
 
   test('ChatMessage maps with duration and enums', () {
     final msg = ChatMessage(
@@ -53,7 +53,7 @@ void urlRegexTest() {
   final testStrings = [
     "Check this out: https://allreserve.in",
     "Visit www.google.com for search",
-    "My site is arvind.dev",
+    "My site is itsarvind.dev",
     "This is not a link: hello.worldly",
     "http://localhost:3000/test",
     "random text without link",

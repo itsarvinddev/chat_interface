@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:chatui/chatui.dart';
-import 'package:chatui/src/extensions/string_to_color.dart';
-import 'package:chatui/src/widgets/link_preview.dart';
+import 'package:chat_interface/chat_interface.dart';
+import 'package:chat_interface/src/extensions/string_to_color.dart';
+import 'package:chat_interface/src/widgets/link_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screwdriver/flutter_screwdriver.dart';
@@ -409,7 +409,7 @@ class _MessageCardState extends State<MessageCard>
                             const SizedBox(width: 4.0),
                             Image.asset(
                               'assets/images/${widget.message.chatStatus.name.toUpperCase()}.png',
-                              package: 'chatui',
+                              package: 'chat_interface',
                               color: switch (widget.message.chatStatus) {
                                 ChatMessageStatus.seen => Colors.green,
                                 _ =>
