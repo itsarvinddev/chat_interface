@@ -1,20 +1,14 @@
-import 'dart:developer';
-
 import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
-
-import 'chat_pagination_service.dart';
 
 ValueNotifier<ThemeMode> _themeMode = ValueNotifier(ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-    url: 'https://hyycwsqoszrjcznvgyzp.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eWN3c3Fvc3pyamN6bnZneXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1NTY5MzEsImV4cCI6MjA3MjEzMjkzMX0._78SdMgC8uWzv4NdiPy0150fz10De3LtwzK-1sAHh0c',
+    url: 'YOUR_SUPABASE_URL',
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   );
   initializeChatUI();
   runApp(const MyApp());
@@ -27,11 +21,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final PagingController<int, ChatMessage> _svc = controller();
+  late final PagingController<int, ChatMessage> _svc;
   // User data
-  List<ChatUser> _otherUsers = [];
+  final List<ChatUser> _otherUsers = [];
   ChatUser? _currentUser;
-  bool _isLoadingUsers = true;
   List<ChatUser> allUsers = [];
   late ChatController _controller;
   late FocusNode _focusNode;
@@ -40,124 +33,29 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    _svc = PagingController<int, ChatMessage>(
+      getNextPageKey: (PagingState<int, ChatMessage> state) {
+        return null;
+      },
+      fetchPage: (int pageKey) {
+        return [];
+      },
+    );
     _focusNode = FocusNode();
     _scrollController = ScrollController();
-    _loadUsers().then((value) {
-      _controller.onMessageAdded = (message) async {
-        final supabase = Supabase.instance.client;
-        try {
-          await Future.delayed(const Duration(seconds: 3));
-          final hasAttachment = message.attachment != null;
-          if (hasAttachment) {
-            message.attachment?.uploadStatus = UploadStatus.uploading;
-            final attachment = message.attachment;
-            final path = attachment?.file?.path;
-            final data = await attachment?.file?.readAsBytes();
-            log(attachment?.toJson() ?? "null");
-            if (path == null) return;
-            if (data == null) return;
-            if (attachment?.fileName == null) return;
-            message.roomId = "63e2364b-e0b5-4b30-b392-595944f2955b";
-            await supabase.storage
-                .from("chat")
-                .uploadBinary(attachment!.fileName, data);
-            attachment.url = supabase.storage
-                .from("chat")
-                .getPublicUrl(attachment.fileName);
-            attachment.uploadStatus = UploadStatus.uploaded;
-            attachment.file = null;
-          }
-          final result = await supabase
-              .from('messages')
-              .insert(message.toMap().toSnakeCase());
-          log(result.toString());
-          _controller.updateMessage(
-            message.copyWith(chatStatus: ChatMessageStatus.sent),
-          );
-          return;
-        } catch (e) {
-          log(e.toString());
-          return;
-        }
-      };
-      _controller.uuidGenerator = () => Uuid().v4();
-    });
+    _controller = ChatController(
+      scrollController: _scrollController,
+      otherUsers: _otherUsers,
+      currentUser: _currentUser ?? allUsers.first,
+      pagingController: _svc,
+      focusNode: _focusNode,
+    );
   }
 
   @override
   void dispose() {
     _svc.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadUsers() async {
-    try {
-      // Load all users from Supabase
-      final usersResponse = await Supabase.instance.client
-          .from('chat_users')
-          .select('*');
-
-      if (usersResponse.isEmpty) {
-        setState(() {
-          _isLoadingUsers = false;
-        });
-        return;
-      }
-
-      // Map to ChatUser objects
-      allUsers = usersResponse
-          .map<ChatUser>(
-            (data) => ChatUser(
-              id: data['id'] ?? '',
-              name: data['name'] ?? '',
-              avatar: data['avatar'],
-              imageType:
-                  ChatImageType.tryParse(data['image_type']) ??
-                  ChatImageType.network,
-              metadata: Map<String, dynamic>.from(data['metadata'] ?? {}),
-              role: ChatUserRole.values.firstWhere(
-                (e) => e.name == data['role'],
-                orElse: () => ChatUserRole.member,
-              ),
-              lastReadAt: data['last_read_at'] != null
-                  ? DateTime.parse(data['last_read_at'])
-                  : DateTime.now(),
-            ),
-          )
-          .toList();
-      if (allUsers.isEmpty) {
-        setState(() {
-          _isLoadingUsers = false;
-        });
-        return;
-      }
-
-      _currentUser = allUsers.first;
-
-      // Remove current user from other users list
-      final otherUsers = allUsers
-          .where((user) => user.id != _currentUser?.id)
-          .toList();
-
-      setState(() {
-        _currentUser = _currentUser;
-        _otherUsers = otherUsers;
-        _isLoadingUsers = false;
-        stream(_currentUser ?? allUsers.first, _svc, allUsers);
-      });
-      _controller = ChatController(
-        scrollController: _scrollController,
-        otherUsers: _otherUsers,
-        currentUser: _currentUser ?? allUsers.first,
-        pagingController: _svc,
-        focusNode: _focusNode,
-      );
-    } catch (error) {
-      print('Error loading users: $error');
-      setState(() {
-        _isLoadingUsers = false;
-      });
-    }
   }
 
   @override
@@ -177,20 +75,11 @@ class _MyAppState extends State<MyApp> {
                 _themeMode.value = value == ThemeMode.light
                     ? ThemeMode.dark
                     : ThemeMode.light;
-                _currentUser = allUsers.last;
-                _otherUsers = allUsers
-                    .where((user) => user.id != _currentUser?.id)
-                    .toList();
-                stream(_currentUser ?? allUsers.last, _svc, allUsers);
               });
             },
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-          body: _isLoadingUsers
-              ? const Center(child: CircularProgressIndicator())
-              : _currentUser == null
-              ? const Center(child: Text('No users found'))
-              : ChatUi(controller: _controller),
+          body: ChatUi(controller: _controller),
         ),
       ),
     );
