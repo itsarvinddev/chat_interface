@@ -1,6 +1,6 @@
 name: chatui
 description: "A new Flutter package project."
-version: 0.0.2
+version: 0.0.1
 homepage: "https://github.com/yourusername/your-repo"
 
 environment:
@@ -12,8 +12,6 @@ dependencies:
     sdk: flutter
   any_link_preview: ^3.0.3
   cached_network_image: ^3.3.0
-  emoji_picker_flutter: ^4.3.0
-  geolocator: ^14.0.2
   intl: ^0.20.1
   file_picker: ^10.2.0
   image_picker: ^1.1.2
