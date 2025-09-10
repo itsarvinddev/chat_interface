@@ -2,8 +2,6 @@ import 'package:chatui/chatui.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-ValueNotifier<ThemeMode> _themeMode = ValueNotifier(ThemeMode.light);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
@@ -11,92 +9,169 @@ void main() async {
     anonKey: 'YOUR_SUPABASE_ANON_KEY',
   );
   initializeChatUI();
-  runApp(const MyApp());
+  runApp(MaterialApp(home: ChatPage(roomId: 'room-1')));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class ChatPage extends HookConsumerWidget {
+  final String roomId;
+  const ChatPage({super.key, required this.roomId});
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late final PagingController<int, ChatMessage> _svc;
-  // User data
-  final List<ChatUser> _otherUsers = [];
-  ChatUser? _currentUser;
-  List<ChatUser> allUsers = [];
-  late ChatController _controller;
-  late FocusNode _focusNode;
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _svc = PagingController<int, ChatMessage>(
-      getNextPageKey: (PagingState<int, ChatMessage> state) {
-        return null;
-      },
-      fetchPage: (int pageKey) {
-        return [];
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final focusNode = useFocusNode();
+    final scrollController = useScrollController();
+    final snapshot = ref.watch(
+      chatControllerXProvider(
+        roomId: roomId,
+        focusNode: focusNode,
+        scrollController: scrollController,
+      ),
     );
-    _focusNode = FocusNode();
-    _scrollController = ScrollController();
-    _controller = ChatController(
-      scrollController: _scrollController,
-      otherUsers: _otherUsers,
-      currentUser: _currentUser ?? allUsers.first,
-      pagingController: _svc,
-      focusNode: _focusNode,
+    final roomName = useMemoized(
+      () => snapshot.valueOrNull?.getRoomAs<RoomModel>()?.roomTitle ?? '',
+      [snapshot],
     );
-  }
 
-  @override
-  void dispose() {
-    _svc.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: _themeMode,
-      builder: (context, value, child) => MaterialApp(
-        themeMode: value,
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        home: Scaffold(
-          floatingActionButton: FloatingActionButton.small(
-            elevation: 0,
-            child: const Icon(Icons.brightness_4),
-            onPressed: () {
-              setState(() {
-                _themeMode.value = value == ThemeMode.light
-                    ? ThemeMode.dark
-                    : ThemeMode.light;
-              });
-            },
+    return Theme(
+      data: context.theme.copyWith(
+        colorScheme: context.colorScheme.copyWith(
+          primary: context.colors.contentPrimary.withValues(alpha: 0.85),
+          secondary: context.colors.contentSecondary,
+          surface: context.colors.surface,
+          secondaryContainer: context.colors.surfaceTint,
+          inversePrimary: context.colors.backgroundInversePrimary.withValues(
+            alpha: 0.85,
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-          body: ChatUi(controller: _controller),
+          surfaceBright: context.colors.backgroundPrimary,
+          onSurface: context.colors.onSurface,
+          surfaceContainer: context.colors.surfaceContainerHighest,
+          surfaceContainerHighest: context.colors.surfaceContainerHighest,
+          outline: context.colors.borderInverseSelected,
         ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: false,
+          contentPadding: EdgeInsets.zero,
+          border: InputBorder.none,
+          hintStyle: "".labelSmall(context).style,
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(
+            backgroundColor: context.colors.surfaceContainerHighest,
+            foregroundColor: context.colors.onSurface,
+          ),
+        ),
+      ),
+      child: Builder(
+        builder: (context) {
+          return ScaffoldX(
+            padding: EdgeInsets.zero,
+            appBarX: CupertinoNavigationBar(middle: Text(roomName)),
+            child: snapshot.when(
+              data: (controller) => controller == null
+                  ? ErrorView.error()
+                  : ChatUi(
+                      controller: controller,
+                      config: ChatUiConfig(
+                        scaffold: ChatExtra.scaffoldConfig(context),
+                        theme: ChatExtra.chatTheme(context),
+                        customMessage: (controller, message, index) =>
+                            CustomChatCard(
+                              controller: controller,
+                              message: message,
+                              index: index,
+                            ),
+                      ),
+                    ),
+              error: (error, stackTrace) => ErrorView.error(),
+              loading: () => const LoadingView(),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-extension CamelCaseToSnakeCase on Map<String, dynamic> {
-  Map<String, dynamic> toSnakeCase() {
-    return map(
-      (key, value) => MapEntry(
-        key
-            .replaceAllMapped(
-              RegExp(r'[A-Z]'),
-              (Match match) => '_${match.group(0)}',
-            )
-            .toLowerCase(),
-        value,
+class ChatExtra {
+  static ScaffoldConfig scaffoldConfig(BuildContext context) => ScaffoldConfig(
+    background: Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: CachedNetworkImageProvider(
+            ImageWrapper(
+                  imageId: 'chat-background-1.png',
+                  bucketId: 'assets',
+                ).toSupabaseUrl ??
+                'https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png',
+          ),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            context.colors.neutral100,
+            BlendMode.exclusion,
+          ),
+          alignment: Alignment.center,
+          opacity: 0.6,
+          filterQuality: FilterQuality.high,
+          isAntiAlias: true,
+        ),
+        color: context.colors.backgroundPrimary,
+      ),
+    ),
+  );
+
+  static ChatTheme chatTheme(BuildContext context) =>
+      ChatTheme.fromMaterialTheme(context.theme).copyWith(
+        inputTextStyle: context.bodyMedium.copyWith(
+          color: context.colors.contentPrimary,
+        ),
+        receivedMessageTextStyle: context.bodyMedium.copyWith(
+          color: context.colors.contentPrimary,
+        ),
+        timestampColor: context.colors.onSurfaceVariant,
+        attachmentButtonColor: context.colors.borderInverseOpaque,
+        sentMessageTextStyle: context.bodyMedium.copyWith(
+          color: context.colors.contentInversePrimary,
+        ),
+      );
+}
+
+class CustomChatCard extends StatelessWidget {
+  final ChatController controller;
+  final ChatMessage message;
+  final int index;
+  const CustomChatCard({
+    super.key,
+    required this.controller,
+    required this.message,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            context.colors.contentPrimary,
+            context.colors.contentSecondary,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Column(
+        children: [
+          message.message.toCurrency().headingSmall(
+            context,
+            color: context.colors.contentInversePrimary,
+          ),
+          "You offered".labelSmall(
+            context,
+            color: context.colors.contentInversePrimary.withValues(alpha: 0.6),
+          ),
+        ],
       ),
     );
   }

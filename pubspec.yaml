@@ -1,7 +1,14 @@
 name: chatui
-description: "A new Flutter package project."
+description: "A flexible, production-ready chat UI for Flutter with paging, attachments, reactions, and theming."
 version: 0.0.1
-homepage: "https://github.com/yourusername/your-repo"
+repository: "https://github.com/itsarvinddev/chatui"
+issue_tracker: "https://github.com/itsarvinddev/chatui/issues"
+documentation: "https://github.com/itsarvinddev/chatui#readme"
+topics:
+  - chat
+  - user-interface
+  - messaging
+  - widgets
 
 environment:
   sdk: ^3.9.0
@@ -57,3 +64,11 @@ flutter:
     - assets/images/SEEN.png
     - assets/images/image.png
     - assets/images/avatar.png
+
+screenshots:
+  - description: "Chat list and composer with message statuses and attachments"
+    path: IMG_5624.png
+  - description: "Chat list and composer with message statuses and attachments"
+    path: IMG_5625.png
+  - description: "Chat list and composer with message statuses and attachments"
+    path: IMG_5626.png
