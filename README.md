@@ -2,6 +2,10 @@
 
 A flexible, Chat UI package for Flutter. Build modern chat experiences with infinite scrolling, message grouping, reactions, attachments, link previews, and a fully themable interface.
 
+## Early release ⚠️
+
+`This is an early release of the package. It is still under development and may change significantly. So, please use it with caution.`
+
 - **Widgets**: `ChatInterface`, `ChatBubble`, input composer
 - **State**: `ChatController` to add/update messages, scroll control, input visibility
 - **Models**: `ChatMessage`, `ChatUser`, `ChatAttachment`, `ChatReaction`, `ChatMessageStatus`, `ChatMessageType`
@@ -20,9 +24,11 @@ A flexible, Chat UI package for Flutter. Build modern chat experiences with infi
 - **Jump to bottom** FAB with viewport-aware visibility
 - **Theming**: presets (light/dark) and granular overrides; auto-derive from Material theme
 
-## Early release ⚠️
+## Screenshots
 
-`This is an early release of the package. It is still under development and may change significantly. So, please use it with caution.`
+<img src="https://github.com/itsarvinddev/chat_interface/blob/main/IMG_5624.png?raw=true" width="200" height="400">
+<img src="https://github.com/itsarvinddev/chat_interface/blob/main/IMG_5625.png?raw=true" width="200" height="400">
+<img src="https://github.com/itsarvinddev/chat_interface/blob/main/IMG_5626.png?raw=true" width="200" height="400">
 
 ## Getting started
 
