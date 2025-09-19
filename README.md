@@ -1,6 +1,6 @@
 # ChatUI
 
-A flexible, Chat UI package for Flutter. Build modern chat experiences with infinite scrolling, message grouping, reactions, attachments, link previews, and a fully themable interface.
+A flexible, Chat UI package for Flutter. Build modern chat experiences with infinite scrolling, message grouping, reactions, attachments, link previews, and a fully themeable interface.
 
 ## Early release ⚠️
 
@@ -36,7 +36,7 @@ A flexible, Chat UI package for Flutter. Build modern chat experiences with infi
 
 ```yaml
 dependencies:
-  chat_interface: ^0.0.1
+  chat_interface: ^0.0.2
 ```
 
 2. Ensure required assets are available (already bundled when using the package):

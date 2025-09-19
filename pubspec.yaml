@@ -1,6 +1,6 @@
 name: chat_interface
 description: "A flexible, production-ready chat UI for Flutter with paging, attachments, reactions, and theming."
-version: 0.0.1
+version: 0.0.2
 repository: "https://github.com/itsarvinddev/chat_interface"
 issue_tracker: "https://github.com/itsarvinddev/chat_interface/issues"
 documentation: "https://github.com/itsarvinddev/chat_interface#readme"

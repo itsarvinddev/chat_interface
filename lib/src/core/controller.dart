@@ -393,6 +393,8 @@ class ChatController {
   /// Typed room getter for convenience.
   T? getRoomAs<T>() => _room is T ? _room as T : null;
 
+  Future<void> Function()? onDispose;
+
   /// Disposes resources safely.
   void dispose() {
     if (scrollController.hasClients) {
@@ -404,5 +406,6 @@ class ChatController {
     _showInputField.dispose();
     _otherUsers.clear();
     _room = null;
+    onDispose?.call();
   }
 }
