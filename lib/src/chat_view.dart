@@ -59,7 +59,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
   void dispose() {
     _boundSc?.removeListener(_updateJumpVisibility);
     _showJumpToBottom.dispose();
-    widget.controller.dispose();
     super.dispose();
   }
 
