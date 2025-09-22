@@ -36,7 +36,7 @@ A flexible, Chat UI package for Flutter. Build modern chat experiences with infi
 
 ```yaml
 dependencies:
-  chat_interface: ^0.0.2
+  chat_interface: ^0.0.4
 ```
 
 2. Ensure required assets are available (already bundled when using the package):
