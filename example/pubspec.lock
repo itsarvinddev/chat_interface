@@ -111,7 +111,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.4"
   clock:
     dependency: transitive
     description:
@@ -163,11 +163,12 @@ packages:
   dart_mappable:
     dependency: transitive
     description:
-      name: dart_mappable
-      sha256: "15f41a35da8ee690bbfa0059fa241edeeaea73f89a2ba685b354ece07cd8ada6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.6.0"
+      path: "packages/dart_mappable"
+      ref: "764569bb1cc731f869713b655c15209b9c0abad8"
+      resolved-ref: "764569bb1cc731f869713b655c15209b9c0abad8"
+      url: "https://github.com/itsarvinddev/dart_mappable.git"
+    source: git
+    version: "4.6.1"
   dbus:
     dependency: transitive
     description:
@@ -220,10 +221,10 @@ packages:
     dependency: transitive
     description:
       name: file_picker
-      sha256: e7e16c9d15c36330b94ca0e2ad8cb61f93cd5282d0158c09805aed13b5452f22
+      sha256: f2d9f173c2c14635cc0e9b14c143c49ef30b4934e8d1d274d6206fcb0086a06f
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.2"
+    version: "10.3.3"
   file_selector_linux:
     dependency: transitive
     description:
@@ -755,10 +756,10 @@ packages:
     dependency: transitive
     description:
       name: share_plus
-      sha256: d7dc0630a923883c6328ca31b89aa682bacbf2f8304162d29f7c6aaff03a27a1
+      sha256: "3424e9d5c22fd7f7590254ba09465febd6f8827c8b19a44350de4ac31d92d3a6"
       url: "https://pub.dev"
     source: hosted
-    version: "11.1.0"
+    version: "12.0.0"
   share_plus_platform_interface:
     dependency: transitive
     description:

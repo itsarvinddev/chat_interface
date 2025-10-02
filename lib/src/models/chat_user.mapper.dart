@@ -80,6 +80,9 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$id,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$name(ChatUser v) => v.name;
   static const Field<ChatUser, String> _f$name = Field(
@@ -87,12 +90,18 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$name,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String? _$avatar(ChatUser v) => v.avatar;
   static const Field<ChatUser, String> _f$avatar = Field(
     'avatar',
     _$avatar,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatImageType _$imageType(ChatUser v) => v.imageType;
   static const Field<ChatUser, ChatImageType> _f$imageType = Field(
@@ -100,6 +109,9 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$imageType,
     opt: true,
     def: ChatImageType.network,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static Map<String, dynamic> _$metadata(ChatUser v) => v.metadata;
   static const Field<ChatUser, Map<String, dynamic>> _f$metadata = Field(
@@ -107,6 +119,9 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$metadata,
     opt: true,
     def: const {},
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatUserRole _$role(ChatUser v) => v.role;
   static const Field<ChatUser, ChatUserRole> _f$role = Field(
@@ -114,18 +129,27 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$role,
     opt: true,
     def: ChatUserRole.member,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatMessage? _$lastReadMessage(ChatUser v) => v.lastReadMessage;
   static const Field<ChatUser, ChatMessage> _f$lastReadMessage = Field(
     'lastReadMessage',
     _$lastReadMessage,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$lastReadAt(ChatUser v) => v.lastReadAt;
   static const Field<ChatUser, DateTime> _f$lastReadAt = Field(
     'lastReadAt',
     _$lastReadAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$roomId(ChatUser v) => v.roomId;
   static const Field<ChatUser, String> _f$roomId = Field(
@@ -133,6 +157,9 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$roomId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$status(ChatUser v) => v.status;
   static const Field<ChatUser, String> _f$status = Field(
@@ -140,18 +167,27 @@ class ChatUserMapper extends ClassMapperBase<ChatUser> {
     _$status,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$createdAt(ChatUser v) => v.createdAt;
   static const Field<ChatUser, DateTime> _f$createdAt = Field(
     'createdAt',
     _$createdAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$updatedAt(ChatUser v) => v.updatedAt;
   static const Field<ChatUser, DateTime> _f$updatedAt = Field(
     'updatedAt',
     _$updatedAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
 
   @override

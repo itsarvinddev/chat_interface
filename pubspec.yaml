@@ -22,7 +22,11 @@ dependencies:
   intl: ^0.20.1
   file_picker: ^10.3.3
   image_picker: ^1.2.0
-  dart_mappable: ^4.6.1
+  dart_mappable:
+    git:
+      url: https://github.com/itsarvinddev/dart_mappable.git
+      ref: 764569bb1cc731f869713b655c15209b9c0abad8
+      path: packages/dart_mappable
   screwdriver: ^5.10.0
   flutter_screwdriver: ^3.2.0
   dio: ^5.9.0
@@ -45,7 +49,18 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   build_runner: ^2.7.0
-  dart_mappable_builder: ^4.6.1
+  dart_mappable_builder:
+    git:
+      url: https://github.com/itsarvinddev/dart_mappable.git
+      ref: 7998e7f0f2e66f9a65215ff7f43dc603d7b6d883
+      path: packages/dart_mappable_builder
+
+dependency_overrides:
+  dart_mappable:
+    git:
+      url: https://github.com/itsarvinddev/dart_mappable.git
+      ref: 7998e7f0f2e66f9a65215ff7f43dc603d7b6d883
+      path: packages/dart_mappable
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

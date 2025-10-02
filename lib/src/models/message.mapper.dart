@@ -32,6 +32,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$id,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$message(ChatMessage v) => v.message;
   static const Field<ChatMessage, String> _f$message = Field(
@@ -39,12 +42,18 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$message,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatAttachment? _$attachment(ChatMessage v) => v.attachment;
   static const Field<ChatMessage, ChatAttachment> _f$attachment = Field(
     'attachment',
     _$attachment,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatMessageType _$type(ChatMessage v) => v.type;
   static const Field<ChatMessage, ChatMessageType> _f$type = Field(
@@ -52,6 +61,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$type,
     opt: true,
     def: ChatMessageType.chat,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatMessageStatus _$chatStatus(ChatMessage v) => v.chatStatus;
   static const Field<ChatMessage, ChatMessageStatus> _f$chatStatus = Field(
@@ -59,6 +71,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$chatStatus,
     opt: true,
     def: ChatMessageStatus.pending,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static List<ChatReaction> _$reactions(ChatMessage v) => v.reactions;
   static const Field<ChatMessage, List<ChatReaction>> _f$reactions = Field(
@@ -66,12 +81,18 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$reactions,
     opt: true,
     def: const [],
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatReplyMessage? _$replyMessage(ChatMessage v) => v.replyMessage;
   static const Field<ChatMessage, ChatReplyMessage> _f$replyMessage = Field(
     'replyMessage',
     _$replyMessage,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$senderId(ChatMessage v) => v.senderId;
   static const Field<ChatMessage, String> _f$senderId = Field(
@@ -79,6 +100,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$senderId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$roomId(ChatMessage v) => v.roomId;
   static const Field<ChatMessage, String> _f$roomId = Field(
@@ -86,6 +110,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$roomId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static Duration _$duration(ChatMessage v) => v.duration;
   static const Field<ChatMessage, Duration> _f$duration = Field(
@@ -94,6 +121,9 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     opt: true,
     def: Duration.zero,
     hook: DurationMillisHook(),
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static Map<String, dynamic> _$metadata(ChatMessage v) => v.metadata;
   static const Field<ChatMessage, Map<String, dynamic>> _f$metadata = Field(
@@ -101,24 +131,36 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$metadata,
     opt: true,
     def: const {},
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$createdAt(ChatMessage v) => v.createdAt;
   static const Field<ChatMessage, DateTime> _f$createdAt = Field(
     'createdAt',
     _$createdAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$updatedAt(ChatMessage v) => v.updatedAt;
   static const Field<ChatMessage, DateTime> _f$updatedAt = Field(
     'updatedAt',
     _$updatedAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static DateTime? _$editedAt(ChatMessage v) => v.editedAt;
   static const Field<ChatMessage, DateTime> _f$editedAt = Field(
     'editedAt',
     _$editedAt,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$status(ChatMessage v) => v.status;
   static const Field<ChatMessage, String> _f$status = Field(
@@ -126,39 +168,28 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     _$status,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static GlobalKey<State<StatefulWidget>> _$key(ChatMessage v) => v.key;
   static const Field<ChatMessage, GlobalKey<State<StatefulWidget>>> _f$key =
-      Field('key', _$key, mode: FieldMode.member);
+      Field(
+        'key',
+        _$key,
+        mode: FieldMode.member,
+        includeFromJson: true,
+        includeToJson: true,
+        includeIfNull: false,
+      );
   static ChatUser? _$sender(ChatMessage v) => v.sender;
   static const Field<ChatMessage, ChatUser> _f$sender = Field(
     'sender',
     _$sender,
     mode: FieldMode.member,
-  );
-  static bool _$isReactionsEmpty(ChatMessage v) => v.isReactionsEmpty;
-  static const Field<ChatMessage, bool> _f$isReactionsEmpty = Field(
-    'isReactionsEmpty',
-    _$isReactionsEmpty,
-    mode: FieldMode.member,
-  );
-  static bool _$isReplyMessageEmpty(ChatMessage v) => v.isReplyMessageEmpty;
-  static const Field<ChatMessage, bool> _f$isReplyMessageEmpty = Field(
-    'isReplyMessageEmpty',
-    _$isReplyMessageEmpty,
-    mode: FieldMode.member,
-  );
-  static List<String> _$reactedUserIds(ChatMessage v) => v.reactedUserIds;
-  static const Field<ChatMessage, List<String>> _f$reactedUserIds = Field(
-    'reactedUserIds',
-    _$reactedUserIds,
-    mode: FieldMode.member,
-  );
-  static List<String> _$reactedEmojis(ChatMessage v) => v.reactedEmojis;
-  static const Field<ChatMessage, List<String>> _f$reactedEmojis = Field(
-    'reactedEmojis',
-    _$reactedEmojis,
-    mode: FieldMode.member,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
 
   @override
@@ -180,10 +211,6 @@ class ChatMessageMapper extends ClassMapperBase<ChatMessage> {
     #status: _f$status,
     #key: _f$key,
     #sender: _f$sender,
-    #isReactionsEmpty: _f$isReactionsEmpty,
-    #isReplyMessageEmpty: _f$isReplyMessageEmpty,
-    #reactedUserIds: _f$reactedUserIds,
-    #reactedEmojis: _f$reactedEmojis,
   };
 
   static ChatMessage _instantiate(DecodingData data) {
@@ -411,23 +438,35 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
   static const Field<ChatAttachment, String> _f$fileName = Field(
     'fileName',
     _$fileName,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatAttachmentType _$type(ChatAttachment v) => v.type;
   static const Field<ChatAttachment, ChatAttachmentType> _f$type = Field(
     'type',
     _$type,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static double? _$width(ChatAttachment v) => v.width;
   static const Field<ChatAttachment, double> _f$width = Field(
     'width',
     _$width,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static double? _$height(ChatAttachment v) => v.height;
   static const Field<ChatAttachment, double> _f$height = Field(
     'height',
     _$height,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static UploadStatus _$uploadStatus(ChatAttachment v) => v.uploadStatus;
   static const Field<ChatAttachment, UploadStatus> _f$uploadStatus = Field(
@@ -435,6 +474,9 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$uploadStatus,
     opt: true,
     def: UploadStatus.notUploading,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static bool _$autoDownload(ChatAttachment v) => v.autoDownload;
   static const Field<ChatAttachment, bool> _f$autoDownload = Field(
@@ -442,6 +484,9 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$autoDownload,
     opt: true,
     def: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$fileExtension(ChatAttachment v) => v.fileExtension;
   static const Field<ChatAttachment, String> _f$fileExtension = Field(
@@ -449,6 +494,9 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$fileExtension,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static int _$fileSize(ChatAttachment v) => v.fileSize;
   static const Field<ChatAttachment, int> _f$fileSize = Field(
@@ -456,6 +504,9 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$fileSize,
     opt: true,
     def: 0,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$url(ChatAttachment v) => v.url;
   static const Field<ChatAttachment, String> _f$url = Field(
@@ -463,6 +514,9 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$url,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static XFile? _$file(ChatAttachment v) => v.file;
   static const Field<ChatAttachment, XFile> _f$file = Field(
@@ -470,12 +524,18 @@ class ChatAttachmentMapper extends ClassMapperBase<ChatAttachment> {
     _$file,
     opt: true,
     hook: XFileHook(),
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static List<double>? _$samples(ChatAttachment v) => v.samples;
   static const Field<ChatAttachment, List<double>> _f$samples = Field(
     'samples',
     _$samples,
     opt: true,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
 
   @override
@@ -676,6 +736,9 @@ class ChatReactionMapper extends ClassMapperBase<ChatReaction> {
     _$id,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$messageId(ChatReaction v) => v.messageId;
   static const Field<ChatReaction, String> _f$messageId = Field(
@@ -683,6 +746,9 @@ class ChatReactionMapper extends ClassMapperBase<ChatReaction> {
     _$messageId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$userId(ChatReaction v) => v.userId;
   static const Field<ChatReaction, String> _f$userId = Field(
@@ -690,6 +756,9 @@ class ChatReactionMapper extends ClassMapperBase<ChatReaction> {
     _$userId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$reaction(ChatReaction v) => v.reaction;
   static const Field<ChatReaction, String> _f$reaction = Field(
@@ -697,6 +766,9 @@ class ChatReactionMapper extends ClassMapperBase<ChatReaction> {
     _$reaction,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
 
   @override
@@ -835,6 +907,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$id,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$messageId(ChatReplyMessage v) => v.messageId;
   static const Field<ChatReplyMessage, String> _f$messageId = Field(
@@ -842,6 +917,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$messageId,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$replyTo(ChatReplyMessage v) => v.replyTo;
   static const Field<ChatReplyMessage, String> _f$replyTo = Field(
@@ -849,6 +927,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$replyTo,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$replyBy(ChatReplyMessage v) => v.replyBy;
   static const Field<ChatReplyMessage, String> _f$replyBy = Field(
@@ -856,6 +937,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$replyBy,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static String _$message(ChatReplyMessage v) => v.message;
   static const Field<ChatReplyMessage, String> _f$message = Field(
@@ -863,6 +947,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$message,
     opt: true,
     def: "",
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static ChatMessageType _$type(ChatReplyMessage v) => v.type;
   static const Field<ChatReplyMessage, ChatMessageType> _f$type = Field(
@@ -870,6 +957,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     _$type,
     opt: true,
     def: ChatMessageType.chat,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
   static Duration _$duration(ChatReplyMessage v) => v.duration;
   static const Field<ChatReplyMessage, Duration> _f$duration = Field(
@@ -878,12 +968,9 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     opt: true,
     def: Duration.zero,
     hook: DurationMillisHook(),
-  );
-  static bool _$isEmpty(ChatReplyMessage v) => v.isEmpty;
-  static const Field<ChatReplyMessage, bool> _f$isEmpty = Field(
-    'isEmpty',
-    _$isEmpty,
-    mode: FieldMode.member,
+    includeFromJson: true,
+    includeToJson: true,
+    includeIfNull: false,
   );
 
   @override
@@ -895,7 +982,6 @@ class ChatReplyMessageMapper extends ClassMapperBase<ChatReplyMessage> {
     #message: _f$message,
     #type: _f$type,
     #duration: _f$duration,
-    #isEmpty: _f$isEmpty,
   };
 
   static ChatReplyMessage _instantiate(DecodingData data) {
