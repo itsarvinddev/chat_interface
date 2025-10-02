@@ -25,7 +25,7 @@ dependencies:
   dart_mappable:
     git:
       url: https://github.com/itsarvinddev/dart_mappable.git
-      ref: 764569bb1cc731f869713b655c15209b9c0abad8
+      ref: 7998e7f0f2e66f9a65215ff7f43dc603d7b6d883
       path: packages/dart_mappable
   screwdriver: ^5.10.0
   flutter_screwdriver: ^3.2.0
